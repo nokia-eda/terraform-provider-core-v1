@@ -1,0 +1,442 @@
+alarm_data:
+  - read:
+      path: /core/alarm/v2/alarms
+      method: GET
+  - read:
+      path: /core/alarm/v2/alarms/{alarm-name}
+      method: GET
+  - read:
+      path: /core/alarm/v2/namespaces/{nsName}/alarms
+      method: GET
+  - read:
+      path: /core/alarm/v2/namespaces/{nsName}/alarms/{alarm-name}
+      method: GET
+
+alarm_history_data:
+  - read:
+      path: /core/alarm/v2/alarms/{alarm-name}/history
+      method: GET
+  - read:
+      path: /core/alarm/v2/namespaces/{nsName}/alarms/{alarm-name}/history
+      method: GET
+
+alarm_namespace_and_name:
+  - update:
+      path: /core/alarm/v2/alarms
+      method: PUT
+  - delete:
+      path: /core/alarm/v2/alarms
+      method: DELETE
+  - update:
+      path: /core/alarm/v2/namespaces/{nsName}/alarms
+      method: PUT
+  - delete:
+      path: /core/alarm/v2/namespaces/{nsName}/alarms
+      method: DELETE
+
+auth_password_policy:
+  - read:
+      path: /core/admin/passwordpolicy
+      method: GET
+  - update:
+      path: /core/admin/passwordpolicy
+      method: PUT
+
+auth_provider:
+  - create:
+      path: /core/admin/federationproviders
+      method: POST
+  - read:
+      path: /core/admin/federationproviders/{uuid}
+      method: GET
+  - update:
+      path: /core/admin/federationproviders/{uuid}
+      method: PUT
+
+auth_provider_test_params:
+  - create:
+      path: /core/admin/federationprovidertest
+      method: POST
+
+auth_providers:
+  - read:
+      path: /core/admin/federationproviders
+      method: GET
+
+auth_role:
+  - create:
+      path: /core/admin/namespaces/{namespace}/roles
+      method: POST
+  - read:
+      path: /core/admin/namespaces/{namespace}/roles/{name}
+      method: GET
+  - update:
+      path: /core/admin/namespaces/{namespace}/roles/{name}
+      method: PUT
+  - create:
+      path: /core/admin/roles
+      method: POST
+  - read:
+      path: /core/admin/roles/{name}
+      method: GET
+  - update:
+      path: /core/admin/roles/{name}
+      method: PUT
+
+auth_roles:
+  - read:
+      path: /core/admin/groups/{uuid}/roles
+      method: GET
+  - read:
+      path: /core/admin/namespaces/{namespace}/roles
+      method: GET
+  - read:
+      path: /core/admin/roles
+      method: GET
+
+auth_user:
+  - create:
+      path: /core/admin/users
+      method: POST
+  - read:
+      path: /core/admin/users/{uuid}
+      method: GET
+  - update:
+      path: /core/admin/users/{uuid}
+      method: PUT
+
+auth_user_group:
+  - create:
+      path: /core/admin/groups
+      method: POST
+  - read:
+      path: /core/admin/groups/{uuid}
+      method: GET
+  - update:
+      path: /core/admin/groups/{uuid}
+      method: PUT
+
+auth_user_groups:
+  - read:
+      path: /core/admin/groups
+      method: GET
+
+auth_users:
+  - read:
+      path: /core/admin/users
+      method: GET
+
+check_access_request:
+  - create:
+      path: /core/access/v1/checkAccess
+      method: POST
+
+credentials:
+  - update:
+      path: /core/admin/users/{uuid}/resetpassword
+      method: PUT
+
+flow_get_response:
+  - read:
+      path: /core/workflow/v1/workflow/{workflowId}
+      method: GET
+
+flow_list_result:
+  - read:
+      path: /core/workflow/v1/list
+      method: GET
+  - read:
+      path: /core/workflow/v1/{nsName}/list
+      method: GET
+
+get_label_completion_request:
+  - create:
+      path: /core/autocomplete/v1/labels
+      method: POST
+
+group_i_ds:
+  - create:
+      path: /core/admin/users/{uuid}/groups
+      method: POST
+  - update:
+      path: /core/admin/users/{uuid}/groups
+      method: PUT
+  - delete:
+      path: /core/admin/users/{uuid}/groups
+      method: DELETE
+
+health:
+  - read:
+      path: /core/about/health
+      method: GET
+
+namespace_get_response:
+  - read:
+      path: /core/access/v1/namespaces
+      method: GET
+
+node_config_response:
+  - read:
+      path: /core/nodeconfig/v2/namespaces/{nsName}/nodes/{nodeName}
+      method: GET
+
+overlay:
+  - read:
+      path: /core/topology/v1/{topologyName}/overlay/{overlayName}
+      method: GET
+
+overlays:
+  - read:
+      path: /core/topology/v1/{topologyName}/overlay
+      method: GET
+
+query_completion_response:
+  - read:
+      path: /core/query/v1/eql/autocomplete
+      method: GET
+
+query_response:
+  - read:
+      path: /core/query/v1
+      method: GET
+  - read:
+      path: /core/query/v1/eql
+      method: GET
+  - read:
+      path: /core/query/v1/nql
+      method: GET
+
+store_app_installed_settings:
+  - read:
+      path: /core/store/v1/installedsettings/app/{appId}
+      method: GET
+
+store_app_manifest:
+  - read:
+      path: /core/store/v1/manifest/catalog/{catalog}/app/{appId}
+      method: GET
+
+store_app_requirements_graph:
+  - read:
+      path: /core/store/v1/requirementsgraph/catalog/{catalog}/app/{appId}
+      method: GET
+
+store_app_summary_list:
+  - read:
+      path: /core/store/v1/appsummaries
+      method: GET
+
+store_app_version_list:
+  - read:
+      path: /core/store/v1/versions/app/{appId}
+      method: GET
+
+store_category_list:
+  - read:
+      path: /core/store/v1/categories
+      method: GET
+
+topo_state_request:
+  - create:
+      path: /core/topology/v1/{topologyName}/state
+      method: POST
+
+topologies:
+  - read:
+      path: /core/topology/v1
+      method: GET
+
+topology:
+  - read:
+      path: /core/topology/v1/{topologyName}
+      method: GET
+
+transaction:
+  - create:
+      path: /core/transaction/v2
+      method: POST
+
+transaction_cr:
+  - create:
+      path: /core/transaction/v2/validate
+      method: POST
+
+transaction_execution_result:
+  - read:
+      path: /core/transaction/v2/result/execution/{transactionId}
+      method: GET
+
+transaction_id:
+  - create:
+      path: /core/transaction/v2/restore/{transactionId}
+      method: POST
+  - create:
+      path: /core/transaction/v2/revert/{transactionId}
+      method: POST
+
+transaction_result_input_resources:
+  - read:
+      path: /core/transaction/v2/result/inputresources/{transactionId}
+      method: GET
+
+transaction_result_object:
+  - read:
+      path: /core/transaction/v2/result/diffs/nodecfg/{transactionId}
+      method: GET
+  - read:
+      path: /core/transaction/v2/result/diffs/resource/{transactionId}
+      method: GET
+
+transaction_state:
+  - read:
+      path: /core/transaction/v2/state/{transactionId}
+      method: GET
+
+transaction_summary_result:
+  - read:
+      path: /core/transaction/v2/result/summary/{transactionId}
+      method: GET
+
+transaction_summary_results:
+  - read:
+      path: /core/transaction/v2/result/summary
+      method: GET
+
+transaction_topology_result:
+  - read:
+      path: /core/transaction/v2/result/topology/{transactionId}
+      method: GET
+
+user_storage_in_file_content:
+  - create:
+      path: /core/user-storage/v2/file
+      method: POST
+  - update:
+      path: /core/user-storage/v2/file
+      method: PUT
+  - create:
+      path: /core/user-storage/v2/shared/file
+      method: POST
+  - update:
+      path: /core/user-storage/v2/shared/file
+      method: PUT
+
+user_storage_out_dir_content:
+  - read:
+      path: /core/user-storage/v2/directory
+      method: GET
+  - read:
+      path: /core/user-storage/v2/shared/directory
+      method: GET
+
+user_storage_out_file_content:
+  - read:
+      path: /core/user-storage/v2/file
+      method: GET
+  - read:
+      path: /core/user-storage/v2/shared/file
+      method: GET
+
+workflow:
+  - create:
+      path: /core/workflow/v1
+      method: POST
+
+workflow_result:
+  - read:
+      path: /core/workflow/v1/details/{workflowId}
+      method: GET
+
+workflow_state:
+  - read:
+      path: /core/workflow/v1/state/{workflowId}
+      method: GET
+
+workflow_status_summary:
+  - read:
+      path: /core/workflows/v1
+      method: GET
+
+version_info:
+  - read:
+      path: /core/about/version
+      method: GET
+
+totalPaths: 70
+totalSchemas: 126
+usedSchemas: 53
+unusedSchemas: 73
+unusedSchemaList:
+  - AccessQuery
+  - AccessResult
+  - AuthProvider_auth
+  - AuthProvider_groupSupport
+  - CheckAccessResponse
+  - CrAnnotation
+  - ErrorIndex
+  - ErrorItem
+  - ErrorResponse
+  - FlowListEntry
+  - FlowStage
+  - GroupVersionKind
+  - GroupVersionResource
+  - HealthServiceStatus
+  - Identifier
+  - K8SPatchOp
+  - LabelCompletionResponse
+  - LineSegment
+  - Metadata
+  - NamespaceData
+  - NsCrGvkName
+  - OverlayState
+  - Patch
+  - ProviderAuth
+  - QueryCompletion
+  - QueryField
+  - QueryFieldAnnotation
+  - QuerySchema
+  - ResourceRule
+  - StoreAppRequirementsGraphItem
+  - StoreAppRequirementsGraphItem_installedAppVersion
+  - StoreAppRequirementsGraphItem_targetAppVersion
+  - StoreAppSummary
+  - StoreAppVersion
+  - StoreAppVersionMetadata
+  - StoreAppVersionWithMetadata
+  - TableRule
+  - TopoAttrMetadata
+  - TopoElemMetadata
+  - TopoGroupingStateRequest
+  - TopoLinkEndpoint
+  - TopoNodeGrouping
+  - TopoOverlayAttrMetadata
+  - TopoOverlayAttrQuery
+  - TopoOverlayBadgeMetadata
+  - TopoOverlayEndpoint
+  - TopoOverlayEndpointState
+  - TopoOverlayLink
+  - TopoOverlayLinkState
+  - TopoOverlayNode
+  - TopoOverlayNodeState
+  - TopoOverlayStateMetadata
+  - TopoSchema
+  - TopologyStateGroupSelector
+  - TopologyStateGroupingBase
+  - TopologyStateTierSelector
+  - TransactionAppError
+  - TransactionContent
+  - TransactionInputResource
+  - TransactionIntentResult
+  - TransactionNodeResult
+  - TransactionNsCrGvkNames
+  - TransactionPatch
+  - TransactionResultObjectString
+  - TransactionScriptResults
+  - TransactionStructuredAppError
+  - TransactionType
+  - TransactionValue
+  - UrlRule
+  - UserStatus
+  - UserStorageOutDirEntry
+  - WorkflowId
+  - singleVersionInfo
