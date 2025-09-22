@@ -22,7 +22,7 @@ func ClusterAlarmDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Indicates the end time of the acknowledgement.",
 				MarkdownDescription: "Indicates the end time of the acknowledgement.",
 			},
-			"alarmname": schema.StringAttribute{
+			"alarm_name": schema.StringAttribute{
 				Required:            true,
 				Description:         "The name of the alarm to retrieve",
 				MarkdownDescription: "The name of the alarm to retrieve",
@@ -156,7 +156,7 @@ func ClusterAlarmDataSourceSchema(ctx context.Context) schema.Schema {
 type ClusterAlarmModel struct {
 	Acknowledged      types.Bool   `tfsdk:"acknowledged"`
 	AcknowledgedUntil types.String `tfsdk:"acknowledged_until"`
-	Alarmname         types.String `tfsdk:"alarmname"`
+	AlarmName         types.String `tfsdk:"alarm_name"`
 	All               types.Bool   `tfsdk:"all"`
 	Cleared           types.Bool   `tfsdk:"cleared"`
 	ClusterMember     types.String `tfsdk:"cluster_member"`

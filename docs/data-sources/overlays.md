@@ -87,11 +87,11 @@ Read-Only:
 
 Read-Only:
 
-- `attributes_1` (Attributes Map) (see [below for nested schema](#nestedatt--overlays--link_attr_queries--attributes_1))
+- `attributes` (Attributes Map) (see [below for nested schema](#nestedatt--overlays--link_attr_queries--attributes))
 - `query` (String)
 
-<a id="nestedatt--overlays--link_attr_queries--attributes_1"></a>
-### Nested Schema for `overlays.link_attr_queries.attributes_1`
+<a id="nestedatt--overlays--link_attr_queries--attributes"></a>
+### Nested Schema for `overlays.link_attr_queries.attributes`
 
 Read-Only:
 
@@ -120,11 +120,11 @@ Read-Only:
 
 Read-Only:
 
-- `attributes_2` (Attributes Map) (see [below for nested schema](#nestedatt--overlays--node_attr_queries--attributes_2))
+- `attributes` (Attributes Map) (see [below for nested schema](#nestedatt--overlays--node_attr_queries--attributes))
 - `query` (String)
 
-<a id="nestedatt--overlays--node_attr_queries--attributes_2"></a>
-### Nested Schema for `overlays.node_attr_queries.attributes_2`
+<a id="nestedatt--overlays--node_attr_queries--attributes"></a>
+### Nested Schema for `overlays.node_attr_queries.attributes`
 
 Read-Only:
 

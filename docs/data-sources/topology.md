@@ -81,13 +81,13 @@ Read-Only:
 
 Read-Only:
 
-- `attributes_1` (Attributes Map) (see [below for nested schema](#nestedatt--links--attributes_1))
-- `schema_1` (Attributes) (see [below for nested schema](#nestedatt--links--schema_1))
+- `attributes` (Attributes Map) (see [below for nested schema](#nestedatt--links--attributes))
+- `schema` (Attributes) (see [below for nested schema](#nestedatt--links--schema))
 - `subtitle` (String)
 - `subtitle_key` (String)
 
-<a id="nestedatt--links--attributes_1"></a>
-### Nested Schema for `links.attributes_1`
+<a id="nestedatt--links--attributes"></a>
+### Nested Schema for `links.attributes`
 
 Read-Only:
 
@@ -98,8 +98,8 @@ Read-Only:
 - `ui_name_key` (String)
 
 
-<a id="nestedatt--links--schema_1"></a>
-### Nested Schema for `links.schema_1`
+<a id="nestedatt--links--schema"></a>
+### Nested Schema for `links.schema`
 
 Read-Only:
 
@@ -114,13 +114,13 @@ Read-Only:
 
 Read-Only:
 
-- `attributes_2` (Attributes Map) (see [below for nested schema](#nestedatt--nodes--attributes_2))
-- `schema_2` (Attributes) (see [below for nested schema](#nestedatt--nodes--schema_2))
+- `attributes` (Attributes Map) (see [below for nested schema](#nestedatt--nodes--attributes))
+- `schema` (Attributes) (see [below for nested schema](#nestedatt--nodes--schema))
 - `subtitle` (String)
 - `subtitle_key` (String)
 
-<a id="nestedatt--nodes--attributes_2"></a>
-### Nested Schema for `nodes.attributes_2`
+<a id="nestedatt--nodes--attributes"></a>
+### Nested Schema for `nodes.attributes`
 
 Read-Only:
 
@@ -131,8 +131,8 @@ Read-Only:
 - `ui_name_key` (String)
 
 
-<a id="nestedatt--nodes--schema_2"></a>
-### Nested Schema for `nodes.schema_2`
+<a id="nestedatt--nodes--schema"></a>
+### Nested Schema for `nodes.schema`
 
 Read-Only:
 

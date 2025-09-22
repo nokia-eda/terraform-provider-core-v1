@@ -30,7 +30,7 @@ description: |-
 - `pagination` (Boolean) Set to true if the LDAP server supports pagination.
 - `periodic_sync` (Boolean) If true, periodic synchronization of new changed or newly created LDAP users to Keycloak will occur.
 - `periodic_sync_secs` (Number) If periodic sync is enabled, this is the period in seconds that synchronization will occur.
-- `rdn_ldapattribute` (String) Name of the LDAP attribute, which is used as RDN (top attribute) of typical user DN. Usually it's the same as the Username LDAP attribute, however it is not required.
+- `rdn_ldap_attribute` (String) Name of the LDAP attribute, which is used as RDN (top attribute) of typical user DN. Usually it's the same as the Username LDAP attribute, however it is not required.
 - `read_only` (Boolean) If false, changes made to LDAP-mapped attribute via EDA will be synced back to the LDAP server.  Otherwise, changes are not made in LDAP.
 - `scope` (String) Must be "One Level" or "Subtree".  If "One Level", the search applies only for users in the DNs specified by User DNs. If "Subtree", the search applies to the whole subtree.
 - `timeout` (Number) LDAP connection timeout in milliseconds
@@ -58,11 +58,11 @@ Read-Only:
 Read-Only:
 
 - `filter` (String) Further for filtering when retrieving LDAP groups. Ensure starts and ends with parentheses if using.
-- `group_ldapdn` (String) The LDAP DN where groups are found.
+- `group_ldap_dn` (String) The LDAP DN where groups are found.
 - `member_attribute` (String) The group attribute for a members.  Usually "member" or "memberUid".
 - `member_of_attribute` (String) If retrievalStrategy is "memberOf", this is the LDAP user attribute for group memberships.
 - `membership_attribute_type` (String) How users are identified in a group member entry: either DN or UID.
 - `membership_user_attribute` (String) Only required if membershipAttributeType is UID; then it is the user attribute that should match the group member value.
-- `name_ldapattribute` (String) The LDAP group name attribute
+- `name_ldap_attribute` (String) The LDAP group name attribute
 - `object_classes` (String) The LDAP object class or classes used for groups. If more than one, they must be comma-separated.
 - `retrieval_strategy` (String) The strategy for retrieving groups.  Should be "member" to get group membership from the group, or "memberOf" to get group membership from the user.

@@ -91,12 +91,12 @@ Read-Only:
 
 Read-Only:
 
-- `gvk_1` (Attributes) (see [below for nested schema](#nestedatt--intents_run--intent_name--gvk_1))
+- `gvk` (Attributes) (see [below for nested schema](#nestedatt--intents_run--intent_name--gvk))
 - `name` (String)
 - `namespace` (String)
 
-<a id="nestedatt--intents_run--intent_name--gvk_1"></a>
-### Nested Schema for `intents_run.intent_name.gvk_1`
+<a id="nestedatt--intents_run--intent_name--gvk"></a>
+### Nested Schema for `intents_run.intent_name.gvk`
 
 Read-Only:
 
@@ -111,12 +111,12 @@ Read-Only:
 
 Read-Only:
 
-- `gvk_2` (Attributes) (see [below for nested schema](#nestedatt--intents_run--output_crs--gvk_2))
+- `gvk` (Attributes) (see [below for nested schema](#nestedatt--intents_run--output_crs--gvk))
 - `name` (String)
 - `namespace` (String)
 
-<a id="nestedatt--intents_run--output_crs--gvk_2"></a>
-### Nested Schema for `intents_run.output_crs.gvk_2`
+<a id="nestedatt--intents_run--output_crs--gvk"></a>
+### Nested Schema for `intents_run.output_crs.gvk`
 
 Read-Only:
 

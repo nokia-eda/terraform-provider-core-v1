@@ -58,7 +58,7 @@ func AuthProviderResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Further for filtering when retrieving LDAP groups. Ensure starts and ends with parentheses if using.",
 						MarkdownDescription: "Further for filtering when retrieving LDAP groups. Ensure starts and ends with parentheses if using.",
 					},
-					"group_ldapdn": schema.StringAttribute{
+					"group_ldap_dn": schema.StringAttribute{
 						Required:            true,
 						Description:         "The LDAP DN where groups are found.",
 						MarkdownDescription: "The LDAP DN where groups are found.",
@@ -93,7 +93,7 @@ func AuthProviderResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Only required if membershipAttributeType is UID; then it is the user attribute that should match the group member value.",
 						MarkdownDescription: "Only required if membershipAttributeType is UID; then it is the user attribute that should match the group member value.",
 					},
-					"name_ldapattribute": schema.StringAttribute{
+					"name_ldap_attribute": schema.StringAttribute{
 						Required:            true,
 						Description:         "The LDAP group name attribute",
 						MarkdownDescription: "The LDAP group name attribute",
@@ -160,7 +160,7 @@ func AuthProviderResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If periodic sync is enabled, this is the period in seconds that synchronization will occur.",
 				MarkdownDescription: "If periodic sync is enabled, this is the period in seconds that synchronization will occur.",
 			},
-			"rdn_ldapattribute": schema.StringAttribute{
+			"rdn_ldap_attribute": schema.StringAttribute{
 				Required:            true,
 				Description:         "Name of the LDAP attribute, which is used as RDN (top attribute) of typical user DN. Usually it's the same as the Username LDAP attribute, however it is not required.",
 				MarkdownDescription: "Name of the LDAP attribute, which is used as RDN (top attribute) of typical user DN. Usually it's the same as the Username LDAP attribute, however it is not required.",
@@ -257,7 +257,7 @@ type AuthProviderModel struct {
 	Pagination        types.Bool        `tfsdk:"pagination"`
 	PeriodicSync      types.Bool        `tfsdk:"periodic_sync"`
 	PeriodicSyncSecs  types.Int64       `tfsdk:"periodic_sync_secs"`
-	RdnLdapattribute  types.String      `tfsdk:"rdn_ldapattribute"`
+	RdnLdapAttribute  types.String      `tfsdk:"rdn_ldap_attribute"`
 	ReadOnly          types.Bool        `tfsdk:"read_only"`
 	Scope             types.String      `tfsdk:"scope"`
 	Timeout           types.Int64       `tfsdk:"timeout"`
@@ -694,22 +694,22 @@ func (t GroupSupportType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`filter expected to be basetypes.StringValue, was: %T`, filterAttribute))
 	}
 
-	groupLdapdnAttribute, ok := attributes["group_ldapdn"]
+	groupLdapDnAttribute, ok := attributes["group_ldap_dn"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`group_ldapdn is missing from object`)
+			`group_ldap_dn is missing from object`)
 
 		return nil, diags
 	}
 
-	groupLdapdnVal, ok := groupLdapdnAttribute.(basetypes.StringValue)
+	groupLdapDnVal, ok := groupLdapDnAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`group_ldapdn expected to be basetypes.StringValue, was: %T`, groupLdapdnAttribute))
+			fmt.Sprintf(`group_ldap_dn expected to be basetypes.StringValue, was: %T`, groupLdapDnAttribute))
 	}
 
 	memberAttributeAttribute, ok := attributes["member_attribute"]
@@ -784,22 +784,22 @@ func (t GroupSupportType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`membership_user_attribute expected to be basetypes.StringValue, was: %T`, membershipUserAttributeAttribute))
 	}
 
-	nameLdapattributeAttribute, ok := attributes["name_ldapattribute"]
+	nameLdapAttributeAttribute, ok := attributes["name_ldap_attribute"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`name_ldapattribute is missing from object`)
+			`name_ldap_attribute is missing from object`)
 
 		return nil, diags
 	}
 
-	nameLdapattributeVal, ok := nameLdapattributeAttribute.(basetypes.StringValue)
+	nameLdapAttributeVal, ok := nameLdapAttributeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`name_ldapattribute expected to be basetypes.StringValue, was: %T`, nameLdapattributeAttribute))
+			fmt.Sprintf(`name_ldap_attribute expected to be basetypes.StringValue, was: %T`, nameLdapAttributeAttribute))
 	}
 
 	objectClassesAttribute, ok := attributes["object_classes"]
@@ -844,12 +844,12 @@ func (t GroupSupportType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	return GroupSupportValue{
 		Filter:                  filterVal,
-		GroupLdapdn:             groupLdapdnVal,
+		GroupLdapDn:             groupLdapDnVal,
 		MemberAttribute:         memberAttributeVal,
 		MemberOfAttribute:       memberOfAttributeVal,
 		MembershipAttributeType: membershipAttributeTypeVal,
 		MembershipUserAttribute: membershipUserAttributeVal,
-		NameLdapattribute:       nameLdapattributeVal,
+		NameLdapAttribute:       nameLdapAttributeVal,
 		ObjectClasses:           objectClassesVal,
 		RetrievalStrategy:       retrievalStrategyVal,
 		state:                   attr.ValueStateKnown,
@@ -937,22 +937,22 @@ func NewGroupSupportValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`filter expected to be basetypes.StringValue, was: %T`, filterAttribute))
 	}
 
-	groupLdapdnAttribute, ok := attributes["group_ldapdn"]
+	groupLdapDnAttribute, ok := attributes["group_ldap_dn"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`group_ldapdn is missing from object`)
+			`group_ldap_dn is missing from object`)
 
 		return NewGroupSupportValueUnknown(), diags
 	}
 
-	groupLdapdnVal, ok := groupLdapdnAttribute.(basetypes.StringValue)
+	groupLdapDnVal, ok := groupLdapDnAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`group_ldapdn expected to be basetypes.StringValue, was: %T`, groupLdapdnAttribute))
+			fmt.Sprintf(`group_ldap_dn expected to be basetypes.StringValue, was: %T`, groupLdapDnAttribute))
 	}
 
 	memberAttributeAttribute, ok := attributes["member_attribute"]
@@ -1027,22 +1027,22 @@ func NewGroupSupportValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`membership_user_attribute expected to be basetypes.StringValue, was: %T`, membershipUserAttributeAttribute))
 	}
 
-	nameLdapattributeAttribute, ok := attributes["name_ldapattribute"]
+	nameLdapAttributeAttribute, ok := attributes["name_ldap_attribute"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`name_ldapattribute is missing from object`)
+			`name_ldap_attribute is missing from object`)
 
 		return NewGroupSupportValueUnknown(), diags
 	}
 
-	nameLdapattributeVal, ok := nameLdapattributeAttribute.(basetypes.StringValue)
+	nameLdapAttributeVal, ok := nameLdapAttributeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`name_ldapattribute expected to be basetypes.StringValue, was: %T`, nameLdapattributeAttribute))
+			fmt.Sprintf(`name_ldap_attribute expected to be basetypes.StringValue, was: %T`, nameLdapAttributeAttribute))
 	}
 
 	objectClassesAttribute, ok := attributes["object_classes"]
@@ -1087,12 +1087,12 @@ func NewGroupSupportValue(attributeTypes map[string]attr.Type, attributes map[st
 
 	return GroupSupportValue{
 		Filter:                  filterVal,
-		GroupLdapdn:             groupLdapdnVal,
+		GroupLdapDn:             groupLdapDnVal,
 		MemberAttribute:         memberAttributeVal,
 		MemberOfAttribute:       memberOfAttributeVal,
 		MembershipAttributeType: membershipAttributeTypeVal,
 		MembershipUserAttribute: membershipUserAttributeVal,
-		NameLdapattribute:       nameLdapattributeVal,
+		NameLdapAttribute:       nameLdapAttributeVal,
 		ObjectClasses:           objectClassesVal,
 		RetrievalStrategy:       retrievalStrategyVal,
 		state:                   attr.ValueStateKnown,
@@ -1168,12 +1168,12 @@ var _ basetypes.ObjectValuable = GroupSupportValue{}
 
 type GroupSupportValue struct {
 	Filter                  basetypes.StringValue `tfsdk:"filter"`
-	GroupLdapdn             basetypes.StringValue `tfsdk:"group_ldapdn"`
+	GroupLdapDn             basetypes.StringValue `tfsdk:"group_ldap_dn"`
 	MemberAttribute         basetypes.StringValue `tfsdk:"member_attribute"`
 	MemberOfAttribute       basetypes.StringValue `tfsdk:"member_of_attribute"`
 	MembershipAttributeType basetypes.StringValue `tfsdk:"membership_attribute_type"`
 	MembershipUserAttribute basetypes.StringValue `tfsdk:"membership_user_attribute"`
-	NameLdapattribute       basetypes.StringValue `tfsdk:"name_ldapattribute"`
+	NameLdapAttribute       basetypes.StringValue `tfsdk:"name_ldap_attribute"`
 	ObjectClasses           basetypes.StringValue `tfsdk:"object_classes"`
 	RetrievalStrategy       basetypes.StringValue `tfsdk:"retrieval_strategy"`
 	state                   attr.ValueState
@@ -1186,12 +1186,12 @@ func (v GroupSupportValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	var err error
 
 	attrTypes["filter"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["group_ldapdn"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["group_ldap_dn"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["member_attribute"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["member_of_attribute"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["membership_attribute_type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["membership_user_attribute"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["name_ldapattribute"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["name_ldap_attribute"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["object_classes"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["retrieval_strategy"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -1209,13 +1209,13 @@ func (v GroupSupportValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 		vals["filter"] = val
 
-		val, err = v.GroupLdapdn.ToTerraformValue(ctx)
+		val, err = v.GroupLdapDn.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["group_ldapdn"] = val
+		vals["group_ldap_dn"] = val
 
 		val, err = v.MemberAttribute.ToTerraformValue(ctx)
 
@@ -1249,13 +1249,13 @@ func (v GroupSupportValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 		vals["membership_user_attribute"] = val
 
-		val, err = v.NameLdapattribute.ToTerraformValue(ctx)
+		val, err = v.NameLdapAttribute.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["name_ldapattribute"] = val
+		vals["name_ldap_attribute"] = val
 
 		val, err = v.ObjectClasses.ToTerraformValue(ctx)
 
@@ -1304,12 +1304,12 @@ func (v GroupSupportValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 
 	attributeTypes := map[string]attr.Type{
 		"filter":                    basetypes.StringType{},
-		"group_ldapdn":              basetypes.StringType{},
+		"group_ldap_dn":             basetypes.StringType{},
 		"member_attribute":          basetypes.StringType{},
 		"member_of_attribute":       basetypes.StringType{},
 		"membership_attribute_type": basetypes.StringType{},
 		"membership_user_attribute": basetypes.StringType{},
-		"name_ldapattribute":        basetypes.StringType{},
+		"name_ldap_attribute":       basetypes.StringType{},
 		"object_classes":            basetypes.StringType{},
 		"retrieval_strategy":        basetypes.StringType{},
 	}
@@ -1326,12 +1326,12 @@ func (v GroupSupportValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		attributeTypes,
 		map[string]attr.Value{
 			"filter":                    v.Filter,
-			"group_ldapdn":              v.GroupLdapdn,
+			"group_ldap_dn":             v.GroupLdapDn,
 			"member_attribute":          v.MemberAttribute,
 			"member_of_attribute":       v.MemberOfAttribute,
 			"membership_attribute_type": v.MembershipAttributeType,
 			"membership_user_attribute": v.MembershipUserAttribute,
-			"name_ldapattribute":        v.NameLdapattribute,
+			"name_ldap_attribute":       v.NameLdapAttribute,
 			"object_classes":            v.ObjectClasses,
 			"retrieval_strategy":        v.RetrievalStrategy,
 		})
@@ -1358,7 +1358,7 @@ func (v GroupSupportValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.GroupLdapdn.Equal(other.GroupLdapdn) {
+	if !v.GroupLdapDn.Equal(other.GroupLdapDn) {
 		return false
 	}
 
@@ -1378,7 +1378,7 @@ func (v GroupSupportValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.NameLdapattribute.Equal(other.NameLdapattribute) {
+	if !v.NameLdapAttribute.Equal(other.NameLdapAttribute) {
 		return false
 	}
 
@@ -1404,12 +1404,12 @@ func (v GroupSupportValue) Type(ctx context.Context) attr.Type {
 func (v GroupSupportValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"filter":                    basetypes.StringType{},
-		"group_ldapdn":              basetypes.StringType{},
+		"group_ldap_dn":             basetypes.StringType{},
 		"member_attribute":          basetypes.StringType{},
 		"member_of_attribute":       basetypes.StringType{},
 		"membership_attribute_type": basetypes.StringType{},
 		"membership_user_attribute": basetypes.StringType{},
-		"name_ldapattribute":        basetypes.StringType{},
+		"name_ldap_attribute":       basetypes.StringType{},
 		"object_classes":            basetypes.StringType{},
 		"retrieval_strategy":        basetypes.StringType{},
 	}

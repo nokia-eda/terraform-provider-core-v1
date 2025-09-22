@@ -13,7 +13,7 @@ import (
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/tfutils"
 )
 
-const read_ds_alarm = "/core/alarm/v2/namespaces/{nsName}/alarms/{alarmname}"
+const read_ds_alarm = "/core/alarm/v2/namespaces/{nsName}/alarms/{alarm_name}"
 
 var (
 	_ datasource.DataSource              = (*alarmDataSource)(nil)
@@ -63,8 +63,8 @@ func (d *alarmDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	t0 := time.Now()
 	result := map[string]any{}
 	err = d.client.GetByQuery(ctx, read_ds_alarm, map[string]string{
-		"nsName":    tfutils.StringValue(data.NsName),
-		"alarmname": tfutils.StringValue(data.Alarmname),
+		"nsName":     tfutils.StringValue(data.NsName),
+		"alarm_name": tfutils.StringValue(data.AlarmName),
 	}, queryParams, &result)
 
 	tflog.Info(ctx, "Read()::API returned", map[string]any{

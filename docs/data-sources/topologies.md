@@ -84,13 +84,13 @@ Read-Only:
 
 Read-Only:
 
-- `attributes_1` (Attributes Map) (see [below for nested schema](#nestedatt--topologies--links--attributes_1))
-- `schema_1` (Attributes) (see [below for nested schema](#nestedatt--topologies--links--schema_1))
+- `attributes` (Attributes Map) (see [below for nested schema](#nestedatt--topologies--links--attributes))
+- `schema` (Attributes) (see [below for nested schema](#nestedatt--topologies--links--schema))
 - `subtitle` (String)
 - `subtitle_key` (String)
 
-<a id="nestedatt--topologies--links--attributes_1"></a>
-### Nested Schema for `topologies.links.attributes_1`
+<a id="nestedatt--topologies--links--attributes"></a>
+### Nested Schema for `topologies.links.attributes`
 
 Read-Only:
 
@@ -101,8 +101,8 @@ Read-Only:
 - `ui_name_key` (String)
 
 
-<a id="nestedatt--topologies--links--schema_1"></a>
-### Nested Schema for `topologies.links.schema_1`
+<a id="nestedatt--topologies--links--schema"></a>
+### Nested Schema for `topologies.links.schema`
 
 Read-Only:
 
@@ -117,13 +117,13 @@ Read-Only:
 
 Read-Only:
 
-- `attributes_2` (Attributes Map) (see [below for nested schema](#nestedatt--topologies--nodes--attributes_2))
-- `schema_2` (Attributes) (see [below for nested schema](#nestedatt--topologies--nodes--schema_2))
+- `attributes` (Attributes Map) (see [below for nested schema](#nestedatt--topologies--nodes--attributes))
+- `schema` (Attributes) (see [below for nested schema](#nestedatt--topologies--nodes--schema))
 - `subtitle` (String)
 - `subtitle_key` (String)
 
-<a id="nestedatt--topologies--nodes--attributes_2"></a>
-### Nested Schema for `topologies.nodes.attributes_2`
+<a id="nestedatt--topologies--nodes--attributes"></a>
+### Nested Schema for `topologies.nodes.attributes`
 
 Read-Only:
 
@@ -134,8 +134,8 @@ Read-Only:
 - `ui_name_key` (String)
 
 
-<a id="nestedatt--topologies--nodes--schema_2"></a>
-### Nested Schema for `topologies.nodes.schema_2`
+<a id="nestedatt--topologies--nodes--schema"></a>
+### Nested Schema for `topologies.nodes.schema`
 
 Read-Only:
 

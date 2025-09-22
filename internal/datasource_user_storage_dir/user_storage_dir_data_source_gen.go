@@ -18,13 +18,13 @@ import (
 func UserStorageDirDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"base64encode": schema.BoolAttribute{
+			"base64_encode": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
 				Description:         "if true, file content will be base64-encoded before being returned",
 				MarkdownDescription: "if true, file content will be base64-encoded before being returned",
 			},
-			"directorypath": schema.StringAttribute{
+			"directory_path": schema.StringAttribute{
 				Computed:            true,
 				Description:         "path for the directory within the users storage",
 				MarkdownDescription: "path for the directory within the users storage",
@@ -32,7 +32,7 @@ func UserStorageDirDataSourceSchema(ctx context.Context) schema.Schema {
 			"entries": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"modificationtime": schema.StringAttribute{
+						"modification_time": schema.StringAttribute{
 							Computed:            true,
 							Description:         "modification type of the item, if a file",
 							MarkdownDescription: "modification type of the item, if a file",
@@ -68,8 +68,8 @@ func UserStorageDirDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type UserStorageDirModel struct {
-	Base64encode  types.Bool   `tfsdk:"base64encode"`
-	Directorypath types.String `tfsdk:"directorypath"`
+	Base64Encode  types.Bool   `tfsdk:"base64_encode"`
+	DirectoryPath types.String `tfsdk:"directory_path"`
 	Entries       types.List   `tfsdk:"entries"`
 	Path          types.String `tfsdk:"path"`
 }
@@ -99,22 +99,22 @@ func (t EntriesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 
 	attributes := in.Attributes()
 
-	modificationtimeAttribute, ok := attributes["modificationtime"]
+	modificationTimeAttribute, ok := attributes["modification_time"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`modificationtime is missing from object`)
+			`modification_time is missing from object`)
 
 		return nil, diags
 	}
 
-	modificationtimeVal, ok := modificationtimeAttribute.(basetypes.StringValue)
+	modificationTimeVal, ok := modificationTimeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modificationtime expected to be basetypes.StringValue, was: %T`, modificationtimeAttribute))
+			fmt.Sprintf(`modification_time expected to be basetypes.StringValue, was: %T`, modificationTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -158,7 +158,7 @@ func (t EntriesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 	}
 
 	return EntriesValue{
-		Modificationtime: modificationtimeVal,
+		ModificationTime: modificationTimeVal,
 		Name:             nameVal,
 		EntriesType:      typeVal,
 		state:            attr.ValueStateKnown,
@@ -228,22 +228,22 @@ func NewEntriesValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewEntriesValueUnknown(), diags
 	}
 
-	modificationtimeAttribute, ok := attributes["modificationtime"]
+	modificationTimeAttribute, ok := attributes["modification_time"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`modificationtime is missing from object`)
+			`modification_time is missing from object`)
 
 		return NewEntriesValueUnknown(), diags
 	}
 
-	modificationtimeVal, ok := modificationtimeAttribute.(basetypes.StringValue)
+	modificationTimeVal, ok := modificationTimeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modificationtime expected to be basetypes.StringValue, was: %T`, modificationtimeAttribute))
+			fmt.Sprintf(`modification_time expected to be basetypes.StringValue, was: %T`, modificationTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -287,7 +287,7 @@ func NewEntriesValue(attributeTypes map[string]attr.Type, attributes map[string]
 	}
 
 	return EntriesValue{
-		Modificationtime: modificationtimeVal,
+		ModificationTime: modificationTimeVal,
 		Name:             nameVal,
 		EntriesType:      typeVal,
 		state:            attr.ValueStateKnown,
@@ -362,7 +362,7 @@ func (t EntriesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = EntriesValue{}
 
 type EntriesValue struct {
-	Modificationtime basetypes.StringValue `tfsdk:"modificationtime"`
+	ModificationTime basetypes.StringValue `tfsdk:"modification_time"`
 	Name             basetypes.StringValue `tfsdk:"name"`
 	EntriesType      basetypes.StringValue `tfsdk:"type"`
 	state            attr.ValueState
@@ -374,7 +374,7 @@ func (v EntriesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	var val tftypes.Value
 	var err error
 
-	attrTypes["modificationtime"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["modification_time"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -384,13 +384,13 @@ func (v EntriesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 3)
 
-		val, err = v.Modificationtime.ToTerraformValue(ctx)
+		val, err = v.ModificationTime.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["modificationtime"] = val
+		vals["modification_time"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -438,9 +438,9 @@ func (v EntriesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"modificationtime": basetypes.StringType{},
-		"name":             basetypes.StringType{},
-		"type":             basetypes.StringType{},
+		"modification_time": basetypes.StringType{},
+		"name":              basetypes.StringType{},
+		"type":              basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -454,9 +454,9 @@ func (v EntriesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"modificationtime": v.Modificationtime,
-			"name":             v.Name,
-			"type":             v.EntriesType,
+			"modification_time": v.ModificationTime,
+			"name":              v.Name,
+			"type":              v.EntriesType,
 		})
 
 	return objVal, diags
@@ -477,7 +477,7 @@ func (v EntriesValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.Modificationtime.Equal(other.Modificationtime) {
+	if !v.ModificationTime.Equal(other.ModificationTime) {
 		return false
 	}
 
@@ -502,8 +502,8 @@ func (v EntriesValue) Type(ctx context.Context) attr.Type {
 
 func (v EntriesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"modificationtime": basetypes.StringType{},
-		"name":             basetypes.StringType{},
-		"type":             basetypes.StringType{},
+		"modification_time": basetypes.StringType{},
+		"name":              basetypes.StringType{},
+		"type":              basetypes.StringType{},
 	}
 }

@@ -128,7 +128,7 @@ func TransactionExecutionResultDataSourceSchema(ctx context.Context) schema.Sche
 						},
 						"intent_name": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
-								"gvk_1": schema.SingleNestedAttribute{
+								"gvk": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
 										"group": schema.StringAttribute{
 											Computed:            true,
@@ -170,7 +170,7 @@ func TransactionExecutionResultDataSourceSchema(ctx context.Context) schema.Sche
 						"output_crs": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
-									"gvk_2": schema.SingleNestedAttribute{
+									"gvk": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
 											"group": schema.StringAttribute{
 												Computed:            true,
@@ -2994,7 +2994,7 @@ func (t IntentNameType) ValueFromObject(ctx context.Context, in basetypes.Object
 
 	attributes := in.Attributes()
 
-	gvk1Attribute, ok := attributes["gvk_1"]
+	gvk1Attribute, ok := attributes["gvk"]
 
 	if !ok {
 		diags.AddError(
@@ -3123,7 +3123,7 @@ func NewIntentNameValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewIntentNameValueUnknown(), diags
 	}
 
-	gvk1Attribute, ok := attributes["gvk_1"]
+	gvk1Attribute, ok := attributes["gvk"]
 
 	if !ok {
 		diags.AddError(
@@ -3257,7 +3257,7 @@ func (t IntentNameType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = IntentNameValue{}
 
 type IntentNameValue struct {
-	Gvk1      basetypes.ObjectValue `tfsdk:"gvk_1"`
+	Gvk1      basetypes.ObjectValue `tfsdk:"gvk"`
 	Name      basetypes.StringValue `tfsdk:"name"`
 	Namespace basetypes.StringValue `tfsdk:"namespace"`
 	state     attr.ValueState
@@ -3269,7 +3269,7 @@ func (v IntentNameValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	var val tftypes.Value
 	var err error
 
-	attrTypes["gvk_1"] = basetypes.ObjectType{
+	attrTypes["gvk"] = basetypes.ObjectType{
 		AttrTypes: Gvk1Value{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
@@ -3287,7 +3287,7 @@ func (v IntentNameValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["gvk_1"] = val
+		vals["gvk"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -3356,7 +3356,7 @@ func (v IntentNameValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"gvk_1": basetypes.ObjectType{
+		"gvk": basetypes.ObjectType{
 			AttrTypes: Gvk1Value{}.AttributeTypes(ctx),
 		},
 		"name":      basetypes.StringType{},
@@ -3374,7 +3374,7 @@ func (v IntentNameValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"gvk_1":     gvk1,
+			"gvk":       gvk1,
 			"name":      v.Name,
 			"namespace": v.Namespace,
 		})
@@ -3422,7 +3422,7 @@ func (v IntentNameValue) Type(ctx context.Context) attr.Type {
 
 func (v IntentNameValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"gvk_1": basetypes.ObjectType{
+		"gvk": basetypes.ObjectType{
 			AttrTypes: Gvk1Value{}.AttributeTypes(ctx),
 		},
 		"name":      basetypes.StringType{},
@@ -3889,7 +3889,7 @@ func (t OutputCrsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 
 	attributes := in.Attributes()
 
-	gvk2Attribute, ok := attributes["gvk_2"]
+	gvk2Attribute, ok := attributes["gvk"]
 
 	if !ok {
 		diags.AddError(
@@ -4018,7 +4018,7 @@ func NewOutputCrsValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewOutputCrsValueUnknown(), diags
 	}
 
-	gvk2Attribute, ok := attributes["gvk_2"]
+	gvk2Attribute, ok := attributes["gvk"]
 
 	if !ok {
 		diags.AddError(
@@ -4152,7 +4152,7 @@ func (t OutputCrsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OutputCrsValue{}
 
 type OutputCrsValue struct {
-	Gvk2      basetypes.ObjectValue `tfsdk:"gvk_2"`
+	Gvk2      basetypes.ObjectValue `tfsdk:"gvk"`
 	Name      basetypes.StringValue `tfsdk:"name"`
 	Namespace basetypes.StringValue `tfsdk:"namespace"`
 	state     attr.ValueState
@@ -4164,7 +4164,7 @@ func (v OutputCrsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	var val tftypes.Value
 	var err error
 
-	attrTypes["gvk_2"] = basetypes.ObjectType{
+	attrTypes["gvk"] = basetypes.ObjectType{
 		AttrTypes: Gvk2Value{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
@@ -4182,7 +4182,7 @@ func (v OutputCrsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["gvk_2"] = val
+		vals["gvk"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -4251,7 +4251,7 @@ func (v OutputCrsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"gvk_2": basetypes.ObjectType{
+		"gvk": basetypes.ObjectType{
 			AttrTypes: Gvk2Value{}.AttributeTypes(ctx),
 		},
 		"name":      basetypes.StringType{},
@@ -4269,7 +4269,7 @@ func (v OutputCrsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"gvk_2":     gvk2,
+			"gvk":       gvk2,
 			"name":      v.Name,
 			"namespace": v.Namespace,
 		})
@@ -4317,7 +4317,7 @@ func (v OutputCrsValue) Type(ctx context.Context) attr.Type {
 
 func (v OutputCrsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"gvk_2": basetypes.ObjectType{
+		"gvk": basetypes.ObjectType{
 			AttrTypes: Gvk2Value{}.AttributeTypes(ctx),
 		},
 		"name":      basetypes.StringType{},

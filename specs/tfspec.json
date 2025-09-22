@@ -12,7 +12,7 @@
                         }
                     },
                     {
-                        "name": "alarmname",
+                        "name": "alarm_name",
                         "string": {
                             "computed_optional_required": "required",
                             "description": "The name of the alarm to retrieve"
@@ -218,7 +218,7 @@
                         }
                     },
                     {
-                        "name": "alarmname",
+                        "name": "alarm_name",
                         "string": {
                             "computed_optional_required": "required",
                             "description": "name of the alarm whose history should be retrieved."
@@ -806,7 +806,7 @@
                             "computed_optional_required": "computed",
                             "attributes": [
                                 {
-                                    "name": "name_ldapattribute",
+                                    "name": "name_ldap_attribute",
                                     "string": {
                                         "computed_optional_required": "computed",
                                         "description": "The LDAP group name attribute"
@@ -820,7 +820,7 @@
                                     }
                                 },
                                 {
-                                    "name": "group_ldapdn",
+                                    "name": "group_ldap_dn",
                                     "string": {
                                         "computed_optional_required": "computed",
                                         "description": "The LDAP DN where groups are found."
@@ -915,7 +915,7 @@
                         }
                     },
                     {
-                        "name": "rdn_ldapattribute",
+                        "name": "rdn_ldap_attribute",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "Name of the LDAP attribute, which is used as RDN (top attribute) of typical user DN. Usually it's the same as the Username LDAP attribute, however it is not required."
@@ -1054,7 +1054,7 @@
                                             "computed_optional_required": "computed",
                                             "attributes": [
                                                 {
-                                                    "name": "name_ldapattribute",
+                                                    "name": "name_ldap_attribute",
                                                     "string": {
                                                         "computed_optional_required": "computed",
                                                         "description": "The LDAP group name attribute"
@@ -1068,7 +1068,7 @@
                                                     }
                                                 },
                                                 {
-                                                    "name": "group_ldapdn",
+                                                    "name": "group_ldap_dn",
                                                     "string": {
                                                         "computed_optional_required": "computed",
                                                         "description": "The LDAP DN where groups are found."
@@ -1163,7 +1163,7 @@
                                         }
                                     },
                                     {
-                                        "name": "rdn_ldapattribute",
+                                        "name": "rdn_ldap_attribute",
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "Name of the LDAP attribute, which is used as RDN (top attribute) of typical user DN. Usually it's the same as the Username LDAP attribute, however it is not required."
@@ -2228,7 +2228,7 @@
             "schema": {
                 "attributes": [
                     {
-                        "name": "alarmname",
+                        "name": "alarm_name",
                         "string": {
                             "computed_optional_required": "required",
                             "description": "The name of the alarm to retrieve"
@@ -2427,7 +2427,7 @@
             "schema": {
                 "attributes": [
                     {
-                        "name": "alarmname",
+                        "name": "alarm_name",
                         "string": {
                             "computed_optional_required": "required",
                             "description": "name of the alarm whose history should be retrieved."
@@ -6319,93 +6319,6 @@
             }
         },
         {
-            "name": "transaction_input_resource",
-            "schema": {
-                "attributes": [
-                    {
-                        "name": "transaction_id",
-                        "int64": {
-                            "computed_optional_required": "required",
-                            "description": "The identifier for the transaction whose list of input resources is being requested"
-                        }
-                    },
-                    {
-                        "name": "input_crs",
-                        "list_nested": {
-                            "computed_optional_required": "computed",
-                            "nested_object": {
-                                "attributes": [
-                                    {
-                                        "name": "is_delete",
-                                        "bool": {
-                                            "computed_optional_required": "computed"
-                                        }
-                                    },
-                                    {
-                                        "name": "name",
-                                        "single_nested": {
-                                            "computed_optional_required": "computed",
-                                            "attributes": [
-                                                {
-                                                    "name": "gvk",
-                                                    "single_nested": {
-                                                        "computed_optional_required": "computed",
-                                                        "attributes": [
-                                                            {
-                                                                "name": "group",
-                                                                "string": {
-                                                                    "computed_optional_required": "computed",
-                                                                    "description": "Name of the API group"
-                                                                }
-                                                            },
-                                                            {
-                                                                "name": "kind",
-                                                                "string": {
-                                                                    "computed_optional_required": "computed",
-                                                                    "description": "The Kind of the resource"
-                                                                }
-                                                            },
-                                                            {
-                                                                "name": "version",
-                                                                "string": {
-                                                                    "computed_optional_required": "computed",
-                                                                    "description": "Version of the API group"
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "name": "name",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "namespace",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            },
-                            "description": "List of input resources from the transaction"
-                        }
-                    },
-                    {
-                        "name": "limited_access",
-                        "bool": {
-                            "computed_optional_required": "computed",
-                            "description": "This field is true if the list returned here is not the complete list of input resources in the transaction because the user does not have read-access to some of them"
-                        }
-                    }
-                ]
-            }
-        },
-        {
             "name": "transaction_node_config_diff",
             "schema": {
                 "attributes": [
@@ -6567,7 +6480,192 @@
             }
         },
         {
-            "name": "transaction_result_summaries",
+            "name": "transaction_result_input_resources",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "transaction_id",
+                        "int64": {
+                            "computed_optional_required": "required",
+                            "description": "The identifier for the transaction whose list of input resources is being requested"
+                        }
+                    },
+                    {
+                        "name": "input_crs",
+                        "list_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "is_delete",
+                                        "bool": {
+                                            "computed_optional_required": "computed"
+                                        }
+                                    },
+                                    {
+                                        "name": "name",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed",
+                                            "attributes": [
+                                                {
+                                                    "name": "gvk",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "computed",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "group",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed",
+                                                                    "description": "Name of the API group"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "kind",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed",
+                                                                    "description": "The Kind of the resource"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "version",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed",
+                                                                    "description": "Version of the API group"
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "name",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "namespace",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "List of input resources from the transaction"
+                        }
+                    },
+                    {
+                        "name": "limited_access",
+                        "bool": {
+                            "computed_optional_required": "computed",
+                            "description": "This field is true if the list returned here is not the complete list of input resources in the transaction because the user does not have read-access to some of them"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transaction_state",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "transaction_id",
+                        "int64": {
+                            "computed_optional_required": "required",
+                            "description": "The identifier for the transaction whose state is being requested"
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The state of the transaction"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transaction_summary_result",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "transaction_id",
+                        "int64": {
+                            "computed_optional_required": "required",
+                            "description": "The identifier for the transaction whose state is being requested"
+                        }
+                    },
+                    {
+                        "name": "commit_hash",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The git commit hash for the transaction"
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The description of the transaction, as posted in the transaction request."
+                        }
+                    },
+                    {
+                        "name": "details",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The type of details available for the transaction, as posted in the transaction request."
+                        }
+                    },
+                    {
+                        "name": "dry_run",
+                        "bool": {
+                            "computed_optional_required": "computed",
+                            "description": "If true the transaction was not committed and ran in dry run mode."
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "The transaction identifier"
+                        }
+                    },
+                    {
+                        "name": "last_change_timestamp",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The time that the transaction completed."
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The state of the transaction."
+                        }
+                    },
+                    {
+                        "name": "success",
+                        "bool": {
+                            "computed_optional_required": "computed",
+                            "description": "True if the transaction was successful."
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The user who posted the transaction."
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transaction_summary_results",
             "schema": {
                 "attributes": [
                     {
@@ -6662,104 +6760,6 @@
             }
         },
         {
-            "name": "transaction_result_summary",
-            "schema": {
-                "attributes": [
-                    {
-                        "name": "transaction_id",
-                        "int64": {
-                            "computed_optional_required": "required",
-                            "description": "The identifier for the transaction whose state is being requested"
-                        }
-                    },
-                    {
-                        "name": "commit_hash",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The git commit hash for the transaction"
-                        }
-                    },
-                    {
-                        "name": "description",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The description of the transaction, as posted in the transaction request."
-                        }
-                    },
-                    {
-                        "name": "details",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The type of details available for the transaction, as posted in the transaction request."
-                        }
-                    },
-                    {
-                        "name": "dry_run",
-                        "bool": {
-                            "computed_optional_required": "computed",
-                            "description": "If true the transaction was not committed and ran in dry run mode."
-                        }
-                    },
-                    {
-                        "name": "id",
-                        "int64": {
-                            "computed_optional_required": "computed",
-                            "description": "The transaction identifier"
-                        }
-                    },
-                    {
-                        "name": "last_change_timestamp",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The time that the transaction completed."
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The state of the transaction."
-                        }
-                    },
-                    {
-                        "name": "success",
-                        "bool": {
-                            "computed_optional_required": "computed",
-                            "description": "True if the transaction was successful."
-                        }
-                    },
-                    {
-                        "name": "username",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The user who posted the transaction."
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "transaction_state",
-            "schema": {
-                "attributes": [
-                    {
-                        "name": "transaction_id",
-                        "int64": {
-                            "computed_optional_required": "required",
-                            "description": "The identifier for the transaction whose state is being requested"
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The state of the transaction"
-                        }
-                    }
-                ]
-            }
-        },
-        {
             "name": "user_storage_dir",
             "schema": {
                 "attributes": [
@@ -6771,14 +6771,14 @@
                         }
                     },
                     {
-                        "name": "base64encode",
+                        "name": "base64_encode",
                         "bool": {
                             "computed_optional_required": "computed_optional",
                             "description": "if true, file content will be base64-encoded before being returned"
                         }
                     },
                     {
-                        "name": "directorypath",
+                        "name": "directory_path",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "path for the directory within the users storage"
@@ -6791,7 +6791,7 @@
                             "nested_object": {
                                 "attributes": [
                                     {
-                                        "name": "modificationtime",
+                                        "name": "modification_time",
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "modification type of the item, if a file"
@@ -6831,35 +6831,35 @@
                         }
                     },
                     {
-                        "name": "base64encode",
+                        "name": "base64_encode",
                         "bool": {
                             "computed_optional_required": "computed_optional",
                             "description": "if true, file content will be base64-encoded before being returned"
                         }
                     },
                     {
-                        "name": "filecontent",
+                        "name": "file_content",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "content of the file, will be base64 encoded if the request asked for this"
                         }
                     },
                     {
-                        "name": "filedeleted",
+                        "name": "file_deleted",
                         "bool": {
                             "computed_optional_required": "computed",
                             "description": "if present and true, indicates the file has been deleted; used for\nstreamed responses"
                         }
                     },
                     {
-                        "name": "filename",
+                        "name": "file_name",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "name of the file"
                         }
                     },
                     {
-                        "name": "modificationtime",
+                        "name": "modification_time",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "UTC modification time of the file, as an RFC 3339 date/time.\nNot valid if file-deleted is true (in a streamed response)"
@@ -6880,14 +6880,14 @@
                         }
                     },
                     {
-                        "name": "base64encode",
+                        "name": "base64_encode",
                         "bool": {
                             "computed_optional_required": "computed_optional",
                             "description": "if true, file content will be base64-encoded before being returned"
                         }
                     },
                     {
-                        "name": "directorypath",
+                        "name": "directory_path",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "path for the directory within the users storage"
@@ -6900,7 +6900,7 @@
                             "nested_object": {
                                 "attributes": [
                                     {
-                                        "name": "modificationtime",
+                                        "name": "modification_time",
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "modification type of the item, if a file"
@@ -6940,35 +6940,35 @@
                         }
                     },
                     {
-                        "name": "base64encode",
+                        "name": "base64_encode",
                         "bool": {
                             "computed_optional_required": "computed_optional",
                             "description": "if true, file content will be base64-encoded before being returned"
                         }
                     },
                     {
-                        "name": "filecontent",
+                        "name": "file_content",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "content of the file, will be base64 encoded if the request asked for this"
                         }
                     },
                     {
-                        "name": "filedeleted",
+                        "name": "file_deleted",
                         "bool": {
                             "computed_optional_required": "computed",
                             "description": "if present and true, indicates the file has been deleted; used for\nstreamed responses"
                         }
                     },
                     {
-                        "name": "filename",
+                        "name": "file_name",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "name of the file"
                         }
                     },
                     {
-                        "name": "modificationtime",
+                        "name": "modification_time",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "UTC modification time of the file, as an RFC 3339 date/time.\nNot valid if file-deleted is true (in a streamed response)"
@@ -7328,7 +7328,7 @@
                             "computed_optional_required": "computed_optional",
                             "attributes": [
                                 {
-                                    "name": "name_ldapattribute",
+                                    "name": "name_ldap_attribute",
                                     "string": {
                                         "computed_optional_required": "required",
                                         "description": "The LDAP group name attribute"
@@ -7342,7 +7342,7 @@
                                     }
                                 },
                                 {
-                                    "name": "group_ldapdn",
+                                    "name": "group_ldap_dn",
                                     "string": {
                                         "computed_optional_required": "required",
                                         "description": "The LDAP DN where groups are found."
@@ -7461,7 +7461,7 @@
                         }
                     },
                     {
-                        "name": "rdn_ldapattribute",
+                        "name": "rdn_ldap_attribute",
                         "string": {
                             "computed_optional_required": "required",
                             "description": "Name of the LDAP attribute, which is used as RDN (top attribute) of typical user DN. Usually it's the same as the Username LDAP attribute, however it is not required."

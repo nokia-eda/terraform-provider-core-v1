@@ -78,9 +78,9 @@ Path,Method,Schema,Model Name,Supported,Datasource,Resource
 /core/transaction/v2/result/diffs/nodecfg/{transactionId},GET,TransactionResultObject,transaction_node_config_diff,true,true,false
 /core/transaction/v2/result/diffs/resource/{transactionId},GET,TransactionResultObject,transaction_resource_diff,true,true,false
 /core/transaction/v2/result/execution/{transactionId},GET,TransactionExecutionResult,transaction_execution_result,true,true,false
-/core/transaction/v2/result/inputresources/{transactionId},GET,TransactionResultInputResources,transaction_input_resource,true,true,false
-/core/transaction/v2/result/summary,GET,TransactionSummaryResults,transaction_result_summaries,true,true,false
-/core/transaction/v2/result/summary/{transactionId},GET,TransactionSummaryResult,transaction_result_summary,true,true,false
+/core/transaction/v2/result/inputresources/{transactionId},GET,TransactionResultInputResources,transaction_result_input_resources,true,true,false
+/core/transaction/v2/result/summary,GET,TransactionSummaryResults,transaction_summary_results,true,true,false
+/core/transaction/v2/result/summary/{transactionId},GET,TransactionSummaryResult,transaction_summary_result,true,true,false
 /core/transaction/v2/result/topology/{transactionId},GET,TransactionTopologyResult,,false,false,false
 /core/transaction/v2/revert/{transactionId},POST,TransactionId,,false,false,false
 /core/transaction/v2/state/{transactionId},GET,TransactionState,transaction_state,true,true,false

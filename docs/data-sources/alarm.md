@@ -17,7 +17,7 @@ description: |-
 
 ### Required
 
-- `alarmname` (String) The name of the alarm to retrieve
+- `alarm_name` (String) The name of the alarm to retrieve
 - `ns_name` (String) The namespace to fetch the alarm from
 
 ### Optional

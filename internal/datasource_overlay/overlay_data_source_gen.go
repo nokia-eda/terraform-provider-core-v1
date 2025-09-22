@@ -99,7 +99,7 @@ func OverlayDataSourceSchema(ctx context.Context) schema.Schema {
 			"link_attr_queries": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"attributes_1": schema.MapNestedAttribute{
+						"attributes": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"ui_description": schema.StringAttribute{
@@ -177,7 +177,7 @@ func OverlayDataSourceSchema(ctx context.Context) schema.Schema {
 			"node_attr_queries": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"attributes_2": schema.MapNestedAttribute{
+						"attributes": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"ui_description": schema.StringAttribute{
@@ -1866,7 +1866,7 @@ func (t LinkAttrQueriesType) ValueFromObject(ctx context.Context, in basetypes.O
 
 	attributes := in.Attributes()
 
-	attributes1Attribute, ok := attributes["attributes_1"]
+	attributes1Attribute, ok := attributes["attributes"]
 
 	if !ok {
 		diags.AddError(
@@ -1976,7 +1976,7 @@ func NewLinkAttrQueriesValue(attributeTypes map[string]attr.Type, attributes map
 		return NewLinkAttrQueriesValueUnknown(), diags
 	}
 
-	attributes1Attribute, ok := attributes["attributes_1"]
+	attributes1Attribute, ok := attributes["attributes"]
 
 	if !ok {
 		diags.AddError(
@@ -2091,7 +2091,7 @@ func (t LinkAttrQueriesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = LinkAttrQueriesValue{}
 
 type LinkAttrQueriesValue struct {
-	Attributes1 basetypes.MapValue    `tfsdk:"attributes_1"`
+	Attributes1 basetypes.MapValue    `tfsdk:"attributes"`
 	Query       basetypes.StringValue `tfsdk:"query"`
 	state       attr.ValueState
 }
@@ -2102,7 +2102,7 @@ func (v LinkAttrQueriesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 	var val tftypes.Value
 	var err error
 
-	attrTypes["attributes_1"] = basetypes.MapType{
+	attrTypes["attributes"] = basetypes.MapType{
 		ElemType: Attributes1Value{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["query"] = basetypes.StringType{}.TerraformType(ctx)
@@ -2119,7 +2119,7 @@ func (v LinkAttrQueriesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["attributes_1"] = val
+		vals["attributes"] = val
 
 		val, err = v.Query.ToTerraformValue(ctx)
 
@@ -2188,7 +2188,7 @@ func (v LinkAttrQueriesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"attributes_1": basetypes.MapType{
+		"attributes": basetypes.MapType{
 			ElemType: Attributes1Value{}.Type(ctx),
 		},
 		"query": basetypes.StringType{},
@@ -2205,8 +2205,8 @@ func (v LinkAttrQueriesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"attributes_1": attributes1,
-			"query":        v.Query,
+			"attributes": attributes1,
+			"query":      v.Query,
 		})
 
 	return objVal, diags
@@ -2248,7 +2248,7 @@ func (v LinkAttrQueriesValue) Type(ctx context.Context) attr.Type {
 
 func (v LinkAttrQueriesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"attributes_1": basetypes.MapType{
+		"attributes": basetypes.MapType{
 			ElemType: Attributes1Value{}.Type(ctx),
 		},
 		"query": basetypes.StringType{},
@@ -3368,7 +3368,7 @@ func (t NodeAttrQueriesType) ValueFromObject(ctx context.Context, in basetypes.O
 
 	attributes := in.Attributes()
 
-	attributes2Attribute, ok := attributes["attributes_2"]
+	attributes2Attribute, ok := attributes["attributes"]
 
 	if !ok {
 		diags.AddError(
@@ -3478,7 +3478,7 @@ func NewNodeAttrQueriesValue(attributeTypes map[string]attr.Type, attributes map
 		return NewNodeAttrQueriesValueUnknown(), diags
 	}
 
-	attributes2Attribute, ok := attributes["attributes_2"]
+	attributes2Attribute, ok := attributes["attributes"]
 
 	if !ok {
 		diags.AddError(
@@ -3593,7 +3593,7 @@ func (t NodeAttrQueriesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = NodeAttrQueriesValue{}
 
 type NodeAttrQueriesValue struct {
-	Attributes2 basetypes.MapValue    `tfsdk:"attributes_2"`
+	Attributes2 basetypes.MapValue    `tfsdk:"attributes"`
 	Query       basetypes.StringValue `tfsdk:"query"`
 	state       attr.ValueState
 }
@@ -3604,7 +3604,7 @@ func (v NodeAttrQueriesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 	var val tftypes.Value
 	var err error
 
-	attrTypes["attributes_2"] = basetypes.MapType{
+	attrTypes["attributes"] = basetypes.MapType{
 		ElemType: Attributes2Value{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["query"] = basetypes.StringType{}.TerraformType(ctx)
@@ -3621,7 +3621,7 @@ func (v NodeAttrQueriesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["attributes_2"] = val
+		vals["attributes"] = val
 
 		val, err = v.Query.ToTerraformValue(ctx)
 
@@ -3690,7 +3690,7 @@ func (v NodeAttrQueriesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"attributes_2": basetypes.MapType{
+		"attributes": basetypes.MapType{
 			ElemType: Attributes2Value{}.Type(ctx),
 		},
 		"query": basetypes.StringType{},
@@ -3707,8 +3707,8 @@ func (v NodeAttrQueriesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"attributes_2": attributes2,
-			"query":        v.Query,
+			"attributes": attributes2,
+			"query":      v.Query,
 		})
 
 	return objVal, diags
@@ -3750,7 +3750,7 @@ func (v NodeAttrQueriesValue) Type(ctx context.Context) attr.Type {
 
 func (v NodeAttrQueriesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"attributes_2": basetypes.MapType{
+		"attributes": basetypes.MapType{
 			ElemType: Attributes2Value{}.Type(ctx),
 		},
 		"query": basetypes.StringType{},

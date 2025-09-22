@@ -173,7 +173,7 @@ func AlarmHistoryDataSourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed: true,
 			},
-			"alarmname": schema.StringAttribute{
+			"alarm_name": schema.StringAttribute{
 				Required:            true,
 				Description:         "name of the alarm whose history should be retrieved.",
 				MarkdownDescription: "name of the alarm whose history should be retrieved.",
@@ -189,7 +189,7 @@ func AlarmHistoryDataSourceSchema(ctx context.Context) schema.Schema {
 
 type AlarmHistoryModel struct {
 	AlarmHistory types.Set    `tfsdk:"alarm_history"`
-	Alarmname    types.String `tfsdk:"alarmname"`
+	AlarmName    types.String `tfsdk:"alarm_name"`
 	NsName       types.String `tfsdk:"ns_name"`
 }
 

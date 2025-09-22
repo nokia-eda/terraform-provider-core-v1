@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"unicode"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -20,10 +21,81 @@ import (
 )
 
 var (
-	visitCounter int64
-	specialNames = map[string]string{
-		"alarmname":     "alarm-name",
-		"labelselector": "label-selector",
+	visitCounter      int64
+	snakeToCamelNames = map[string]string{
+		"alarm_name":                 "alarm-name",
+		"app_id":                     "appId",
+		"badge_name":                 "badge_name",
+		"badge_path":                 "badge_path",
+		"base64_encode":              "base64-encode",
+		"directory_path":             "directory-path",
+		"display_name":               "display_name",
+		"end_char":                   "end_char",
+		"endpoint_attr_queries":      "endpoint_attr_queries",
+		"endpoint_state":             "endpoint_state",
+		"endpoint_state_heading":     "endpoint_state_heading",
+		"endpoint_state_heading_key": "endpoint_state_heading_key",
+		"file_content":               "file-content",
+		"file_deleted":               "file-deleted",
+		"file_name":                  "file-name",
+		"fullroles":                  "full-roles",
+		"fullusers":                  "full-users",
+		"label_selector":             "label-selector",
+		"link_attr_queries":          "link_attr_queries",
+		"link_state":                 "link_state",
+		"link_state_heading":         "link_state_heading",
+		"link_state_heading_key":     "link_state_heading_key",
+		"modification_time":          "modification-time",
+		"name_ldap_attribute":        "NameLDAPAttribute",
+		"node_attr_queries":          "node_attr_queries",
+		"node_badge":                 "node_badge",
+		"node_state":                 "node_state",
+		"node_state_heading":         "node_state_heading",
+		"node_state_heading_key":     "node_state_heading_key",
+		"parent_id":                  "parentId",
+		"start_char":                 "start_char",
+		"subtitle_key":               "subtitle_key",
+		"transaction_id":             "transactionId",
+		"ui_description":             "ui_description",
+		"ui_description_key":         "ui_description_key",
+		"ui_name":                    "ui_name",
+		"ui_name_key":                "ui_name_key",
+		"workflow_id":                "workflowId",
+	}
+	camelToSnakeNames = map[string]string{}
+	acronyms          = map[string]string{
+		"arp":   "ARP",
+		"arpnd": "ARPND",
+		"as":    "AS",
+		"asn":   "ASN",
+		"asvpn": "ASVPN",
+		"bgp":   "BGP",
+		"dhcp":  "DHCP",
+		"dn":    "DN",
+		"ecmp":  "ECMP",
+		"evpn":  "EVPN",
+		"fib":   "FIB",
+		"fqdn":  "FQDN",
+		"icmp":  "ICMP",
+		"id":    "ID",
+		"ip":    "IP",
+		"ipv4":  "IPv4",
+		"ipv6":  "IPv6",
+		"irb":   "IRB",
+		"l2cp":  "L2CP",
+		"ldap":  "LDAP",
+		"mac":   "MAC",
+		"mtu":   "MTU",
+		"nd":    "ND",
+		"pdu":   "PDU",
+		"pfc":   "PFC",
+		"rr":    "RR",
+		"safi":  "SAFI",
+		"tls":   "TLS",
+		"uri":   "URI",
+		"url":   "URL",
+		"vlan":  "VLAN",
+		"vpn":   "VPN",
 	}
 	ignoreCaseNames = map[string]bool{
 		"annotations": true,
@@ -37,24 +109,54 @@ func newVisitID(prefix string) string {
 }
 
 // SnakeToCamel converts a snake_case string to camelCase
-// |-----------------------------|
-// |           Examples          |
-// |--------------|--------------|
-// | Input string | Return value |
-// |--------------|--------------|
-// | "api_ver_1"  | "apiVer1"    |
-// | "__lag"      | "lag"        |
-// | "_members"   | "members"    |
-// |--------------|--------------|
+// |--------------------------------|
+// |            Examples            |
+// |----------------|---------------|
+// | Input string   | Return value  |
+// |----------------|---------------|
+// | "api_version1" | "apiVersion1" |
+// | "__lag"        | "lag"         |
+// | "_members"     | "members"     |
+// | "pool_ipv4"    | "poolIPv4"    |
+// | "vlan_id"      | "vlanID"      |
+// |----------------|---------------|
 func SnakeToCamel(str string) string {
+	if str == "" {
+		return ""
+	}
+	// Check for special snake_case names first
+	if val, ok := snakeToCamelNames[str]; ok {
+		return val
+	}
 	parts := strings.Split(str, "_")
-	for i := 1; i < len(parts); i++ {
-		// If the first part is empty, skip capitalizing the 2nd part, e.g. "_members"
-		if parts[0] != "" && len(parts[i]) > 0 {
-			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
+	var result []string
+
+	for i := range parts {
+		// If any part is empty, skip capitalizing the next part, e.g. "_members"
+		if parts[i] == "" {
+			continue
+		}
+		// Match with special acronyms (e.g. "mtu", "id", etc.)
+		lower := strings.ToLower(parts[i])
+		if val, ok := acronyms[lower]; ok {
+			result = append(result, val)
+			continue
+		}
+
+		// Capitalize first letter
+		if i > 0 {
+			runes := []rune(lower)
+			runes[0] = unicode.ToUpper(runes[0])
+			result = append(result, string(runes))
+		} else {
+			result = append(result, lower)
 		}
 	}
-	return strings.Join(parts, "")
+
+	if len(result) > 0 {
+		result[0] = strings.ToLower(result[0])
+	}
+	return strings.Join(result, "")
 }
 
 // CamelToSnake converts a camelCase string to snake_case
@@ -66,12 +168,21 @@ func SnakeToCamel(str string) string {
 // | "apiVersion1" | "api_version1" |
 // | "__lag"       | "__lag"        |
 // | "_MemberS"    | "_member_s"    |
+// | "poolIPv4"    | "pool_ipv4"    |
+// | "vlanID"      | "vlan_id"      |
 // |---------------|----------------|
 func CamelToSnake(str string) string {
-	// Insert an underscore before all capital letters that are not at the start
+	if str == "" {
+		return ""
+	}
+	// Check for special camelCase names first
+	if val, ok := camelToSnakeNames[str]; ok {
+		return val
+	}
 	re := regexp.MustCompile(`([a-z0-9])([A-Z])`)
-	snake := re.ReplaceAllString(str, "${1}_${2}")
-	return strings.ToLower(snake)
+	str = re.ReplaceAllString(str, "${1}_${2}")
+
+	return strings.ToLower(str)
 }
 
 func newObjectTypableNull(ctx context.Context, objTypable basetypes.ObjectTypable) (attr.Value, error) {
@@ -786,11 +897,8 @@ func ModelToStringMap(ctx context.Context, model any) (map[string]string, error)
 				typ.Elem().String(), field.Name))
 			continue
 		}
-		// Compute the field name in camel case
-		fieldName := strings.ToLower(field.Name[0:1]) + field.Name[1:]
-		if newName, exists := specialNames[fieldName]; exists {
-			fieldName = newName
-		}
+		// Convert the field name from its `tfsdk` tag to camelCase
+		fieldName := SnakeToCamel(field.Tag.Get("tfsdk"))
 		attrVal := val.Elem().Field(i).Interface().(attr.Value)
 
 		tflog.Debug(ctx, "ModelToAnyMap()::Iterating over fields", map[string]any{
@@ -839,8 +947,8 @@ func ModelToAnyMap(ctx context.Context, model any) (map[string]any, error) {
 				typ.Elem().String(), field.Name))
 			continue
 		}
-		// Compute the field name in camel case
-		fieldName := strings.ToLower(field.Name[0:1]) + field.Name[1:]
+		// Convert the field name from its `tfsdk` tag to camelCase
+		fieldName := SnakeToCamel(field.Tag.Get("tfsdk"))
 		attrVal := val.Elem().Field(i).Interface().(attr.Value)
 
 		tflog.Debug(ctx, "ModelToAnyMap()::Iterating over fields", map[string]any{
@@ -886,8 +994,8 @@ func AnyMapToModel(ctx context.Context, resp map[string]any, model any) error {
 				modelType.Elem().String(), field.Name))
 			continue
 		}
-		// Compute the field name in camel case
-		fieldName := strings.ToLower(field.Name[0:1]) + field.Name[1:]
+		// Convert the field name from its `tfsdk` tag to camelCase
+		fieldName := SnakeToCamel(field.Tag.Get("tfsdk"))
 		attrVal := modelValue.Elem().Field(i).Interface().(attr.Value)
 
 		tflog.Debug(ctx, "AnyMapToModel()::Iterating over fields", map[string]any{

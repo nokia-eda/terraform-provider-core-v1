@@ -8,36 +8,36 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/nokia/eda/apps/terraform-provider-core/internal/datasource_alarm_history"
+	"github.com/nokia/eda/apps/terraform-provider-core/internal/datasource_transaction_result_input_resources"
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/eda/apiclient"
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/tfutils"
 )
 
-const read_ds_alarmHistory = "/core/alarm/v2/namespaces/{nsName}/alarms/{alarm_name}/history"
+const read_ds_transactionResultInputResources = "/core/transaction/v2/result/inputresources/{transactionId}"
 
 var (
-	_ datasource.DataSource              = (*alarmHistoryDataSource)(nil)
-	_ datasource.DataSourceWithConfigure = (*alarmHistoryDataSource)(nil)
+	_ datasource.DataSource              = (*transactionResultInputResourcesDataSource)(nil)
+	_ datasource.DataSourceWithConfigure = (*transactionResultInputResourcesDataSource)(nil)
 )
 
-func NewAlarmHistoryDataSource() datasource.DataSource {
-	return &alarmHistoryDataSource{}
+func NewTransactionResultInputResourcesDataSource() datasource.DataSource {
+	return &transactionResultInputResourcesDataSource{}
 }
 
-type alarmHistoryDataSource struct {
+type transactionResultInputResourcesDataSource struct {
 	client *apiclient.EdaApiClient
 }
 
-func (d *alarmHistoryDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_alarm_history"
+func (d *transactionResultInputResourcesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_transaction_result_input_resources"
 }
 
-func (d *alarmHistoryDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_alarm_history.AlarmHistoryDataSourceSchema(ctx)
+func (d *transactionResultInputResourcesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = datasource_transaction_result_input_resources.TransactionResultInputResourcesDataSourceSchema(ctx)
 }
 
-func (d *alarmHistoryDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data datasource_alarm_history.AlarmHistoryModel
+func (d *transactionResultInputResourcesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data datasource_transaction_result_input_resources.TransactionResultInputResourcesModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -55,20 +55,19 @@ func (d *alarmHistoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	// Read API call logic
 	tflog.Info(ctx, "Read()::API request", map[string]any{
-		"path":  read_ds_alarmHistory,
+		"path":  read_ds_transactionResultInputResources,
 		"data":  spew.Sdump(data),
 		"query": queryParams,
 	})
 
 	t0 := time.Now()
-	result := []any{}
-	err = d.client.GetByQuery(ctx, read_ds_alarmHistory, map[string]string{
-		"nsName":     tfutils.StringValue(data.NsName),
-		"alarm_name": tfutils.StringValue(data.AlarmName),
+	result := map[string]any{}
+	err = d.client.GetByQuery(ctx, read_ds_transactionResultInputResources, map[string]string{
+		"transactionId": tfutils.StringValue(data.TransactionId),
 	}, queryParams, &result)
 
 	tflog.Info(ctx, "Read()::API returned", map[string]any{
-		"path":      read_ds_alarmHistory,
+		"path":      read_ds_transactionResultInputResources,
 		"result":    spew.Sdump(result),
 		"timeTaken": time.Since(t0).String(),
 	})
@@ -78,12 +77,8 @@ func (d *alarmHistoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	newResult := map[string]any{
-		"alarmHistory": result,
-	}
-
 	// Convert API response to Terraform model
-	err = tfutils.AnyMapToModel(ctx, newResult, &data)
+	err = tfutils.AnyMapToModel(ctx, result, &data)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to build response from API result", err.Error())
 		return
@@ -94,7 +89,7 @@ func (d *alarmHistoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 }
 
 // Configure adds the provider configured client to the data source.
-func (r *alarmHistoryDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (r *transactionResultInputResourcesDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Add a nil check when handling ProviderData because Terraform
 	// sets that data after it calls the ConfigureProvider RPC.
 	if req.ProviderData == nil {

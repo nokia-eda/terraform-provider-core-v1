@@ -21,13 +21,13 @@ description: |-
 
 ### Optional
 
-- `base64encode` (Boolean) if true, file content will be base64-encoded before being returned
+- `base64_encode` (Boolean) if true, file content will be base64-encoded before being returned
 
 ### Read-Only
 
-- `filecontent` (String) content of the file, will be base64 encoded if the request asked for this
-- `filedeleted` (Boolean) if present and true, indicates the file has been deleted; used for
+- `file_content` (String) content of the file, will be base64 encoded if the request asked for this
+- `file_deleted` (Boolean) if present and true, indicates the file has been deleted; used for
 streamed responses
-- `filename` (String) name of the file
-- `modificationtime` (String) UTC modification time of the file, as an RFC 3339 date/time.
+- `file_name` (String) name of the file
+- `modification_time` (String) UTC modification time of the file, as an RFC 3339 date/time.
 Not valid if file-deleted is true (in a streamed response)

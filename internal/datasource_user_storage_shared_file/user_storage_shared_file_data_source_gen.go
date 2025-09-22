@@ -12,28 +12,28 @@ import (
 func UserStorageSharedFileDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"base64encode": schema.BoolAttribute{
+			"base64_encode": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
 				Description:         "if true, file content will be base64-encoded before being returned",
 				MarkdownDescription: "if true, file content will be base64-encoded before being returned",
 			},
-			"filecontent": schema.StringAttribute{
+			"file_content": schema.StringAttribute{
 				Computed:            true,
 				Description:         "content of the file, will be base64 encoded if the request asked for this",
 				MarkdownDescription: "content of the file, will be base64 encoded if the request asked for this",
 			},
-			"filedeleted": schema.BoolAttribute{
+			"file_deleted": schema.BoolAttribute{
 				Computed:            true,
 				Description:         "if present and true, indicates the file has been deleted; used for\nstreamed responses",
 				MarkdownDescription: "if present and true, indicates the file has been deleted; used for\nstreamed responses",
 			},
-			"filename": schema.StringAttribute{
+			"file_name": schema.StringAttribute{
 				Computed:            true,
 				Description:         "name of the file",
 				MarkdownDescription: "name of the file",
 			},
-			"modificationtime": schema.StringAttribute{
+			"modification_time": schema.StringAttribute{
 				Computed:            true,
 				Description:         "UTC modification time of the file, as an RFC 3339 date/time.\nNot valid if file-deleted is true (in a streamed response)",
 				MarkdownDescription: "UTC modification time of the file, as an RFC 3339 date/time.\nNot valid if file-deleted is true (in a streamed response)",
@@ -48,10 +48,10 @@ func UserStorageSharedFileDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type UserStorageSharedFileModel struct {
-	Base64encode     types.Bool   `tfsdk:"base64encode"`
-	Filecontent      types.String `tfsdk:"filecontent"`
-	Filedeleted      types.Bool   `tfsdk:"filedeleted"`
-	Filename         types.String `tfsdk:"filename"`
-	Modificationtime types.String `tfsdk:"modificationtime"`
+	Base64Encode     types.Bool   `tfsdk:"base64_encode"`
+	FileContent      types.String `tfsdk:"file_content"`
+	FileDeleted      types.Bool   `tfsdk:"file_deleted"`
+	FileName         types.String `tfsdk:"file_name"`
+	ModificationTime types.String `tfsdk:"modification_time"`
 	Path             types.String `tfsdk:"path"`
 }

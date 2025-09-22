@@ -21,11 +21,11 @@ description: |-
 
 ### Optional
 
-- `base64encode` (Boolean) if true, file content will be base64-encoded before being returned
+- `base64_encode` (Boolean) if true, file content will be base64-encoded before being returned
 
 ### Read-Only
 
-- `directorypath` (String) path for the directory within the users storage
+- `directory_path` (String) path for the directory within the users storage
 - `entries` (Attributes List) array of entries for the items in the directory (see [below for nested schema](#nestedatt--entries))
 
 <a id="nestedatt--entries"></a>
@@ -33,6 +33,6 @@ description: |-
 
 Read-Only:
 
-- `modificationtime` (String) modification type of the item, if a file
+- `modification_time` (String) modification type of the item, if a file
 - `name` (String) name of the item within the directory
 - `type` (String) type of the item; "file" or "directory"

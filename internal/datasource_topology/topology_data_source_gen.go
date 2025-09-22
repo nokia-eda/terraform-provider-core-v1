@@ -104,7 +104,7 @@ func TopologyDataSourceSchema(ctx context.Context) schema.Schema {
 			},
 			"links": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
-					"attributes_1": schema.MapNestedAttribute{
+					"attributes": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"type": schema.StringAttribute{
@@ -131,7 +131,7 @@ func TopologyDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						Computed: true,
 					},
-					"schema_1": schema.SingleNestedAttribute{
+					"schema": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"group": schema.StringAttribute{
 								Computed: true,
@@ -169,7 +169,7 @@ func TopologyDataSourceSchema(ctx context.Context) schema.Schema {
 			},
 			"nodes": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
-					"attributes_2": schema.MapNestedAttribute{
+					"attributes": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"type": schema.StringAttribute{
@@ -196,7 +196,7 @@ func TopologyDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						Computed: true,
 					},
-					"schema_2": schema.SingleNestedAttribute{
+					"schema": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"group": schema.StringAttribute{
 								Computed: true,
@@ -2256,7 +2256,7 @@ func (t LinksType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 
 	attributes := in.Attributes()
 
-	attributes1Attribute, ok := attributes["attributes_1"]
+	attributes1Attribute, ok := attributes["attributes"]
 
 	if !ok {
 		diags.AddError(
@@ -2274,7 +2274,7 @@ func (t LinksType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`attributes_1 expected to be basetypes.MapValue, was: %T`, attributes1Attribute))
 	}
 
-	schema1Attribute, ok := attributes["schema_1"]
+	schema1Attribute, ok := attributes["schema"]
 
 	if !ok {
 		diags.AddError(
@@ -2404,7 +2404,7 @@ func NewLinksValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewLinksValueUnknown(), diags
 	}
 
-	attributes1Attribute, ok := attributes["attributes_1"]
+	attributes1Attribute, ok := attributes["attributes"]
 
 	if !ok {
 		diags.AddError(
@@ -2422,7 +2422,7 @@ func NewLinksValue(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`attributes_1 expected to be basetypes.MapValue, was: %T`, attributes1Attribute))
 	}
 
-	schema1Attribute, ok := attributes["schema_1"]
+	schema1Attribute, ok := attributes["schema"]
 
 	if !ok {
 		diags.AddError(
@@ -2557,8 +2557,8 @@ func (t LinksType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = LinksValue{}
 
 type LinksValue struct {
-	Attributes1 basetypes.MapValue    `tfsdk:"attributes_1"`
-	Schema1     basetypes.ObjectValue `tfsdk:"schema_1"`
+	Attributes1 basetypes.MapValue    `tfsdk:"attributes"`
+	Schema1     basetypes.ObjectValue `tfsdk:"schema"`
 	Subtitle    basetypes.StringValue `tfsdk:"subtitle"`
 	SubtitleKey basetypes.StringValue `tfsdk:"subtitle_key"`
 	state       attr.ValueState
@@ -2570,10 +2570,10 @@ func (v LinksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	var val tftypes.Value
 	var err error
 
-	attrTypes["attributes_1"] = basetypes.MapType{
+	attrTypes["attributes"] = basetypes.MapType{
 		ElemType: Attributes1Value{}.Type(ctx),
 	}.TerraformType(ctx)
-	attrTypes["schema_1"] = basetypes.ObjectType{
+	attrTypes["schema"] = basetypes.ObjectType{
 		AttrTypes: Schema1Value{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["subtitle"] = basetypes.StringType{}.TerraformType(ctx)
@@ -2591,7 +2591,7 @@ func (v LinksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["attributes_1"] = val
+		vals["attributes"] = val
 
 		val, err = v.Schema1.ToTerraformValue(ctx)
 
@@ -2599,7 +2599,7 @@ func (v LinksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["schema_1"] = val
+		vals["schema"] = val
 
 		val, err = v.Subtitle.ToTerraformValue(ctx)
 
@@ -2697,10 +2697,10 @@ func (v LinksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"attributes_1": basetypes.MapType{
+		"attributes": basetypes.MapType{
 			ElemType: Attributes1Value{}.Type(ctx),
 		},
-		"schema_1": basetypes.ObjectType{
+		"schema": basetypes.ObjectType{
 			AttrTypes: Schema1Value{}.AttributeTypes(ctx),
 		},
 		"subtitle":     basetypes.StringType{},
@@ -2718,8 +2718,8 @@ func (v LinksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"attributes_1": attributes1,
-			"schema_1":     schema1,
+			"attributes":   attributes1,
+			"schema":       schema1,
 			"subtitle":     v.Subtitle,
 			"subtitle_key": v.SubtitleKey,
 		})
@@ -2771,10 +2771,10 @@ func (v LinksValue) Type(ctx context.Context) attr.Type {
 
 func (v LinksValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"attributes_1": basetypes.MapType{
+		"attributes": basetypes.MapType{
 			ElemType: Attributes1Value{}.Type(ctx),
 		},
-		"schema_1": basetypes.ObjectType{
+		"schema": basetypes.ObjectType{
 			AttrTypes: Schema1Value{}.AttributeTypes(ctx),
 		},
 		"subtitle":     basetypes.StringType{},
@@ -3785,7 +3785,7 @@ func (t NodesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 
 	attributes := in.Attributes()
 
-	attributes2Attribute, ok := attributes["attributes_2"]
+	attributes2Attribute, ok := attributes["attributes"]
 
 	if !ok {
 		diags.AddError(
@@ -3803,7 +3803,7 @@ func (t NodesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`attributes_2 expected to be basetypes.MapValue, was: %T`, attributes2Attribute))
 	}
 
-	schema2Attribute, ok := attributes["schema_2"]
+	schema2Attribute, ok := attributes["schema"]
 
 	if !ok {
 		diags.AddError(
@@ -3933,7 +3933,7 @@ func NewNodesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewNodesValueUnknown(), diags
 	}
 
-	attributes2Attribute, ok := attributes["attributes_2"]
+	attributes2Attribute, ok := attributes["attributes"]
 
 	if !ok {
 		diags.AddError(
@@ -3951,7 +3951,7 @@ func NewNodesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`attributes_2 expected to be basetypes.MapValue, was: %T`, attributes2Attribute))
 	}
 
-	schema2Attribute, ok := attributes["schema_2"]
+	schema2Attribute, ok := attributes["schema"]
 
 	if !ok {
 		diags.AddError(
@@ -4086,8 +4086,8 @@ func (t NodesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = NodesValue{}
 
 type NodesValue struct {
-	Attributes2 basetypes.MapValue    `tfsdk:"attributes_2"`
-	Schema2     basetypes.ObjectValue `tfsdk:"schema_2"`
+	Attributes2 basetypes.MapValue    `tfsdk:"attributes"`
+	Schema2     basetypes.ObjectValue `tfsdk:"schema"`
 	Subtitle    basetypes.StringValue `tfsdk:"subtitle"`
 	SubtitleKey basetypes.StringValue `tfsdk:"subtitle_key"`
 	state       attr.ValueState
@@ -4099,10 +4099,10 @@ func (v NodesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	var val tftypes.Value
 	var err error
 
-	attrTypes["attributes_2"] = basetypes.MapType{
+	attrTypes["attributes"] = basetypes.MapType{
 		ElemType: Attributes2Value{}.Type(ctx),
 	}.TerraformType(ctx)
-	attrTypes["schema_2"] = basetypes.ObjectType{
+	attrTypes["schema"] = basetypes.ObjectType{
 		AttrTypes: Schema2Value{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["subtitle"] = basetypes.StringType{}.TerraformType(ctx)
@@ -4120,7 +4120,7 @@ func (v NodesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["attributes_2"] = val
+		vals["attributes"] = val
 
 		val, err = v.Schema2.ToTerraformValue(ctx)
 
@@ -4128,7 +4128,7 @@ func (v NodesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["schema_2"] = val
+		vals["schema"] = val
 
 		val, err = v.Subtitle.ToTerraformValue(ctx)
 
@@ -4226,10 +4226,10 @@ func (v NodesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"attributes_2": basetypes.MapType{
+		"attributes": basetypes.MapType{
 			ElemType: Attributes2Value{}.Type(ctx),
 		},
-		"schema_2": basetypes.ObjectType{
+		"schema": basetypes.ObjectType{
 			AttrTypes: Schema2Value{}.AttributeTypes(ctx),
 		},
 		"subtitle":     basetypes.StringType{},
@@ -4247,8 +4247,8 @@ func (v NodesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"attributes_2": attributes2,
-			"schema_2":     schema2,
+			"attributes":   attributes2,
+			"schema":       schema2,
 			"subtitle":     v.Subtitle,
 			"subtitle_key": v.SubtitleKey,
 		})
@@ -4300,10 +4300,10 @@ func (v NodesValue) Type(ctx context.Context) attr.Type {
 
 func (v NodesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"attributes_2": basetypes.MapType{
+		"attributes": basetypes.MapType{
 			ElemType: Attributes2Value{}.Type(ctx),
 		},
-		"schema_2": basetypes.ObjectType{
+		"schema": basetypes.ObjectType{
 			AttrTypes: Schema2Value{}.AttributeTypes(ctx),
 		},
 		"subtitle":     basetypes.StringType{},

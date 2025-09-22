@@ -18,7 +18,7 @@ import (
 func ClusterAlarmHistoryDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"alarmname": schema.StringAttribute{
+			"alarm_name": schema.StringAttribute{
 				Required:            true,
 				Description:         "name of the alarm whose history should be retrieved.",
 				MarkdownDescription: "name of the alarm whose history should be retrieved.",
@@ -183,7 +183,7 @@ func ClusterAlarmHistoryDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type ClusterAlarmHistoryModel struct {
-	Alarmname           types.String `tfsdk:"alarmname"`
+	AlarmName           types.String `tfsdk:"alarm_name"`
 	ClusterAlarmHistory types.Set    `tfsdk:"cluster_alarm_history"`
 }
 

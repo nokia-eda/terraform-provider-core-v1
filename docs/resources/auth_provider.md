@@ -19,7 +19,7 @@ description: |-
 
 - `id_attribute` (String) Name of the LDAP attribute, which is used as a unique object identifier (UUID) for objects in LDAP.
 - `name` (String) The name to give to the LDAP provider; must be unique.
-- `rdn_ldapattribute` (String) Name of the LDAP attribute, which is used as RDN (top attribute) of typical user DN. Usually it's the same as the Username LDAP attribute, however it is not required.
+- `rdn_ldap_attribute` (String) Name of the LDAP attribute, which is used as RDN (top attribute) of typical user DN. Usually it's the same as the Username LDAP attribute, however it is not required.
 - `type` (String) The type of provider.  Currently only "ldap" is supported.
 - `url` (String) Connection URL to your LDAP server
 - `user_dn` (String) Full DN of LDAP tree where your users are. This DN is the parent of LDAP users.
@@ -57,8 +57,8 @@ Required:
 
 Required:
 
-- `group_ldapdn` (String) The LDAP DN where groups are found.
-- `name_ldapattribute` (String) The LDAP group name attribute
+- `group_ldap_dn` (String) The LDAP DN where groups are found.
+- `name_ldap_attribute` (String) The LDAP group name attribute
 - `object_classes` (String) The LDAP object class or classes used for groups. If more than one, they must be comma-separated.
 
 Optional:

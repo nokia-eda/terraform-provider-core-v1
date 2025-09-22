@@ -192,17 +192,17 @@ data_sources:
       path: /core/transaction/v2/result/execution/{transactionId}
       method: GET
 
-  transaction_input_resource:
+  transaction_result_input_resources:
     read:
       path: /core/transaction/v2/result/inputresources/{transactionId}
       method: GET
 
-  transaction_result_summary:
+  transaction_summary_result:
     read:
       path: /core/transaction/v2/result/summary/{transactionId}
       method: GET
 
-  transaction_result_summaries:
+  transaction_summary_results:
     read:
       path: /core/transaction/v2/result/summary
       method: GET

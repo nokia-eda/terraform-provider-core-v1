@@ -17,7 +17,7 @@ description: |-
 
 ### Required
 
-- `alarmname` (String) name of the alarm whose history should be retrieved.
+- `alarm_name` (String) name of the alarm whose history should be retrieved.
 - `ns_name` (String) the name of the namespace for the alarm
 
 ### Read-Only

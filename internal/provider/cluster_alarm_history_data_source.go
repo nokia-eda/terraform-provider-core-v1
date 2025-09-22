@@ -13,7 +13,7 @@ import (
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/tfutils"
 )
 
-const read_ds_clusterAlarmHistory = "/core/alarm/v2/alarms/{alarmname}/history"
+const read_ds_clusterAlarmHistory = "/core/alarm/v2/alarms/{alarm_name}/history"
 
 var (
 	_ datasource.DataSource              = (*clusterAlarmHistoryDataSource)(nil)
@@ -63,7 +63,7 @@ func (d *clusterAlarmHistoryDataSource) Read(ctx context.Context, req datasource
 	t0 := time.Now()
 	result := []any{}
 	err = d.client.GetByQuery(ctx, read_ds_clusterAlarmHistory, map[string]string{
-		"alarmname": tfutils.StringValue(data.Alarmname),
+		"alarm_name": tfutils.StringValue(data.AlarmName),
 	}, queryParams, &result)
 
 	tflog.Info(ctx, "Read()::API returned", map[string]any{
