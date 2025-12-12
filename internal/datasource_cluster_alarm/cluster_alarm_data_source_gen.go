@@ -4,7 +4,13 @@ package datasource_cluster_alarm
 
 import (
 	"context"
+	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 )
@@ -21,6 +27,11 @@ func ClusterAlarmDataSourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Indicates the end time of the acknowledgement.",
 				MarkdownDescription: "Indicates the end time of the acknowledgement.",
+			},
+			"additional_text": schema.StringAttribute{
+				Computed:            true,
+				Description:         "adds extra context related to the alarm",
+				MarkdownDescription: "adds extra context related to the alarm",
 			},
 			"alarm_name": schema.StringAttribute{
 				Required:            true,
@@ -40,8 +51,14 @@ func ClusterAlarmDataSourceSchema(ctx context.Context) schema.Schema {
 			},
 			"cluster_member": schema.StringAttribute{
 				Computed:            true,
-				Description:         "The cluster member that generated this alarm.",
-				MarkdownDescription: "The cluster member that generated this alarm.",
+				Description:         "The cluster member that generated this alarm.  Use clusterName instead.\nDeprecated: true",
+				MarkdownDescription: "The cluster member that generated this alarm.  Use clusterName instead.\nDeprecated: true",
+				DeprecationMessage:  "This attribute is deprecated.",
+			},
+			"cluster_name": schema.StringAttribute{
+				Computed:            true,
+				Description:         "The name of the cluster member which generated this alarm.",
+				MarkdownDescription: "The name of the cluster member which generated this alarm.",
 			},
 			"description": schema.StringAttribute{
 				Computed:            true,
@@ -53,10 +70,18 @@ func ClusterAlarmDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Indicates the group of the resource the alarm is present on.",
 				MarkdownDescription: "Indicates the group of the resource the alarm is present on.",
 			},
-			"js_path": schema.StringAttribute{
+			"js_paths": schema.ListAttribute{
+				ElementType:         types.StringType,
 				Computed:            true,
-				Description:         "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}.",
-				MarkdownDescription: "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}.",
+				Description:         "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true",
+				MarkdownDescription: "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true",
+				DeprecationMessage:  "This attribute is deprecated.",
+			},
+			"jspaths": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Computed:            true,
+				Description:         "An unnormalized jspath relating to the object in the alarm state.",
+				MarkdownDescription: "An unnormalized jspath relating to the object in the alarm state.",
 			},
 			"kind": schema.StringAttribute{
 				Computed:            true,
@@ -64,6 +89,17 @@ func ClusterAlarmDataSourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Indicates the kind of resource the alarm is present on.",
 			},
 			"last_acknowledged": schema.StringAttribute{
+				Computed:            true,
+				Description:         "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true",
+				MarkdownDescription: "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true",
+				DeprecationMessage:  "This attribute is deprecated.",
+			},
+			"last_acknowledged_by": schema.StringAttribute{
+				Computed:            true,
+				Description:         "the user who last acknowledged the alarm",
+				MarkdownDescription: "the user who last acknowledged the alarm",
+			},
+			"last_acknowledged_time": schema.StringAttribute{
 				Computed:            true,
 				Description:         "the time this alarm was last acknowledged.",
 				MarkdownDescription: "the time this alarm was last acknowledged.",
@@ -74,6 +110,17 @@ func ClusterAlarmDataSourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "The last time that the alarm was changed; as provided by the raiser of the alarm.",
 			},
 			"last_suppressed": schema.StringAttribute{
+				Computed:            true,
+				Description:         "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true",
+				MarkdownDescription: "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true",
+				DeprecationMessage:  "This attribute is deprecated.",
+			},
+			"last_suppressed_by": schema.StringAttribute{
+				Computed:            true,
+				Description:         "the user who last suppressed the alarm",
+				MarkdownDescription: "the user who last suppressed the alarm",
+			},
+			"last_suppressed_time": schema.StringAttribute{
 				Computed:            true,
 				Description:         "the time this alarm was last suppressed.",
 				MarkdownDescription: "the time this alarm was last suppressed.",
@@ -144,6 +191,25 @@ func ClusterAlarmDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Indicates the end time of the suppression.",
 				MarkdownDescription: "Indicates the end time of the suppression.",
 			},
+			"targets_affected": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							Computed:            true,
+							Description:         "Name of the target node.",
+							MarkdownDescription: "Name of the target node.",
+						},
+					},
+					CustomType: TargetsAffectedType{
+						ObjectType: types.ObjectType{
+							AttrTypes: TargetsAffectedValue{}.AttributeTypes(ctx),
+						},
+					},
+				},
+				Computed:            true,
+				Description:         "List of nodes affected by this alarm.",
+				MarkdownDescription: "List of nodes affected by this alarm.",
+			},
 			"type": schema.StringAttribute{
 				Computed:            true,
 				Description:         "A kind for the alarm, e.g. InterfaceDown",
@@ -154,31 +220,363 @@ func ClusterAlarmDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type ClusterAlarmModel struct {
-	Acknowledged      types.Bool   `tfsdk:"acknowledged"`
-	AcknowledgedUntil types.String `tfsdk:"acknowledged_until"`
-	AlarmName         types.String `tfsdk:"alarm_name"`
-	All               types.Bool   `tfsdk:"all"`
-	Cleared           types.Bool   `tfsdk:"cleared"`
-	ClusterMember     types.String `tfsdk:"cluster_member"`
-	Description       types.String `tfsdk:"description"`
-	Group             types.String `tfsdk:"group"`
-	JsPath            types.String `tfsdk:"js_path"`
-	Kind              types.String `tfsdk:"kind"`
-	LastAcknowledged  types.String `tfsdk:"last_acknowledged"`
-	LastChanged       types.String `tfsdk:"last_changed"`
-	LastSuppressed    types.String `tfsdk:"last_suppressed"`
-	Name              types.String `tfsdk:"name"`
-	Namespace         types.String `tfsdk:"namespace"`
-	Occurrences       types.Int64  `tfsdk:"occurrences"`
-	ParentAlarms      types.List   `tfsdk:"parent_alarms"`
-	ProbableCause     types.String `tfsdk:"probable_cause"`
-	RemedialAction    types.String `tfsdk:"remedial_action"`
-	Resource          types.String `tfsdk:"resource"`
-	Severity          types.String `tfsdk:"severity"`
-	SourceGroup       types.String `tfsdk:"source_group"`
-	SourceKind        types.String `tfsdk:"source_kind"`
-	SourceResource    types.String `tfsdk:"source_resource"`
-	Suppressed        types.Bool   `tfsdk:"suppressed"`
-	SuppressedUntil   types.String `tfsdk:"suppressed_until"`
-	Type              types.String `tfsdk:"type"`
+	Acknowledged         types.Bool   `tfsdk:"acknowledged"`
+	AcknowledgedUntil    types.String `tfsdk:"acknowledged_until"`
+	AdditionalText       types.String `tfsdk:"additional_text"`
+	AlarmName            types.String `tfsdk:"alarm_name"`
+	All                  types.Bool   `tfsdk:"all"`
+	Cleared              types.Bool   `tfsdk:"cleared"`
+	ClusterMember        types.String `tfsdk:"cluster_member"`
+	ClusterName          types.String `tfsdk:"cluster_name"`
+	Description          types.String `tfsdk:"description"`
+	Group                types.String `tfsdk:"group"`
+	JsPaths              types.List   `tfsdk:"js_paths"`
+	Jspaths              types.List   `tfsdk:"jspaths"`
+	Kind                 types.String `tfsdk:"kind"`
+	LastAcknowledged     types.String `tfsdk:"last_acknowledged"`
+	LastAcknowledgedBy   types.String `tfsdk:"last_acknowledged_by"`
+	LastAcknowledgedTime types.String `tfsdk:"last_acknowledged_time"`
+	LastChanged          types.String `tfsdk:"last_changed"`
+	LastSuppressed       types.String `tfsdk:"last_suppressed"`
+	LastSuppressedBy     types.String `tfsdk:"last_suppressed_by"`
+	LastSuppressedTime   types.String `tfsdk:"last_suppressed_time"`
+	Name                 types.String `tfsdk:"name"`
+	Namespace            types.String `tfsdk:"namespace"`
+	Occurrences          types.Int64  `tfsdk:"occurrences"`
+	ParentAlarms         types.List   `tfsdk:"parent_alarms"`
+	ProbableCause        types.String `tfsdk:"probable_cause"`
+	RemedialAction       types.String `tfsdk:"remedial_action"`
+	Resource             types.String `tfsdk:"resource"`
+	Severity             types.String `tfsdk:"severity"`
+	SourceGroup          types.String `tfsdk:"source_group"`
+	SourceKind           types.String `tfsdk:"source_kind"`
+	SourceResource       types.String `tfsdk:"source_resource"`
+	Suppressed           types.Bool   `tfsdk:"suppressed"`
+	SuppressedUntil      types.String `tfsdk:"suppressed_until"`
+	TargetsAffected      types.List   `tfsdk:"targets_affected"`
+	Type                 types.String `tfsdk:"type"`
+}
+
+var _ basetypes.ObjectTypable = TargetsAffectedType{}
+
+type TargetsAffectedType struct {
+	basetypes.ObjectType
+}
+
+func (t TargetsAffectedType) Equal(o attr.Type) bool {
+	other, ok := o.(TargetsAffectedType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t TargetsAffectedType) String() string {
+	return "TargetsAffectedType"
+}
+
+func (t TargetsAffectedType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return nil, diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return TargetsAffectedValue{
+		Name:  nameVal,
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewTargetsAffectedValueNull() TargetsAffectedValue {
+	return TargetsAffectedValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewTargetsAffectedValueUnknown() TargetsAffectedValue {
+	return TargetsAffectedValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewTargetsAffectedValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (TargetsAffectedValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing TargetsAffectedValue Attribute Value",
+				"While creating a TargetsAffectedValue value, a missing attribute value was detected. "+
+					"A TargetsAffectedValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("TargetsAffectedValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid TargetsAffectedValue Attribute Type",
+				"While creating a TargetsAffectedValue value, an invalid attribute value was detected. "+
+					"A TargetsAffectedValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("TargetsAffectedValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("TargetsAffectedValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra TargetsAffectedValue Attribute Value",
+				"While creating a TargetsAffectedValue value, an extra attribute value was detected. "+
+					"A TargetsAffectedValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra TargetsAffectedValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewTargetsAffectedValueUnknown(), diags
+	}
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return NewTargetsAffectedValueUnknown(), diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	if diags.HasError() {
+		return NewTargetsAffectedValueUnknown(), diags
+	}
+
+	return TargetsAffectedValue{
+		Name:  nameVal,
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewTargetsAffectedValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) TargetsAffectedValue {
+	object, diags := NewTargetsAffectedValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewTargetsAffectedValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t TargetsAffectedType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewTargetsAffectedValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewTargetsAffectedValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewTargetsAffectedValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewTargetsAffectedValueMust(TargetsAffectedValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t TargetsAffectedType) ValueType(ctx context.Context) attr.Value {
+	return TargetsAffectedValue{}
+}
+
+var _ basetypes.ObjectValuable = TargetsAffectedValue{}
+
+type TargetsAffectedValue struct {
+	Name  basetypes.StringValue `tfsdk:"name"`
+	state attr.ValueState
+}
+
+func (v TargetsAffectedValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Name.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["name"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v TargetsAffectedValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v TargetsAffectedValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v TargetsAffectedValue) String() string {
+	return "TargetsAffectedValue"
+}
+
+func (v TargetsAffectedValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"name": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"name": v.Name,
+		})
+
+	return objVal, diags
+}
+
+func (v TargetsAffectedValue) Equal(o attr.Value) bool {
+	other, ok := o.(TargetsAffectedValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	return true
+}
+
+func (v TargetsAffectedValue) Type(ctx context.Context) attr.Type {
+	return TargetsAffectedType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v TargetsAffectedValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"name": basetypes.StringType{},
+	}
 }

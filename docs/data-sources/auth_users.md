@@ -46,6 +46,8 @@ Read-Only:
 Read-Only:
 
 - `failed_login_since_successful_login` (Number)
+- `federation_provider_name` (String) The name of the federation provider for this user. Absent if the user is not federated
+- `federation_provider_uuid` (String) The UUID of the federation provider for this user. Absent if the user is not federated
 - `is_federated_user` (Boolean) True if the user comes from a federated LDAP server
 - `last_failed_login` (String)
 - `last_successful_login` (String)

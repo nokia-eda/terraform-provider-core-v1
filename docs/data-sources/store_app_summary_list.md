@@ -18,6 +18,7 @@ description: |-
 ### Optional
 
 - `installed` (Boolean) If present, this causes only installed(if true)/uninstalled(if false) applications to be returned.
+- `prioritize_installed_info` (Boolean) If present and true, and the application is installed, the application information will be derived from the installed application version.
 - `upgradable` (Boolean) If present, this causes only upgradable(if true)/up-to-date(if false) applications to be returned.
 
 ### Read-Only
@@ -33,6 +34,7 @@ Read-Only:
 - `catalogs` (List of String) Catalogs where this app was found
 - `categories` (List of String) Application categories.
 - `description` (String) Application description that can be used for user display purposes
+- `has_settings` (Boolean) Application has settings
 - `info_version` (Attributes) The information about an application version available from a catalog.
 At least one of "semVer" or "commitHash" must/will be defined. (see [below for nested schema](#nestedatt--store_app_summary_list--info_version))
 - `info_version_metadata` (Attributes) (see [below for nested schema](#nestedatt--store_app_summary_list--info_version_metadata))
@@ -46,6 +48,7 @@ At least one of "semVer" or "commitHash" must/will be defined. (see [below for n
 - `supported_endpoints` (List of String) Application supported endpoints.
 - `title` (String) Application title that can be used for user display purposes
 - `upgradable` (Boolean) "true" if there is a new version that can be installed
+- `vendor` (String) Name of the vendor for this app
 
 <a id="nestedatt--store_app_summary_list--info_version"></a>
 ### Nested Schema for `store_app_summary_list.info_version`

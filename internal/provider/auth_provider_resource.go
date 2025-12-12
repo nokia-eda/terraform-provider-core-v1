@@ -90,30 +90,13 @@ func (r *authProviderResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	// Read the resource again to populate any values not available in the response from Create()
-	t0 = time.Now()
-
-	err = r.client.Get(ctx, read_rs_authProvider, map[string]string{
-		"uuid": tfutils.StringValue(data.Uuid),
-	}, &result)
-
-	tflog.Info(ctx, "Read()::API returned", map[string]any{
-		"path":      read_rs_authProvider,
-		"result":    spew.Sdump(result),
-		"timeTaken": time.Since(t0).String(),
-	})
-
-	if err != nil {
-		resp.Diagnostics.AddError("Error reading resource", err.Error())
-		return
-	}
-
 	// Convert API response to Terraform model
 	err = tfutils.AnyMapToModel(ctx, result, &data)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to build response from API result", err.Error())
 		return
 	}
+
 	// Save created data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 }
@@ -164,14 +147,17 @@ func (r *authProviderResource) Read(ctx context.Context, req resource.ReadReques
 }
 
 func (r *authProviderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data resource_auth_provider.AuthProviderModel
+	var data, state resource_auth_provider.AuthProviderModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	data.Uuid = state.Uuid
 
 	err := tfutils.FillMissingValues(ctx, &data)
 	if err != nil {
@@ -206,24 +192,6 @@ func (r *authProviderResource) Update(ctx context.Context, req resource.UpdateRe
 
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating resource", err.Error())
-		return
-	}
-
-	// Read the resource again to populate any values not available in the response from Update()
-	t0 = time.Now()
-
-	err = r.client.Get(ctx, read_rs_authProvider, map[string]string{
-		"uuid": tfutils.StringValue(data.Uuid),
-	}, &result)
-
-	tflog.Info(ctx, "Read()::API returned", map[string]any{
-		"path":      read_rs_authProvider,
-		"result":    spew.Sdump(result),
-		"timeTaken": time.Since(t0).String(),
-	})
-
-	if err != nil {
-		resp.Diagnostics.AddError("Error reading resource", err.Error())
 		return
 	}
 
@@ -297,7 +265,7 @@ func (r *authProviderResource) Configure(_ context.Context, req resource.Configu
 func (r *authProviderResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, "/")
 	if len(parts) < 1 {
-		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Expected <namespace/name> format, got: %s", req.ID))
+		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Expected format: id = <uuid>, got: id = %s", req.ID))
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("uuid"), parts[0])...)

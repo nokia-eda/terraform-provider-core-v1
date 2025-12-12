@@ -19,11 +19,18 @@ description: |-
 
 - `transaction_id` (Number) The identifier for the transaction whose state is being requested
 
+### Optional
+
+- `wait_for_complete` (Boolean) Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state.
+
 ### Read-Only
 
+- `bundled_transaction_id` (Number) If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.
 - `commit_hash` (String) The git commit hash for the transaction
 - `description` (String) The description of the transaction, as posted in the transaction request.
-- `details` (String) The type of details available for the transaction, as posted in the transaction request.
+- `detail_level` (String) The level of detail available in the transaction details.
+- `details` (String, Deprecated) The type of details available for the transaction, as posted in the transaction request.
+Deprecated: use "detailLevel" instead.
 - `dry_run` (Boolean) If true the transaction was not committed and ran in dry run mode.
 - `id` (Number) The transaction identifier
 - `last_change_timestamp` (String) The time that the transaction completed.

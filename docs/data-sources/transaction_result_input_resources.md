@@ -19,6 +19,10 @@ description: |-
 
 - `transaction_id` (Number) The identifier for the transaction whose list of input resources is being requested
 
+### Optional
+
+- `full` (Boolean) If true the response will contain the full resource body for each input resource
+
 ### Read-Only
 
 - `input_crs` (Attributes List) List of input resources from the transaction (see [below for nested schema](#nestedatt--input_crs))
@@ -29,8 +33,14 @@ description: |-
 
 Read-Only:
 
+- `data` (Attributes Map) (see [below for nested schema](#nestedatt--input_crs--data))
 - `is_delete` (Boolean)
 - `name` (Attributes) (see [below for nested schema](#nestedatt--input_crs--name))
+- `operation` (String)
+
+<a id="nestedatt--input_crs--data"></a>
+### Nested Schema for `input_crs.data`
+
 
 <a id="nestedatt--input_crs--name"></a>
 ### Nested Schema for `input_crs.name`

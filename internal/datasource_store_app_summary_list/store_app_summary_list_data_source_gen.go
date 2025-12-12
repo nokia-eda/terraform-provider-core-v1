@@ -24,6 +24,12 @@ func StoreAppSummaryListDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If present, this causes only installed(if true)/uninstalled(if false) applications to be returned.",
 				MarkdownDescription: "If present, this causes only installed(if true)/uninstalled(if false) applications to be returned.",
 			},
+			"prioritize_installed_info": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "If present and true, and the application is installed, the application information will be derived from the installed application version.",
+				MarkdownDescription: "If present and true, and the application is installed, the application information will be derived from the installed application version.",
+			},
 			"store_app_summary_list": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -48,6 +54,11 @@ func StoreAppSummaryListDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Application description that can be used for user display purposes",
 							MarkdownDescription: "Application description that can be used for user display purposes",
+						},
+						"has_settings": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "Application has settings",
+							MarkdownDescription: "Application has settings",
 						},
 						"info_version": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -211,6 +222,11 @@ func StoreAppSummaryListDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "\"true\" if there is a new version that can be installed",
 							MarkdownDescription: "\"true\" if there is a new version that can be installed",
 						},
+						"vendor": schema.StringAttribute{
+							Computed:            true,
+							Description:         "Name of the vendor for this app",
+							MarkdownDescription: "Name of the vendor for this app",
+						},
 					},
 					CustomType: StoreAppSummaryListType{
 						ObjectType: types.ObjectType{
@@ -231,9 +247,10 @@ func StoreAppSummaryListDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type StoreAppSummaryListModel struct {
-	Installed           types.Bool `tfsdk:"installed"`
-	StoreAppSummaryList types.Set  `tfsdk:"store_app_summary_list"`
-	Upgradable          types.Bool `tfsdk:"upgradable"`
+	Installed               types.Bool `tfsdk:"installed"`
+	PrioritizeInstalledInfo types.Bool `tfsdk:"prioritize_installed_info"`
+	StoreAppSummaryList     types.Set  `tfsdk:"store_app_summary_list"`
+	Upgradable              types.Bool `tfsdk:"upgradable"`
 }
 
 var _ basetypes.ObjectTypable = StoreAppSummaryListType{}
@@ -331,6 +348,24 @@ func (t StoreAppSummaryListType) ValueFromObject(ctx context.Context, in basetyp
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
+	}
+
+	hasSettingsAttribute, ok := attributes["has_settings"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`has_settings is missing from object`)
+
+		return nil, diags
+	}
+
+	hasSettingsVal, ok := hasSettingsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`has_settings expected to be basetypes.BoolValue, was: %T`, hasSettingsAttribute))
 	}
 
 	infoVersionAttribute, ok := attributes["info_version"]
@@ -513,6 +548,24 @@ func (t StoreAppSummaryListType) ValueFromObject(ctx context.Context, in basetyp
 			fmt.Sprintf(`upgradable expected to be basetypes.BoolValue, was: %T`, upgradableAttribute))
 	}
 
+	vendorAttribute, ok := attributes["vendor"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vendor is missing from object`)
+
+		return nil, diags
+	}
+
+	vendorVal, ok := vendorAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vendor expected to be basetypes.StringValue, was: %T`, vendorAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -522,6 +575,7 @@ func (t StoreAppSummaryListType) ValueFromObject(ctx context.Context, in basetyp
 		Catalogs:                 catalogsVal,
 		Categories:               categoriesVal,
 		Description:              descriptionVal,
+		HasSettings:              hasSettingsVal,
 		InfoVersion:              infoVersionVal,
 		InfoVersionMetadata:      infoVersionMetadataVal,
 		Installed:                installedVal,
@@ -532,6 +586,7 @@ func (t StoreAppSummaryListType) ValueFromObject(ctx context.Context, in basetyp
 		SupportedEndpoints:       supportedEndpointsVal,
 		Title:                    titleVal,
 		Upgradable:               upgradableVal,
+		Vendor:                   vendorVal,
 		state:                    attr.ValueStateKnown,
 	}, diags
 }
@@ -671,6 +726,24 @@ func NewStoreAppSummaryListValue(attributeTypes map[string]attr.Type, attributes
 			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
 	}
 
+	hasSettingsAttribute, ok := attributes["has_settings"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`has_settings is missing from object`)
+
+		return NewStoreAppSummaryListValueUnknown(), diags
+	}
+
+	hasSettingsVal, ok := hasSettingsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`has_settings expected to be basetypes.BoolValue, was: %T`, hasSettingsAttribute))
+	}
+
 	infoVersionAttribute, ok := attributes["info_version"]
 
 	if !ok {
@@ -851,6 +924,24 @@ func NewStoreAppSummaryListValue(attributeTypes map[string]attr.Type, attributes
 			fmt.Sprintf(`upgradable expected to be basetypes.BoolValue, was: %T`, upgradableAttribute))
 	}
 
+	vendorAttribute, ok := attributes["vendor"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vendor is missing from object`)
+
+		return NewStoreAppSummaryListValueUnknown(), diags
+	}
+
+	vendorVal, ok := vendorAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vendor expected to be basetypes.StringValue, was: %T`, vendorAttribute))
+	}
+
 	if diags.HasError() {
 		return NewStoreAppSummaryListValueUnknown(), diags
 	}
@@ -860,6 +951,7 @@ func NewStoreAppSummaryListValue(attributeTypes map[string]attr.Type, attributes
 		Catalogs:                 catalogsVal,
 		Categories:               categoriesVal,
 		Description:              descriptionVal,
+		HasSettings:              hasSettingsVal,
 		InfoVersion:              infoVersionVal,
 		InfoVersionMetadata:      infoVersionMetadataVal,
 		Installed:                installedVal,
@@ -870,6 +962,7 @@ func NewStoreAppSummaryListValue(attributeTypes map[string]attr.Type, attributes
 		SupportedEndpoints:       supportedEndpointsVal,
 		Title:                    titleVal,
 		Upgradable:               upgradableVal,
+		Vendor:                   vendorVal,
 		state:                    attr.ValueStateKnown,
 	}, diags
 }
@@ -946,6 +1039,7 @@ type StoreAppSummaryListValue struct {
 	Catalogs                 basetypes.ListValue   `tfsdk:"catalogs"`
 	Categories               basetypes.ListValue   `tfsdk:"categories"`
 	Description              basetypes.StringValue `tfsdk:"description"`
+	HasSettings              basetypes.BoolValue   `tfsdk:"has_settings"`
 	InfoVersion              basetypes.ObjectValue `tfsdk:"info_version"`
 	InfoVersionMetadata      basetypes.ObjectValue `tfsdk:"info_version_metadata"`
 	Installed                basetypes.BoolValue   `tfsdk:"installed"`
@@ -956,11 +1050,12 @@ type StoreAppSummaryListValue struct {
 	SupportedEndpoints       basetypes.ListValue   `tfsdk:"supported_endpoints"`
 	Title                    basetypes.StringValue `tfsdk:"title"`
 	Upgradable               basetypes.BoolValue   `tfsdk:"upgradable"`
+	Vendor                   basetypes.StringValue `tfsdk:"vendor"`
 	state                    attr.ValueState
 }
 
 func (v StoreAppSummaryListValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 14)
+	attrTypes := make(map[string]tftypes.Type, 16)
 
 	var val tftypes.Value
 	var err error
@@ -973,6 +1068,7 @@ func (v StoreAppSummaryListValue) ToTerraformValue(ctx context.Context) (tftypes
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["has_settings"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["info_version"] = basetypes.ObjectType{
 		AttrTypes: InfoVersionValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -997,12 +1093,13 @@ func (v StoreAppSummaryListValue) ToTerraformValue(ctx context.Context) (tftypes
 	}.TerraformType(ctx)
 	attrTypes["title"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["upgradable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["vendor"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 14)
+		vals := make(map[string]tftypes.Value, 16)
 
 		val, err = v.AppId.ToTerraformValue(ctx)
 
@@ -1035,6 +1132,14 @@ func (v StoreAppSummaryListValue) ToTerraformValue(ctx context.Context) (tftypes
 		}
 
 		vals["description"] = val
+
+		val, err = v.HasSettings.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["has_settings"] = val
 
 		val, err = v.InfoVersion.ToTerraformValue(ctx)
 
@@ -1115,6 +1220,14 @@ func (v StoreAppSummaryListValue) ToTerraformValue(ctx context.Context) (tftypes
 		}
 
 		vals["upgradable"] = val
+
+		val, err = v.Vendor.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vendor"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -1292,7 +1405,8 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			"categories": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"description": basetypes.StringType{},
+			"description":  basetypes.StringType{},
+			"has_settings": basetypes.BoolType{},
 			"info_version": basetypes.ObjectType{
 				AttrTypes: InfoVersionValue{}.AttributeTypes(ctx),
 			},
@@ -1317,6 +1431,7 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			},
 			"title":      basetypes.StringType{},
 			"upgradable": basetypes.BoolType{},
+			"vendor":     basetypes.StringType{},
 		}), diags
 	}
 
@@ -1341,7 +1456,8 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			"categories": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"description": basetypes.StringType{},
+			"description":  basetypes.StringType{},
+			"has_settings": basetypes.BoolType{},
 			"info_version": basetypes.ObjectType{
 				AttrTypes: InfoVersionValue{}.AttributeTypes(ctx),
 			},
@@ -1366,6 +1482,7 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			},
 			"title":      basetypes.StringType{},
 			"upgradable": basetypes.BoolType{},
+			"vendor":     basetypes.StringType{},
 		}), diags
 	}
 
@@ -1390,7 +1507,8 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			"categories": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"description": basetypes.StringType{},
+			"description":  basetypes.StringType{},
+			"has_settings": basetypes.BoolType{},
 			"info_version": basetypes.ObjectType{
 				AttrTypes: InfoVersionValue{}.AttributeTypes(ctx),
 			},
@@ -1415,6 +1533,7 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			},
 			"title":      basetypes.StringType{},
 			"upgradable": basetypes.BoolType{},
+			"vendor":     basetypes.StringType{},
 		}), diags
 	}
 
@@ -1426,7 +1545,8 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 		"categories": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"description": basetypes.StringType{},
+		"description":  basetypes.StringType{},
+		"has_settings": basetypes.BoolType{},
 		"info_version": basetypes.ObjectType{
 			AttrTypes: InfoVersionValue{}.AttributeTypes(ctx),
 		},
@@ -1451,6 +1571,7 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 		},
 		"title":      basetypes.StringType{},
 		"upgradable": basetypes.BoolType{},
+		"vendor":     basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -1468,6 +1589,7 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			"catalogs":                   catalogsVal,
 			"categories":                 categoriesVal,
 			"description":                v.Description,
+			"has_settings":               v.HasSettings,
 			"info_version":               infoVersion,
 			"info_version_metadata":      infoVersionMetadata,
 			"installed":                  v.Installed,
@@ -1478,6 +1600,7 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			"supported_endpoints":        supportedEndpointsVal,
 			"title":                      v.Title,
 			"upgradable":                 v.Upgradable,
+			"vendor":                     v.Vendor,
 		})
 
 	return objVal, diags
@@ -1511,6 +1634,10 @@ func (v StoreAppSummaryListValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Description.Equal(other.Description) {
+		return false
+	}
+
+	if !v.HasSettings.Equal(other.HasSettings) {
 		return false
 	}
 
@@ -1554,6 +1681,10 @@ func (v StoreAppSummaryListValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Vendor.Equal(other.Vendor) {
+		return false
+	}
+
 	return true
 }
 
@@ -1574,7 +1705,8 @@ func (v StoreAppSummaryListValue) AttributeTypes(ctx context.Context) map[string
 		"categories": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"description": basetypes.StringType{},
+		"description":  basetypes.StringType{},
+		"has_settings": basetypes.BoolType{},
 		"info_version": basetypes.ObjectType{
 			AttrTypes: InfoVersionValue{}.AttributeTypes(ctx),
 		},
@@ -1599,6 +1731,7 @@ func (v StoreAppSummaryListValue) AttributeTypes(ctx context.Context) map[string
 		},
 		"title":      basetypes.StringType{},
 		"upgradable": basetypes.BoolType{},
+		"vendor":     basetypes.StringType{},
 	}
 }
 

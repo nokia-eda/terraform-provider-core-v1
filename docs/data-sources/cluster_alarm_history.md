@@ -28,7 +28,7 @@ description: |-
 
 Read-Only:
 
-- `alarm` (Attributes) The information about a single alarm or alarm history (see [below for nested schema](#nestedatt--cluster_alarm_history--alarm))
+- `alarm` (Attributes) (see [below for nested schema](#nestedatt--cluster_alarm_history--alarm))
 - `index` (String) The index of the history entry within the entries for a single alarm..
 
 <a id="nestedatt--cluster_alarm_history--alarm"></a>
@@ -37,23 +37,12 @@ Read-Only:
 Read-Only:
 
 - `acknowledged` (Boolean) An indication if the alarm has been acknowledged.
-- `acknowledged_until` (String) Indicates the end time of the acknowledgement.
+- `acknowledged_by` (String) the user who acknowledged the alarm for this alarm history entry
+- `additional_text` (String) adds extra context related to the alarm
 - `cleared` (Boolean) An indication if the alarm has been cleared.
-- `cluster_member` (String) The cluster member that generated this alarm.
-- `description` (String) A description for the alarm.
-- `group` (String) Indicates the group of the resource the alarm is present on.
-- `js_path` (String) a unnormalized jspath relating to the object in the alarm state. For
-example
-.node{.name=="spine-1-1"}.srl{.version=="24.10.1"}.interface{.name=="ethernet-1-1"}.
-- `kind` (String) Indicates the kind of resource the alarm is present on.
-- `last_acknowledged` (String) the time this alarm was last acknowledged.
 - `last_changed` (String) The last time that the alarm was changed; as provided by the raiser of the alarm.
-- `last_suppressed` (String) the time this alarm was last suppressed.
 - `name` (String) The unique name for the alarm, e.g. InterfaceDown-spine-1-1-ethernet-1-1.
 - `namespace` (String) The namespace of the alarm
-- `occurrences` (Number) The number of occurrences of this alarm (the number of times it has been raised).
-- `parent_alarms` (List of String) The names of other alarms that are parents of this alarm. This may be used to
-filter out alarms that are not a root cause.
 - `probable_cause` (String) the probable cause for raising the alarm. This field is optional, and
 should also be a description indicating the primary probable cause of the
 alarm, which may be enriched with relevant information from this specific
@@ -62,11 +51,3 @@ alarm instance. The complete alarm below contains an example.
 field is optional, and may also be enriched with relevant information
 from this specific alarm instance. The complete alarm below contains an
 example.
-- `resource` (String) The name of the resource that this alarm is present on.
-- `severity` (String) Severity of the alarm
-- `source_group` (String) Indicates indicates the group of the resource that raised this alarm, e.g. interfaces.eda.nokia.com.
-- `source_kind` (String) Indicates the Kind of the resource that raised this alarm, e.g. InterfaceState.
-- `source_resource` (String) Indicates the the name of the resource that raised this alarm, e.g. spine-1-1-ethernet-1-1.
-- `suppressed` (Boolean) An indication if the alarm has been suppressed.
-- `suppressed_until` (String) Indicates the end time of the suppression.
-- `type` (String) A kind for the alarm, e.g. InterfaceDown

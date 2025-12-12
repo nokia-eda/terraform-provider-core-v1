@@ -61,7 +61,7 @@ func (d *groupRolesDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	})
 
 	t0 := time.Now()
-	result := map[string]any{}
+	result := []any{}
 	err = d.client.GetByQuery(ctx, read_ds_groupRoles, map[string]string{
 		"uuid": tfutils.StringValue(data.Uuid),
 	}, queryParams, &result)
@@ -77,8 +77,12 @@ func (d *groupRolesDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
+	newResult := map[string]any{
+		"groupRoles": result,
+	}
+
 	// Convert API response to Terraform model
-	err = tfutils.AnyMapToModel(ctx, result, &data)
+	err = tfutils.AnyMapToModel(ctx, newResult, &data)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to build response from API result", err.Error())
 		return

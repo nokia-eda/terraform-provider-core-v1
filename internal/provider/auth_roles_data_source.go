@@ -61,7 +61,7 @@ func (d *authRolesDataSource) Read(ctx context.Context, req datasource.ReadReque
 	})
 
 	t0 := time.Now()
-	result := map[string]any{}
+	result := []any{}
 	err = d.client.GetByQuery(ctx, read_ds_authRoles, map[string]string{
 		"namespace": tfutils.StringValue(data.Namespace),
 	}, queryParams, &result)
@@ -77,8 +77,12 @@ func (d *authRolesDataSource) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
+	newResult := map[string]any{
+		"authRoles": result,
+	}
+
 	// Convert API response to Terraform model
-	err = tfutils.AnyMapToModel(ctx, result, &data)
+	err = tfutils.AnyMapToModel(ctx, newResult, &data)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to build response from API result", err.Error())
 		return

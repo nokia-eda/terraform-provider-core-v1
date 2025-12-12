@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-type TransactionModel struct {
+type CustomTransactionModel struct {
 	Id          types.Int64   `tfsdk:"id"`
 	Crs         types.Dynamic `tfsdk:"crs"`
 	Description types.String  `tfsdk:"description"`

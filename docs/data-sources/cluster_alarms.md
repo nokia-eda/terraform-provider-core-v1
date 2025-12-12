@@ -33,17 +33,26 @@ Read-Only:
 
 - `acknowledged` (Boolean) An indication if the alarm has been acknowledged.
 - `acknowledged_until` (String) Indicates the end time of the acknowledgement.
+- `additional_text` (String) adds extra context related to the alarm
 - `cleared` (Boolean) An indication if the alarm has been cleared.
-- `cluster_member` (String) The cluster member that generated this alarm.
+- `cluster_member` (String, Deprecated) The cluster member that generated this alarm.  Use clusterName instead.
+Deprecated: true
+- `cluster_name` (String) The name of the cluster member which generated this alarm.
 - `description` (String) A description for the alarm.
 - `group` (String) Indicates the group of the resource the alarm is present on.
-- `js_path` (String) a unnormalized jspath relating to the object in the alarm state. For
-example
-.node{.name=="spine-1-1"}.srl{.version=="24.10.1"}.interface{.name=="ethernet-1-1"}.
+- `js_paths` (List of String, Deprecated) An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.
+Deprecated: true
+- `jspaths` (List of String) An unnormalized jspath relating to the object in the alarm state.
 - `kind` (String) Indicates the kind of resource the alarm is present on.
-- `last_acknowledged` (String) the time this alarm was last acknowledged.
+- `last_acknowledged` (String, Deprecated) the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.
+Deprecated: true
+- `last_acknowledged_by` (String) the user who last acknowledged the alarm
+- `last_acknowledged_time` (String) the time this alarm was last acknowledged.
 - `last_changed` (String) The last time that the alarm was changed; as provided by the raiser of the alarm.
-- `last_suppressed` (String) the time this alarm was last suppressed.
+- `last_suppressed` (String, Deprecated) the time this alarm was last suppressed. Use lastSuppressedTime instead.
+Deprecated: true
+- `last_suppressed_by` (String) the user who last suppressed the alarm
+- `last_suppressed_time` (String) the time this alarm was last suppressed.
 - `name` (String) The unique name for the alarm, e.g. InterfaceDown-spine-1-1-ethernet-1-1.
 - `namespace` (String) The namespace of the alarm
 - `occurrences` (Number) The number of occurrences of this alarm (the number of times it has been raised).
@@ -64,4 +73,12 @@ example.
 - `source_resource` (String) Indicates the the name of the resource that raised this alarm, e.g. spine-1-1-ethernet-1-1.
 - `suppressed` (Boolean) An indication if the alarm has been suppressed.
 - `suppressed_until` (String) Indicates the end time of the suppression.
+- `targets_affected` (Attributes List) List of nodes affected by this alarm. (see [below for nested schema](#nestedatt--cluster_alarms--targets_affected))
 - `type` (String) A kind for the alarm, e.g. InterfaceDown
+
+<a id="nestedatt--cluster_alarms--targets_affected"></a>
+### Nested Schema for `cluster_alarms.targets_affected`
+
+Read-Only:
+
+- `name` (String) Name of the target node.

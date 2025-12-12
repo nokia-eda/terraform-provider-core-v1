@@ -61,7 +61,7 @@ func (d *authUserGroupsDataSource) Read(ctx context.Context, req datasource.Read
 	})
 
 	t0 := time.Now()
-	result := map[string]any{}
+	result := []any{}
 	err = d.client.GetByQuery(ctx, read_ds_authUserGroups, nil, queryParams, &result)
 
 	tflog.Info(ctx, "Read()::API returned", map[string]any{
@@ -75,8 +75,12 @@ func (d *authUserGroupsDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
+	newResult := map[string]any{
+		"authUserGroups": result,
+	}
+
 	// Convert API response to Terraform model
-	err = tfutils.AnyMapToModel(ctx, result, &data)
+	err = tfutils.AnyMapToModel(ctx, newResult, &data)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to build response from API result", err.Error())
 		return

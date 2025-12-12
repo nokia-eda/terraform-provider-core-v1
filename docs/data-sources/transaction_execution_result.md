@@ -22,7 +22,7 @@ description: |-
 ### Optional
 
 - `fail_on_errors` (String) Flag to tell the request to fail if the transaction has errors.  By default it will not fail.
-- `wait_for_complete` (String) Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state.
+- `wait_for_complete` (Boolean) Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state.
 
 ### Read-Only
 

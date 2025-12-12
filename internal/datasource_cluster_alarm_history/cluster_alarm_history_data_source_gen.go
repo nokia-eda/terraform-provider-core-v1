@@ -33,55 +33,25 @@ func ClusterAlarmHistoryDataSourceSchema(ctx context.Context) schema.Schema {
 									Description:         "An indication if the alarm has been acknowledged.",
 									MarkdownDescription: "An indication if the alarm has been acknowledged.",
 								},
-								"acknowledged_until": schema.StringAttribute{
+								"acknowledged_by": schema.StringAttribute{
 									Computed:            true,
-									Description:         "Indicates the end time of the acknowledgement.",
-									MarkdownDescription: "Indicates the end time of the acknowledgement.",
+									Description:         "the user who acknowledged the alarm for this alarm history entry",
+									MarkdownDescription: "the user who acknowledged the alarm for this alarm history entry",
+								},
+								"additional_text": schema.StringAttribute{
+									Computed:            true,
+									Description:         "adds extra context related to the alarm",
+									MarkdownDescription: "adds extra context related to the alarm",
 								},
 								"cleared": schema.BoolAttribute{
 									Computed:            true,
 									Description:         "An indication if the alarm has been cleared.",
 									MarkdownDescription: "An indication if the alarm has been cleared.",
 								},
-								"cluster_member": schema.StringAttribute{
-									Computed:            true,
-									Description:         "The cluster member that generated this alarm.",
-									MarkdownDescription: "The cluster member that generated this alarm.",
-								},
-								"description": schema.StringAttribute{
-									Computed:            true,
-									Description:         "A description for the alarm.",
-									MarkdownDescription: "A description for the alarm.",
-								},
-								"group": schema.StringAttribute{
-									Computed:            true,
-									Description:         "Indicates the group of the resource the alarm is present on.",
-									MarkdownDescription: "Indicates the group of the resource the alarm is present on.",
-								},
-								"js_path": schema.StringAttribute{
-									Computed:            true,
-									Description:         "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}.",
-									MarkdownDescription: "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}.",
-								},
-								"kind": schema.StringAttribute{
-									Computed:            true,
-									Description:         "Indicates the kind of resource the alarm is present on.",
-									MarkdownDescription: "Indicates the kind of resource the alarm is present on.",
-								},
-								"last_acknowledged": schema.StringAttribute{
-									Computed:            true,
-									Description:         "the time this alarm was last acknowledged.",
-									MarkdownDescription: "the time this alarm was last acknowledged.",
-								},
 								"last_changed": schema.StringAttribute{
 									Computed:            true,
 									Description:         "The last time that the alarm was changed; as provided by the raiser of the alarm.",
 									MarkdownDescription: "The last time that the alarm was changed; as provided by the raiser of the alarm.",
-								},
-								"last_suppressed": schema.StringAttribute{
-									Computed:            true,
-									Description:         "the time this alarm was last suppressed.",
-									MarkdownDescription: "the time this alarm was last suppressed.",
 								},
 								"name": schema.StringAttribute{
 									Computed:            true,
@@ -93,17 +63,6 @@ func ClusterAlarmHistoryDataSourceSchema(ctx context.Context) schema.Schema {
 									Description:         "The namespace of the alarm",
 									MarkdownDescription: "The namespace of the alarm",
 								},
-								"occurrences": schema.Int64Attribute{
-									Computed:            true,
-									Description:         "The number of occurrences of this alarm (the number of times it has been raised).",
-									MarkdownDescription: "The number of occurrences of this alarm (the number of times it has been raised).",
-								},
-								"parent_alarms": schema.ListAttribute{
-									ElementType:         types.StringType,
-									Computed:            true,
-									Description:         "The names of other alarms that are parents of this alarm. This may be used to\nfilter out alarms that are not a root cause.",
-									MarkdownDescription: "The names of other alarms that are parents of this alarm. This may be used to\nfilter out alarms that are not a root cause.",
-								},
 								"probable_cause": schema.StringAttribute{
 									Computed:            true,
 									Description:         "the probable cause for raising the alarm. This field is optional, and\nshould also be a description indicating the primary probable cause of the\nalarm, which may be enriched with relevant information from this specific\nalarm instance. The complete alarm below contains an example.",
@@ -114,55 +73,13 @@ func ClusterAlarmHistoryDataSourceSchema(ctx context.Context) schema.Schema {
 									Description:         "any remedial actions the user could try to resolve/clear the alarm. This\nfield is optional, and may also be enriched with relevant information\nfrom this specific alarm instance. The complete alarm below contains an\nexample.",
 									MarkdownDescription: "any remedial actions the user could try to resolve/clear the alarm. This\nfield is optional, and may also be enriched with relevant information\nfrom this specific alarm instance. The complete alarm below contains an\nexample.",
 								},
-								"resource": schema.StringAttribute{
-									Computed:            true,
-									Description:         "The name of the resource that this alarm is present on.",
-									MarkdownDescription: "The name of the resource that this alarm is present on.",
-								},
-								"severity": schema.StringAttribute{
-									Computed:            true,
-									Description:         "Severity of the alarm",
-									MarkdownDescription: "Severity of the alarm",
-								},
-								"source_group": schema.StringAttribute{
-									Computed:            true,
-									Description:         "Indicates indicates the group of the resource that raised this alarm, e.g. interfaces.eda.nokia.com.",
-									MarkdownDescription: "Indicates indicates the group of the resource that raised this alarm, e.g. interfaces.eda.nokia.com.",
-								},
-								"source_kind": schema.StringAttribute{
-									Computed:            true,
-									Description:         "Indicates the Kind of the resource that raised this alarm, e.g. InterfaceState.",
-									MarkdownDescription: "Indicates the Kind of the resource that raised this alarm, e.g. InterfaceState.",
-								},
-								"source_resource": schema.StringAttribute{
-									Computed:            true,
-									Description:         "Indicates the the name of the resource that raised this alarm, e.g. spine-1-1-ethernet-1-1.",
-									MarkdownDescription: "Indicates the the name of the resource that raised this alarm, e.g. spine-1-1-ethernet-1-1.",
-								},
-								"suppressed": schema.BoolAttribute{
-									Computed:            true,
-									Description:         "An indication if the alarm has been suppressed.",
-									MarkdownDescription: "An indication if the alarm has been suppressed.",
-								},
-								"suppressed_until": schema.StringAttribute{
-									Computed:            true,
-									Description:         "Indicates the end time of the suppression.",
-									MarkdownDescription: "Indicates the end time of the suppression.",
-								},
-								"type": schema.StringAttribute{
-									Computed:            true,
-									Description:         "A kind for the alarm, e.g. InterfaceDown",
-									MarkdownDescription: "A kind for the alarm, e.g. InterfaceDown",
-								},
 							},
 							CustomType: AlarmType{
 								ObjectType: types.ObjectType{
 									AttrTypes: AlarmValue{}.AttributeTypes(ctx),
 								},
 							},
-							Computed:            true,
-							Description:         "The information about a single alarm or alarm history",
-							MarkdownDescription: "The information about a single alarm or alarm history",
+							Computed: true,
 						},
 						"index": schema.StringAttribute{
 							Computed:            true,
@@ -636,22 +553,40 @@ func (t AlarmType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`acknowledged expected to be basetypes.BoolValue, was: %T`, acknowledgedAttribute))
 	}
 
-	acknowledgedUntilAttribute, ok := attributes["acknowledged_until"]
+	acknowledgedByAttribute, ok := attributes["acknowledged_by"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`acknowledged_until is missing from object`)
+			`acknowledged_by is missing from object`)
 
 		return nil, diags
 	}
 
-	acknowledgedUntilVal, ok := acknowledgedUntilAttribute.(basetypes.StringValue)
+	acknowledgedByVal, ok := acknowledgedByAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`acknowledged_until expected to be basetypes.StringValue, was: %T`, acknowledgedUntilAttribute))
+			fmt.Sprintf(`acknowledged_by expected to be basetypes.StringValue, was: %T`, acknowledgedByAttribute))
+	}
+
+	additionalTextAttribute, ok := attributes["additional_text"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`additional_text is missing from object`)
+
+		return nil, diags
+	}
+
+	additionalTextVal, ok := additionalTextAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`additional_text expected to be basetypes.StringValue, was: %T`, additionalTextAttribute))
 	}
 
 	clearedAttribute, ok := attributes["cleared"]
@@ -672,114 +607,6 @@ func (t AlarmType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`cleared expected to be basetypes.BoolValue, was: %T`, clearedAttribute))
 	}
 
-	clusterMemberAttribute, ok := attributes["cluster_member"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`cluster_member is missing from object`)
-
-		return nil, diags
-	}
-
-	clusterMemberVal, ok := clusterMemberAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`cluster_member expected to be basetypes.StringValue, was: %T`, clusterMemberAttribute))
-	}
-
-	descriptionAttribute, ok := attributes["description"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`description is missing from object`)
-
-		return nil, diags
-	}
-
-	descriptionVal, ok := descriptionAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
-	}
-
-	groupAttribute, ok := attributes["group"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`group is missing from object`)
-
-		return nil, diags
-	}
-
-	groupVal, ok := groupAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`group expected to be basetypes.StringValue, was: %T`, groupAttribute))
-	}
-
-	jsPathAttribute, ok := attributes["js_path"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`js_path is missing from object`)
-
-		return nil, diags
-	}
-
-	jsPathVal, ok := jsPathAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`js_path expected to be basetypes.StringValue, was: %T`, jsPathAttribute))
-	}
-
-	kindAttribute, ok := attributes["kind"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`kind is missing from object`)
-
-		return nil, diags
-	}
-
-	kindVal, ok := kindAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`kind expected to be basetypes.StringValue, was: %T`, kindAttribute))
-	}
-
-	lastAcknowledgedAttribute, ok := attributes["last_acknowledged"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`last_acknowledged is missing from object`)
-
-		return nil, diags
-	}
-
-	lastAcknowledgedVal, ok := lastAcknowledgedAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`last_acknowledged expected to be basetypes.StringValue, was: %T`, lastAcknowledgedAttribute))
-	}
-
 	lastChangedAttribute, ok := attributes["last_changed"]
 
 	if !ok {
@@ -796,24 +623,6 @@ func (t AlarmType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`last_changed expected to be basetypes.StringValue, was: %T`, lastChangedAttribute))
-	}
-
-	lastSuppressedAttribute, ok := attributes["last_suppressed"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`last_suppressed is missing from object`)
-
-		return nil, diags
-	}
-
-	lastSuppressedVal, ok := lastSuppressedAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`last_suppressed expected to be basetypes.StringValue, was: %T`, lastSuppressedAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -852,42 +661,6 @@ func (t AlarmType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`namespace expected to be basetypes.StringValue, was: %T`, namespaceAttribute))
 	}
 
-	occurrencesAttribute, ok := attributes["occurrences"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`occurrences is missing from object`)
-
-		return nil, diags
-	}
-
-	occurrencesVal, ok := occurrencesAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`occurrences expected to be basetypes.Int64Value, was: %T`, occurrencesAttribute))
-	}
-
-	parentAlarmsAttribute, ok := attributes["parent_alarms"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`parent_alarms is missing from object`)
-
-		return nil, diags
-	}
-
-	parentAlarmsVal, ok := parentAlarmsAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`parent_alarms expected to be basetypes.ListValue, was: %T`, parentAlarmsAttribute))
-	}
-
 	probableCauseAttribute, ok := attributes["probable_cause"]
 
 	if !ok {
@@ -924,181 +697,21 @@ func (t AlarmType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`remedial_action expected to be basetypes.StringValue, was: %T`, remedialActionAttribute))
 	}
 
-	resourceAttribute, ok := attributes["resource"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`resource is missing from object`)
-
-		return nil, diags
-	}
-
-	resourceVal, ok := resourceAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`resource expected to be basetypes.StringValue, was: %T`, resourceAttribute))
-	}
-
-	severityAttribute, ok := attributes["severity"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`severity is missing from object`)
-
-		return nil, diags
-	}
-
-	severityVal, ok := severityAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`severity expected to be basetypes.StringValue, was: %T`, severityAttribute))
-	}
-
-	sourceGroupAttribute, ok := attributes["source_group"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`source_group is missing from object`)
-
-		return nil, diags
-	}
-
-	sourceGroupVal, ok := sourceGroupAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`source_group expected to be basetypes.StringValue, was: %T`, sourceGroupAttribute))
-	}
-
-	sourceKindAttribute, ok := attributes["source_kind"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`source_kind is missing from object`)
-
-		return nil, diags
-	}
-
-	sourceKindVal, ok := sourceKindAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`source_kind expected to be basetypes.StringValue, was: %T`, sourceKindAttribute))
-	}
-
-	sourceResourceAttribute, ok := attributes["source_resource"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`source_resource is missing from object`)
-
-		return nil, diags
-	}
-
-	sourceResourceVal, ok := sourceResourceAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`source_resource expected to be basetypes.StringValue, was: %T`, sourceResourceAttribute))
-	}
-
-	suppressedAttribute, ok := attributes["suppressed"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`suppressed is missing from object`)
-
-		return nil, diags
-	}
-
-	suppressedVal, ok := suppressedAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`suppressed expected to be basetypes.BoolValue, was: %T`, suppressedAttribute))
-	}
-
-	suppressedUntilAttribute, ok := attributes["suppressed_until"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`suppressed_until is missing from object`)
-
-		return nil, diags
-	}
-
-	suppressedUntilVal, ok := suppressedUntilAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`suppressed_until expected to be basetypes.StringValue, was: %T`, suppressedUntilAttribute))
-	}
-
-	typeAttribute, ok := attributes["type"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`type is missing from object`)
-
-		return nil, diags
-	}
-
-	typeVal, ok := typeAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return AlarmValue{
-		Acknowledged:      acknowledgedVal,
-		AcknowledgedUntil: acknowledgedUntilVal,
-		Cleared:           clearedVal,
-		ClusterMember:     clusterMemberVal,
-		Description:       descriptionVal,
-		Group:             groupVal,
-		JsPath:            jsPathVal,
-		Kind:              kindVal,
-		LastAcknowledged:  lastAcknowledgedVal,
-		LastChanged:       lastChangedVal,
-		LastSuppressed:    lastSuppressedVal,
-		Name:              nameVal,
-		Namespace:         namespaceVal,
-		Occurrences:       occurrencesVal,
-		ParentAlarms:      parentAlarmsVal,
-		ProbableCause:     probableCauseVal,
-		RemedialAction:    remedialActionVal,
-		Resource:          resourceVal,
-		Severity:          severityVal,
-		SourceGroup:       sourceGroupVal,
-		SourceKind:        sourceKindVal,
-		SourceResource:    sourceResourceVal,
-		Suppressed:        suppressedVal,
-		SuppressedUntil:   suppressedUntilVal,
-		AlarmType:         typeVal,
-		state:             attr.ValueStateKnown,
+		Acknowledged:   acknowledgedVal,
+		AcknowledgedBy: acknowledgedByVal,
+		AdditionalText: additionalTextVal,
+		Cleared:        clearedVal,
+		LastChanged:    lastChangedVal,
+		Name:           nameVal,
+		Namespace:      namespaceVal,
+		ProbableCause:  probableCauseVal,
+		RemedialAction: remedialActionVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1183,22 +796,40 @@ func NewAlarmValue(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`acknowledged expected to be basetypes.BoolValue, was: %T`, acknowledgedAttribute))
 	}
 
-	acknowledgedUntilAttribute, ok := attributes["acknowledged_until"]
+	acknowledgedByAttribute, ok := attributes["acknowledged_by"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`acknowledged_until is missing from object`)
+			`acknowledged_by is missing from object`)
 
 		return NewAlarmValueUnknown(), diags
 	}
 
-	acknowledgedUntilVal, ok := acknowledgedUntilAttribute.(basetypes.StringValue)
+	acknowledgedByVal, ok := acknowledgedByAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`acknowledged_until expected to be basetypes.StringValue, was: %T`, acknowledgedUntilAttribute))
+			fmt.Sprintf(`acknowledged_by expected to be basetypes.StringValue, was: %T`, acknowledgedByAttribute))
+	}
+
+	additionalTextAttribute, ok := attributes["additional_text"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`additional_text is missing from object`)
+
+		return NewAlarmValueUnknown(), diags
+	}
+
+	additionalTextVal, ok := additionalTextAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`additional_text expected to be basetypes.StringValue, was: %T`, additionalTextAttribute))
 	}
 
 	clearedAttribute, ok := attributes["cleared"]
@@ -1219,114 +850,6 @@ func NewAlarmValue(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`cleared expected to be basetypes.BoolValue, was: %T`, clearedAttribute))
 	}
 
-	clusterMemberAttribute, ok := attributes["cluster_member"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`cluster_member is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	clusterMemberVal, ok := clusterMemberAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`cluster_member expected to be basetypes.StringValue, was: %T`, clusterMemberAttribute))
-	}
-
-	descriptionAttribute, ok := attributes["description"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`description is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	descriptionVal, ok := descriptionAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
-	}
-
-	groupAttribute, ok := attributes["group"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`group is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	groupVal, ok := groupAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`group expected to be basetypes.StringValue, was: %T`, groupAttribute))
-	}
-
-	jsPathAttribute, ok := attributes["js_path"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`js_path is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	jsPathVal, ok := jsPathAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`js_path expected to be basetypes.StringValue, was: %T`, jsPathAttribute))
-	}
-
-	kindAttribute, ok := attributes["kind"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`kind is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	kindVal, ok := kindAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`kind expected to be basetypes.StringValue, was: %T`, kindAttribute))
-	}
-
-	lastAcknowledgedAttribute, ok := attributes["last_acknowledged"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`last_acknowledged is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	lastAcknowledgedVal, ok := lastAcknowledgedAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`last_acknowledged expected to be basetypes.StringValue, was: %T`, lastAcknowledgedAttribute))
-	}
-
 	lastChangedAttribute, ok := attributes["last_changed"]
 
 	if !ok {
@@ -1343,24 +866,6 @@ func NewAlarmValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`last_changed expected to be basetypes.StringValue, was: %T`, lastChangedAttribute))
-	}
-
-	lastSuppressedAttribute, ok := attributes["last_suppressed"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`last_suppressed is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	lastSuppressedVal, ok := lastSuppressedAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`last_suppressed expected to be basetypes.StringValue, was: %T`, lastSuppressedAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -1399,42 +904,6 @@ func NewAlarmValue(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`namespace expected to be basetypes.StringValue, was: %T`, namespaceAttribute))
 	}
 
-	occurrencesAttribute, ok := attributes["occurrences"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`occurrences is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	occurrencesVal, ok := occurrencesAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`occurrences expected to be basetypes.Int64Value, was: %T`, occurrencesAttribute))
-	}
-
-	parentAlarmsAttribute, ok := attributes["parent_alarms"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`parent_alarms is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	parentAlarmsVal, ok := parentAlarmsAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`parent_alarms expected to be basetypes.ListValue, was: %T`, parentAlarmsAttribute))
-	}
-
 	probableCauseAttribute, ok := attributes["probable_cause"]
 
 	if !ok {
@@ -1471,181 +940,21 @@ func NewAlarmValue(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`remedial_action expected to be basetypes.StringValue, was: %T`, remedialActionAttribute))
 	}
 
-	resourceAttribute, ok := attributes["resource"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`resource is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	resourceVal, ok := resourceAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`resource expected to be basetypes.StringValue, was: %T`, resourceAttribute))
-	}
-
-	severityAttribute, ok := attributes["severity"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`severity is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	severityVal, ok := severityAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`severity expected to be basetypes.StringValue, was: %T`, severityAttribute))
-	}
-
-	sourceGroupAttribute, ok := attributes["source_group"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`source_group is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	sourceGroupVal, ok := sourceGroupAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`source_group expected to be basetypes.StringValue, was: %T`, sourceGroupAttribute))
-	}
-
-	sourceKindAttribute, ok := attributes["source_kind"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`source_kind is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	sourceKindVal, ok := sourceKindAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`source_kind expected to be basetypes.StringValue, was: %T`, sourceKindAttribute))
-	}
-
-	sourceResourceAttribute, ok := attributes["source_resource"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`source_resource is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	sourceResourceVal, ok := sourceResourceAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`source_resource expected to be basetypes.StringValue, was: %T`, sourceResourceAttribute))
-	}
-
-	suppressedAttribute, ok := attributes["suppressed"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`suppressed is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	suppressedVal, ok := suppressedAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`suppressed expected to be basetypes.BoolValue, was: %T`, suppressedAttribute))
-	}
-
-	suppressedUntilAttribute, ok := attributes["suppressed_until"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`suppressed_until is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	suppressedUntilVal, ok := suppressedUntilAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`suppressed_until expected to be basetypes.StringValue, was: %T`, suppressedUntilAttribute))
-	}
-
-	typeAttribute, ok := attributes["type"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`type is missing from object`)
-
-		return NewAlarmValueUnknown(), diags
-	}
-
-	typeVal, ok := typeAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
-	}
-
 	if diags.HasError() {
 		return NewAlarmValueUnknown(), diags
 	}
 
 	return AlarmValue{
-		Acknowledged:      acknowledgedVal,
-		AcknowledgedUntil: acknowledgedUntilVal,
-		Cleared:           clearedVal,
-		ClusterMember:     clusterMemberVal,
-		Description:       descriptionVal,
-		Group:             groupVal,
-		JsPath:            jsPathVal,
-		Kind:              kindVal,
-		LastAcknowledged:  lastAcknowledgedVal,
-		LastChanged:       lastChangedVal,
-		LastSuppressed:    lastSuppressedVal,
-		Name:              nameVal,
-		Namespace:         namespaceVal,
-		Occurrences:       occurrencesVal,
-		ParentAlarms:      parentAlarmsVal,
-		ProbableCause:     probableCauseVal,
-		RemedialAction:    remedialActionVal,
-		Resource:          resourceVal,
-		Severity:          severityVal,
-		SourceGroup:       sourceGroupVal,
-		SourceKind:        sourceKindVal,
-		SourceResource:    sourceResourceVal,
-		Suppressed:        suppressedVal,
-		SuppressedUntil:   suppressedUntilVal,
-		AlarmType:         typeVal,
-		state:             attr.ValueStateKnown,
+		Acknowledged:   acknowledgedVal,
+		AcknowledgedBy: acknowledgedByVal,
+		AdditionalText: additionalTextVal,
+		Cleared:        clearedVal,
+		LastChanged:    lastChangedVal,
+		Name:           nameVal,
+		Namespace:      namespaceVal,
+		ProbableCause:  probableCauseVal,
+		RemedialAction: remedialActionVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1717,73 +1026,39 @@ func (t AlarmType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AlarmValue{}
 
 type AlarmValue struct {
-	Acknowledged      basetypes.BoolValue   `tfsdk:"acknowledged"`
-	AcknowledgedUntil basetypes.StringValue `tfsdk:"acknowledged_until"`
-	Cleared           basetypes.BoolValue   `tfsdk:"cleared"`
-	ClusterMember     basetypes.StringValue `tfsdk:"cluster_member"`
-	Description       basetypes.StringValue `tfsdk:"description"`
-	Group             basetypes.StringValue `tfsdk:"group"`
-	JsPath            basetypes.StringValue `tfsdk:"js_path"`
-	Kind              basetypes.StringValue `tfsdk:"kind"`
-	LastAcknowledged  basetypes.StringValue `tfsdk:"last_acknowledged"`
-	LastChanged       basetypes.StringValue `tfsdk:"last_changed"`
-	LastSuppressed    basetypes.StringValue `tfsdk:"last_suppressed"`
-	Name              basetypes.StringValue `tfsdk:"name"`
-	Namespace         basetypes.StringValue `tfsdk:"namespace"`
-	Occurrences       basetypes.Int64Value  `tfsdk:"occurrences"`
-	ParentAlarms      basetypes.ListValue   `tfsdk:"parent_alarms"`
-	ProbableCause     basetypes.StringValue `tfsdk:"probable_cause"`
-	RemedialAction    basetypes.StringValue `tfsdk:"remedial_action"`
-	Resource          basetypes.StringValue `tfsdk:"resource"`
-	Severity          basetypes.StringValue `tfsdk:"severity"`
-	SourceGroup       basetypes.StringValue `tfsdk:"source_group"`
-	SourceKind        basetypes.StringValue `tfsdk:"source_kind"`
-	SourceResource    basetypes.StringValue `tfsdk:"source_resource"`
-	Suppressed        basetypes.BoolValue   `tfsdk:"suppressed"`
-	SuppressedUntil   basetypes.StringValue `tfsdk:"suppressed_until"`
-	AlarmType         basetypes.StringValue `tfsdk:"type"`
-	state             attr.ValueState
+	Acknowledged   basetypes.BoolValue   `tfsdk:"acknowledged"`
+	AcknowledgedBy basetypes.StringValue `tfsdk:"acknowledged_by"`
+	AdditionalText basetypes.StringValue `tfsdk:"additional_text"`
+	Cleared        basetypes.BoolValue   `tfsdk:"cleared"`
+	LastChanged    basetypes.StringValue `tfsdk:"last_changed"`
+	Name           basetypes.StringValue `tfsdk:"name"`
+	Namespace      basetypes.StringValue `tfsdk:"namespace"`
+	ProbableCause  basetypes.StringValue `tfsdk:"probable_cause"`
+	RemedialAction basetypes.StringValue `tfsdk:"remedial_action"`
+	state          attr.ValueState
 }
 
 func (v AlarmValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 25)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["acknowledged"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["acknowledged_until"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["acknowledged_by"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["additional_text"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["cleared"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["cluster_member"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["group"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["js_path"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["kind"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["last_acknowledged"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["last_changed"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["last_suppressed"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["namespace"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["occurrences"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["parent_alarms"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
 	attrTypes["probable_cause"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["remedial_action"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["resource"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["severity"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["source_group"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["source_kind"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["source_resource"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["suppressed"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["suppressed_until"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 25)
+		vals := make(map[string]tftypes.Value, 9)
 
 		val, err = v.Acknowledged.ToTerraformValue(ctx)
 
@@ -1793,13 +1068,21 @@ func (v AlarmValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 		vals["acknowledged"] = val
 
-		val, err = v.AcknowledgedUntil.ToTerraformValue(ctx)
+		val, err = v.AcknowledgedBy.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["acknowledged_until"] = val
+		vals["acknowledged_by"] = val
+
+		val, err = v.AdditionalText.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["additional_text"] = val
 
 		val, err = v.Cleared.ToTerraformValue(ctx)
 
@@ -1809,54 +1092,6 @@ func (v AlarmValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 		vals["cleared"] = val
 
-		val, err = v.ClusterMember.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["cluster_member"] = val
-
-		val, err = v.Description.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["description"] = val
-
-		val, err = v.Group.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["group"] = val
-
-		val, err = v.JsPath.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["js_path"] = val
-
-		val, err = v.Kind.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["kind"] = val
-
-		val, err = v.LastAcknowledged.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["last_acknowledged"] = val
-
 		val, err = v.LastChanged.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1864,14 +1099,6 @@ func (v AlarmValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 		}
 
 		vals["last_changed"] = val
-
-		val, err = v.LastSuppressed.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["last_suppressed"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -1889,22 +1116,6 @@ func (v AlarmValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 		vals["namespace"] = val
 
-		val, err = v.Occurrences.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["occurrences"] = val
-
-		val, err = v.ParentAlarms.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["parent_alarms"] = val
-
 		val, err = v.ProbableCause.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1920,70 +1131,6 @@ func (v AlarmValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 		}
 
 		vals["remedial_action"] = val
-
-		val, err = v.Resource.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["resource"] = val
-
-		val, err = v.Severity.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["severity"] = val
-
-		val, err = v.SourceGroup.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["source_group"] = val
-
-		val, err = v.SourceKind.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["source_kind"] = val
-
-		val, err = v.SourceResource.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["source_resource"] = val
-
-		val, err = v.Suppressed.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["suppressed"] = val
-
-		val, err = v.SuppressedUntil.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["suppressed_until"] = val
-
-		val, err = v.AlarmType.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["type"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -2014,78 +1161,16 @@ func (v AlarmValue) String() string {
 func (v AlarmValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	var parentAlarmsVal basetypes.ListValue
-	switch {
-	case v.ParentAlarms.IsUnknown():
-		parentAlarmsVal = types.ListUnknown(types.StringType)
-	case v.ParentAlarms.IsNull():
-		parentAlarmsVal = types.ListNull(types.StringType)
-	default:
-		var d diag.Diagnostics
-		parentAlarmsVal, d = types.ListValue(types.StringType, v.ParentAlarms.Elements())
-		diags.Append(d...)
-	}
-
-	if diags.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"acknowledged":       basetypes.BoolType{},
-			"acknowledged_until": basetypes.StringType{},
-			"cleared":            basetypes.BoolType{},
-			"cluster_member":     basetypes.StringType{},
-			"description":        basetypes.StringType{},
-			"group":              basetypes.StringType{},
-			"js_path":            basetypes.StringType{},
-			"kind":               basetypes.StringType{},
-			"last_acknowledged":  basetypes.StringType{},
-			"last_changed":       basetypes.StringType{},
-			"last_suppressed":    basetypes.StringType{},
-			"name":               basetypes.StringType{},
-			"namespace":          basetypes.StringType{},
-			"occurrences":        basetypes.Int64Type{},
-			"parent_alarms": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"probable_cause":   basetypes.StringType{},
-			"remedial_action":  basetypes.StringType{},
-			"resource":         basetypes.StringType{},
-			"severity":         basetypes.StringType{},
-			"source_group":     basetypes.StringType{},
-			"source_kind":      basetypes.StringType{},
-			"source_resource":  basetypes.StringType{},
-			"suppressed":       basetypes.BoolType{},
-			"suppressed_until": basetypes.StringType{},
-			"type":             basetypes.StringType{},
-		}), diags
-	}
-
 	attributeTypes := map[string]attr.Type{
-		"acknowledged":       basetypes.BoolType{},
-		"acknowledged_until": basetypes.StringType{},
-		"cleared":            basetypes.BoolType{},
-		"cluster_member":     basetypes.StringType{},
-		"description":        basetypes.StringType{},
-		"group":              basetypes.StringType{},
-		"js_path":            basetypes.StringType{},
-		"kind":               basetypes.StringType{},
-		"last_acknowledged":  basetypes.StringType{},
-		"last_changed":       basetypes.StringType{},
-		"last_suppressed":    basetypes.StringType{},
-		"name":               basetypes.StringType{},
-		"namespace":          basetypes.StringType{},
-		"occurrences":        basetypes.Int64Type{},
-		"parent_alarms": basetypes.ListType{
-			ElemType: types.StringType,
-		},
-		"probable_cause":   basetypes.StringType{},
-		"remedial_action":  basetypes.StringType{},
-		"resource":         basetypes.StringType{},
-		"severity":         basetypes.StringType{},
-		"source_group":     basetypes.StringType{},
-		"source_kind":      basetypes.StringType{},
-		"source_resource":  basetypes.StringType{},
-		"suppressed":       basetypes.BoolType{},
-		"suppressed_until": basetypes.StringType{},
-		"type":             basetypes.StringType{},
+		"acknowledged":    basetypes.BoolType{},
+		"acknowledged_by": basetypes.StringType{},
+		"additional_text": basetypes.StringType{},
+		"cleared":         basetypes.BoolType{},
+		"last_changed":    basetypes.StringType{},
+		"name":            basetypes.StringType{},
+		"namespace":       basetypes.StringType{},
+		"probable_cause":  basetypes.StringType{},
+		"remedial_action": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -2099,31 +1184,15 @@ func (v AlarmValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"acknowledged":       v.Acknowledged,
-			"acknowledged_until": v.AcknowledgedUntil,
-			"cleared":            v.Cleared,
-			"cluster_member":     v.ClusterMember,
-			"description":        v.Description,
-			"group":              v.Group,
-			"js_path":            v.JsPath,
-			"kind":               v.Kind,
-			"last_acknowledged":  v.LastAcknowledged,
-			"last_changed":       v.LastChanged,
-			"last_suppressed":    v.LastSuppressed,
-			"name":               v.Name,
-			"namespace":          v.Namespace,
-			"occurrences":        v.Occurrences,
-			"parent_alarms":      parentAlarmsVal,
-			"probable_cause":     v.ProbableCause,
-			"remedial_action":    v.RemedialAction,
-			"resource":           v.Resource,
-			"severity":           v.Severity,
-			"source_group":       v.SourceGroup,
-			"source_kind":        v.SourceKind,
-			"source_resource":    v.SourceResource,
-			"suppressed":         v.Suppressed,
-			"suppressed_until":   v.SuppressedUntil,
-			"type":               v.AlarmType,
+			"acknowledged":    v.Acknowledged,
+			"acknowledged_by": v.AcknowledgedBy,
+			"additional_text": v.AdditionalText,
+			"cleared":         v.Cleared,
+			"last_changed":    v.LastChanged,
+			"name":            v.Name,
+			"namespace":       v.Namespace,
+			"probable_cause":  v.ProbableCause,
+			"remedial_action": v.RemedialAction,
 		})
 
 	return objVal, diags
@@ -2148,7 +1217,11 @@ func (v AlarmValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.AcknowledgedUntil.Equal(other.AcknowledgedUntil) {
+	if !v.AcknowledgedBy.Equal(other.AcknowledgedBy) {
+		return false
+	}
+
+	if !v.AdditionalText.Equal(other.AdditionalText) {
 		return false
 	}
 
@@ -2156,35 +1229,7 @@ func (v AlarmValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.ClusterMember.Equal(other.ClusterMember) {
-		return false
-	}
-
-	if !v.Description.Equal(other.Description) {
-		return false
-	}
-
-	if !v.Group.Equal(other.Group) {
-		return false
-	}
-
-	if !v.JsPath.Equal(other.JsPath) {
-		return false
-	}
-
-	if !v.Kind.Equal(other.Kind) {
-		return false
-	}
-
-	if !v.LastAcknowledged.Equal(other.LastAcknowledged) {
-		return false
-	}
-
 	if !v.LastChanged.Equal(other.LastChanged) {
-		return false
-	}
-
-	if !v.LastSuppressed.Equal(other.LastSuppressed) {
 		return false
 	}
 
@@ -2196,51 +1241,11 @@ func (v AlarmValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Occurrences.Equal(other.Occurrences) {
-		return false
-	}
-
-	if !v.ParentAlarms.Equal(other.ParentAlarms) {
-		return false
-	}
-
 	if !v.ProbableCause.Equal(other.ProbableCause) {
 		return false
 	}
 
 	if !v.RemedialAction.Equal(other.RemedialAction) {
-		return false
-	}
-
-	if !v.Resource.Equal(other.Resource) {
-		return false
-	}
-
-	if !v.Severity.Equal(other.Severity) {
-		return false
-	}
-
-	if !v.SourceGroup.Equal(other.SourceGroup) {
-		return false
-	}
-
-	if !v.SourceKind.Equal(other.SourceKind) {
-		return false
-	}
-
-	if !v.SourceResource.Equal(other.SourceResource) {
-		return false
-	}
-
-	if !v.Suppressed.Equal(other.Suppressed) {
-		return false
-	}
-
-	if !v.SuppressedUntil.Equal(other.SuppressedUntil) {
-		return false
-	}
-
-	if !v.AlarmType.Equal(other.AlarmType) {
 		return false
 	}
 
@@ -2257,32 +1262,14 @@ func (v AlarmValue) Type(ctx context.Context) attr.Type {
 
 func (v AlarmValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"acknowledged":       basetypes.BoolType{},
-		"acknowledged_until": basetypes.StringType{},
-		"cleared":            basetypes.BoolType{},
-		"cluster_member":     basetypes.StringType{},
-		"description":        basetypes.StringType{},
-		"group":              basetypes.StringType{},
-		"js_path":            basetypes.StringType{},
-		"kind":               basetypes.StringType{},
-		"last_acknowledged":  basetypes.StringType{},
-		"last_changed":       basetypes.StringType{},
-		"last_suppressed":    basetypes.StringType{},
-		"name":               basetypes.StringType{},
-		"namespace":          basetypes.StringType{},
-		"occurrences":        basetypes.Int64Type{},
-		"parent_alarms": basetypes.ListType{
-			ElemType: types.StringType,
-		},
-		"probable_cause":   basetypes.StringType{},
-		"remedial_action":  basetypes.StringType{},
-		"resource":         basetypes.StringType{},
-		"severity":         basetypes.StringType{},
-		"source_group":     basetypes.StringType{},
-		"source_kind":      basetypes.StringType{},
-		"source_resource":  basetypes.StringType{},
-		"suppressed":       basetypes.BoolType{},
-		"suppressed_until": basetypes.StringType{},
-		"type":             basetypes.StringType{},
+		"acknowledged":    basetypes.BoolType{},
+		"acknowledged_by": basetypes.StringType{},
+		"additional_text": basetypes.StringType{},
+		"cleared":         basetypes.BoolType{},
+		"last_changed":    basetypes.StringType{},
+		"name":            basetypes.StringType{},
+		"namespace":       basetypes.StringType{},
+		"probable_cause":  basetypes.StringType{},
+		"remedial_action": basetypes.StringType{},
 	}
 }

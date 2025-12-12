@@ -41,11 +41,11 @@ func (r *authUserGroupResource) Metadata(ctx context.Context, req resource.Metad
 }
 
 func (r *authUserGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_auth_user_group.AuthUserGroupResourceSchema(ctx)
+	resp.Schema = resource_auth_user_group.AuthUserGroupCustomResourceSchema(ctx)
 }
 
 func (r *authUserGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data resource_auth_user_group.AuthUserGroupModel
+	var data resource_auth_user_group.AuthUserGroupCustomModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -90,36 +90,19 @@ func (r *authUserGroupResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	// Read the resource again to populate any values not available in the response from Create()
-	t0 = time.Now()
-
-	err = r.client.Get(ctx, read_rs_authUserGroup, map[string]string{
-		"uuid": tfutils.StringValue(data.Uuid),
-	}, &result)
-
-	tflog.Info(ctx, "Read()::API returned", map[string]any{
-		"path":      read_rs_authUserGroup,
-		"result":    spew.Sdump(result),
-		"timeTaken": time.Since(t0).String(),
-	})
-
-	if err != nil {
-		resp.Diagnostics.AddError("Error reading resource", err.Error())
-		return
-	}
-
 	// Convert API response to Terraform model
 	err = tfutils.AnyMapToModel(ctx, result, &data)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to build response from API result", err.Error())
 		return
 	}
+
 	// Save created data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 }
 
 func (r *authUserGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data resource_auth_user_group.AuthUserGroupModel
+	var data resource_auth_user_group.AuthUserGroupCustomModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -164,14 +147,17 @@ func (r *authUserGroupResource) Read(ctx context.Context, req resource.ReadReque
 }
 
 func (r *authUserGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data resource_auth_user_group.AuthUserGroupModel
+	var data, state resource_auth_user_group.AuthUserGroupCustomModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	data.Uuid = state.Uuid
 
 	err := tfutils.FillMissingValues(ctx, &data)
 	if err != nil {
@@ -209,24 +195,6 @@ func (r *authUserGroupResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	// Read the resource again to populate any values not available in the response from Update()
-	t0 = time.Now()
-
-	err = r.client.Get(ctx, read_rs_authUserGroup, map[string]string{
-		"uuid": tfutils.StringValue(data.Uuid),
-	}, &result)
-
-	tflog.Info(ctx, "Read()::API returned", map[string]any{
-		"path":      read_rs_authUserGroup,
-		"result":    spew.Sdump(result),
-		"timeTaken": time.Since(t0).String(),
-	})
-
-	if err != nil {
-		resp.Diagnostics.AddError("Error reading resource", err.Error())
-		return
-	}
-
 	// Convert API response to Terraform model
 	err = tfutils.AnyMapToModel(ctx, result, &data)
 	if err != nil {
@@ -239,7 +207,7 @@ func (r *authUserGroupResource) Update(ctx context.Context, req resource.UpdateR
 }
 
 func (r *authUserGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data resource_auth_user_group.AuthUserGroupModel
+	var data resource_auth_user_group.AuthUserGroupCustomModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -297,7 +265,7 @@ func (r *authUserGroupResource) Configure(_ context.Context, req resource.Config
 func (r *authUserGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, "/")
 	if len(parts) < 1 {
-		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Expected <namespace/name> format, got: %s", req.ID))
+		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Expected id = <uuid> format, got: id = %s", req.ID))
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("uuid"), parts[0])...)

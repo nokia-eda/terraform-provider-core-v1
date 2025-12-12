@@ -158,6 +158,16 @@ func AuthUserGroupsDataSourceSchema(ctx context.Context) schema.Schema {
 											"failed_login_since_successful_login": schema.Int64Attribute{
 												Computed: true,
 											},
+											"federation_provider_name": schema.StringAttribute{
+												Computed:            true,
+												Description:         "The name of the federation provider for this user. Absent if the user is not federated",
+												MarkdownDescription: "The name of the federation provider for this user. Absent if the user is not federated",
+											},
+											"federation_provider_uuid": schema.StringAttribute{
+												Computed:            true,
+												Description:         "The UUID of the federation provider for this user. Absent if the user is not federated",
+												MarkdownDescription: "The UUID of the federation provider for this user. Absent if the user is not federated",
+											},
 											"is_federated_user": schema.BoolAttribute{
 												Computed:            true,
 												Description:         "True if the user comes from a federated LDAP server",
@@ -3990,6 +4000,42 @@ func (t StatusType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`failed_login_since_successful_login expected to be basetypes.Int64Value, was: %T`, failedLoginSinceSuccessfulLoginAttribute))
 	}
 
+	federationProviderNameAttribute, ok := attributes["federation_provider_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_provider_name is missing from object`)
+
+		return nil, diags
+	}
+
+	federationProviderNameVal, ok := federationProviderNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_provider_name expected to be basetypes.StringValue, was: %T`, federationProviderNameAttribute))
+	}
+
+	federationProviderUuidAttribute, ok := attributes["federation_provider_uuid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_provider_uuid is missing from object`)
+
+		return nil, diags
+	}
+
+	federationProviderUuidVal, ok := federationProviderUuidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_provider_uuid expected to be basetypes.StringValue, was: %T`, federationProviderUuidAttribute))
+	}
+
 	isFederatedUserAttribute, ok := attributes["is_federated_user"]
 
 	if !ok {
@@ -4068,6 +4114,8 @@ func (t StatusType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 
 	return StatusValue{
 		FailedLoginSinceSuccessfulLogin: failedLoginSinceSuccessfulLoginVal,
+		FederationProviderName:          federationProviderNameVal,
+		FederationProviderUuid:          federationProviderUuidVal,
 		IsFederatedUser:                 isFederatedUserVal,
 		LastFailedLogin:                 lastFailedLoginVal,
 		LastSuccessfulLogin:             lastSuccessfulLoginVal,
@@ -4157,6 +4205,42 @@ func NewStatusValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`failed_login_since_successful_login expected to be basetypes.Int64Value, was: %T`, failedLoginSinceSuccessfulLoginAttribute))
 	}
 
+	federationProviderNameAttribute, ok := attributes["federation_provider_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_provider_name is missing from object`)
+
+		return NewStatusValueUnknown(), diags
+	}
+
+	federationProviderNameVal, ok := federationProviderNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_provider_name expected to be basetypes.StringValue, was: %T`, federationProviderNameAttribute))
+	}
+
+	federationProviderUuidAttribute, ok := attributes["federation_provider_uuid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_provider_uuid is missing from object`)
+
+		return NewStatusValueUnknown(), diags
+	}
+
+	federationProviderUuidVal, ok := federationProviderUuidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_provider_uuid expected to be basetypes.StringValue, was: %T`, federationProviderUuidAttribute))
+	}
+
 	isFederatedUserAttribute, ok := attributes["is_federated_user"]
 
 	if !ok {
@@ -4235,6 +4319,8 @@ func NewStatusValue(attributeTypes map[string]attr.Type, attributes map[string]a
 
 	return StatusValue{
 		FailedLoginSinceSuccessfulLogin: failedLoginSinceSuccessfulLoginVal,
+		FederationProviderName:          federationProviderNameVal,
+		FederationProviderUuid:          federationProviderUuidVal,
 		IsFederatedUser:                 isFederatedUserVal,
 		LastFailedLogin:                 lastFailedLoginVal,
 		LastSuccessfulLogin:             lastSuccessfulLoginVal,
@@ -4312,6 +4398,8 @@ var _ basetypes.ObjectValuable = StatusValue{}
 
 type StatusValue struct {
 	FailedLoginSinceSuccessfulLogin basetypes.Int64Value  `tfsdk:"failed_login_since_successful_login"`
+	FederationProviderName          basetypes.StringValue `tfsdk:"federation_provider_name"`
+	FederationProviderUuid          basetypes.StringValue `tfsdk:"federation_provider_uuid"`
 	IsFederatedUser                 basetypes.BoolValue   `tfsdk:"is_federated_user"`
 	LastFailedLogin                 basetypes.StringValue `tfsdk:"last_failed_login"`
 	LastSuccessfulLogin             basetypes.StringValue `tfsdk:"last_successful_login"`
@@ -4320,12 +4408,14 @@ type StatusValue struct {
 }
 
 func (v StatusValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["failed_login_since_successful_login"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["federation_provider_name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["federation_provider_uuid"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["is_federated_user"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["last_failed_login"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["last_successful_login"] = basetypes.StringType{}.TerraformType(ctx)
@@ -4335,7 +4425,7 @@ func (v StatusValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 7)
 
 		val, err = v.FailedLoginSinceSuccessfulLogin.ToTerraformValue(ctx)
 
@@ -4344,6 +4434,22 @@ func (v StatusValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		}
 
 		vals["failed_login_since_successful_login"] = val
+
+		val, err = v.FederationProviderName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["federation_provider_name"] = val
+
+		val, err = v.FederationProviderUuid.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["federation_provider_uuid"] = val
 
 		val, err = v.IsFederatedUser.ToTerraformValue(ctx)
 
@@ -4408,6 +4514,8 @@ func (v StatusValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 
 	attributeTypes := map[string]attr.Type{
 		"failed_login_since_successful_login": basetypes.Int64Type{},
+		"federation_provider_name":            basetypes.StringType{},
+		"federation_provider_uuid":            basetypes.StringType{},
 		"is_federated_user":                   basetypes.BoolType{},
 		"last_failed_login":                   basetypes.StringType{},
 		"last_successful_login":               basetypes.StringType{},
@@ -4426,6 +4534,8 @@ func (v StatusValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		attributeTypes,
 		map[string]attr.Value{
 			"failed_login_since_successful_login": v.FailedLoginSinceSuccessfulLogin,
+			"federation_provider_name":            v.FederationProviderName,
+			"federation_provider_uuid":            v.FederationProviderUuid,
 			"is_federated_user":                   v.IsFederatedUser,
 			"last_failed_login":                   v.LastFailedLogin,
 			"last_successful_login":               v.LastSuccessfulLogin,
@@ -4451,6 +4561,14 @@ func (v StatusValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.FailedLoginSinceSuccessfulLogin.Equal(other.FailedLoginSinceSuccessfulLogin) {
+		return false
+	}
+
+	if !v.FederationProviderName.Equal(other.FederationProviderName) {
+		return false
+	}
+
+	if !v.FederationProviderUuid.Equal(other.FederationProviderUuid) {
 		return false
 	}
 
@@ -4484,6 +4602,8 @@ func (v StatusValue) Type(ctx context.Context) attr.Type {
 func (v StatusValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"failed_login_since_successful_login": basetypes.Int64Type{},
+		"federation_provider_name":            basetypes.StringType{},
+		"federation_provider_uuid":            basetypes.StringType{},
 		"is_federated_user":                   basetypes.BoolType{},
 		"last_failed_login":                   basetypes.StringType{},
 		"last_successful_login":               basetypes.StringType{},

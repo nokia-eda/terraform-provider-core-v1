@@ -44,7 +44,7 @@ func (r *transactionResource) Schema(ctx context.Context, req resource.SchemaReq
 }
 
 func (r *transactionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data resource_transaction.TransactionModel
+	var data resource_transaction.CustomTransactionModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -105,7 +105,7 @@ func (r *transactionResource) Create(ctx context.Context, req resource.CreateReq
 }
 
 func (r *transactionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data resource_transaction.TransactionModel
+	var data resource_transaction.CustomTransactionModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -121,7 +121,7 @@ func (r *transactionResource) Read(ctx context.Context, req resource.ReadRequest
 }
 
 func (r *transactionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data resource_transaction.TransactionModel
+	var data resource_transaction.CustomTransactionModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -137,7 +137,7 @@ func (r *transactionResource) Update(ctx context.Context, req resource.UpdateReq
 }
 
 func (r *transactionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data resource_transaction.TransactionModel
+	var data resource_transaction.CustomTransactionModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)

@@ -40,6 +40,13 @@
                         }
                     },
                     {
+                        "name": "additional_text",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "adds extra context related to the alarm"
+                        }
+                    },
+                    {
                         "name": "cleared",
                         "bool": {
                             "computed_optional_required": "computed",
@@ -50,7 +57,15 @@
                         "name": "cluster_member",
                         "string": {
                             "computed_optional_required": "computed",
-                            "description": "The cluster member that generated this alarm."
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "The cluster member that generated this alarm.  Use clusterName instead.\nDeprecated: true"
+                        }
+                    },
+                    {
+                        "name": "cluster_name",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The name of the cluster member which generated this alarm."
                         }
                     },
                     {
@@ -68,10 +83,24 @@
                         }
                     },
                     {
-                        "name": "js_path",
-                        "string": {
+                        "name": "js_paths",
+                        "list": {
                             "computed_optional_required": "computed",
-                            "description": "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}."
+                            "element_type": {
+                                "string": {}
+                            },
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true"
+                        }
+                    },
+                    {
+                        "name": "jspaths",
+                        "list": {
+                            "computed_optional_required": "computed",
+                            "element_type": {
+                                "string": {}
+                            },
+                            "description": "An unnormalized jspath relating to the object in the alarm state."
                         }
                     },
                     {
@@ -83,6 +112,21 @@
                     },
                     {
                         "name": "last_acknowledged",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true"
+                        }
+                    },
+                    {
+                        "name": "last_acknowledged_by",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "the user who last acknowledged the alarm"
+                        }
+                    },
+                    {
+                        "name": "last_acknowledged_time",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "the time this alarm was last acknowledged."
@@ -97,6 +141,21 @@
                     },
                     {
                         "name": "last_suppressed",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true"
+                        }
+                    },
+                    {
+                        "name": "last_suppressed_by",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "the user who last suppressed the alarm"
+                        }
+                    },
+                    {
+                        "name": "last_suppressed_time",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "the time this alarm was last suppressed."
@@ -197,6 +256,24 @@
                         }
                     },
                     {
+                        "name": "targets_affected",
+                        "list_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "name",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "Name of the target node."
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "List of nodes affected by this alarm."
+                        }
+                    },
+                    {
                         "name": "type",
                         "string": {
                             "computed_optional_required": "computed",
@@ -243,10 +320,17 @@
                                                     }
                                                 },
                                                 {
-                                                    "name": "acknowledged_until",
+                                                    "name": "acknowledged_by",
                                                     "string": {
                                                         "computed_optional_required": "computed",
-                                                        "description": "Indicates the end time of the acknowledgement."
+                                                        "description": "the user who acknowledged the alarm for this alarm history entry"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "additional_text",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "adds extra context related to the alarm"
                                                     }
                                                 },
                                                 {
@@ -257,59 +341,10 @@
                                                     }
                                                 },
                                                 {
-                                                    "name": "cluster_member",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "The cluster member that generated this alarm."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "description",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "A description for the alarm."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "group",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the group of the resource the alarm is present on."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "js_path",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "kind",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the kind of resource the alarm is present on."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "last_acknowledged",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "the time this alarm was last acknowledged."
-                                                    }
-                                                },
-                                                {
                                                     "name": "last_changed",
                                                     "string": {
                                                         "computed_optional_required": "computed",
                                                         "description": "The last time that the alarm was changed; as provided by the raiser of the alarm."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "last_suppressed",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "the time this alarm was last suppressed."
                                                     }
                                                 },
                                                 {
@@ -327,23 +362,6 @@
                                                     }
                                                 },
                                                 {
-                                                    "name": "occurrences",
-                                                    "int64": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "The number of occurrences of this alarm (the number of times it has been raised)."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "parent_alarms",
-                                                    "list": {
-                                                        "computed_optional_required": "computed",
-                                                        "element_type": {
-                                                            "string": {}
-                                                        },
-                                                        "description": "The names of other alarms that are parents of this alarm. This may be used to\nfilter out alarms that are not a root cause."
-                                                    }
-                                                },
-                                                {
                                                     "name": "probable_cause",
                                                     "string": {
                                                         "computed_optional_required": "computed",
@@ -356,65 +374,8 @@
                                                         "computed_optional_required": "computed",
                                                         "description": "any remedial actions the user could try to resolve/clear the alarm. This\nfield is optional, and may also be enriched with relevant information\nfrom this specific alarm instance. The complete alarm below contains an\nexample."
                                                     }
-                                                },
-                                                {
-                                                    "name": "resource",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "The name of the resource that this alarm is present on."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "severity",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Severity of the alarm"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "source_group",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates indicates the group of the resource that raised this alarm, e.g. interfaces.eda.nokia.com."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "source_kind",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the Kind of the resource that raised this alarm, e.g. InterfaceState."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "source_resource",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the the name of the resource that raised this alarm, e.g. spine-1-1-ethernet-1-1."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "suppressed",
-                                                    "bool": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "An indication if the alarm has been suppressed."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "suppressed_until",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the end time of the suppression."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "type",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "A kind for the alarm, e.g. InterfaceDown"
-                                                    }
                                                 }
-                                            ],
-                                            "description": "The information about a single alarm or alarm history"
+                                            ]
                                         }
                                     },
                                     {
@@ -484,6 +445,13 @@
                                         }
                                     },
                                     {
+                                        "name": "additional_text",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "adds extra context related to the alarm"
+                                        }
+                                    },
+                                    {
                                         "name": "cleared",
                                         "bool": {
                                             "computed_optional_required": "computed",
@@ -494,7 +462,15 @@
                                         "name": "cluster_member",
                                         "string": {
                                             "computed_optional_required": "computed",
-                                            "description": "The cluster member that generated this alarm."
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "The cluster member that generated this alarm.  Use clusterName instead.\nDeprecated: true"
+                                        }
+                                    },
+                                    {
+                                        "name": "cluster_name",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The name of the cluster member which generated this alarm."
                                         }
                                     },
                                     {
@@ -512,10 +488,24 @@
                                         }
                                     },
                                     {
-                                        "name": "js_path",
-                                        "string": {
+                                        "name": "js_paths",
+                                        "list": {
                                             "computed_optional_required": "computed",
-                                            "description": "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}."
+                                            "element_type": {
+                                                "string": {}
+                                            },
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true"
+                                        }
+                                    },
+                                    {
+                                        "name": "jspaths",
+                                        "list": {
+                                            "computed_optional_required": "computed",
+                                            "element_type": {
+                                                "string": {}
+                                            },
+                                            "description": "An unnormalized jspath relating to the object in the alarm state."
                                         }
                                     },
                                     {
@@ -527,6 +517,21 @@
                                     },
                                     {
                                         "name": "last_acknowledged",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_acknowledged_by",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "the user who last acknowledged the alarm"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_acknowledged_time",
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "the time this alarm was last acknowledged."
@@ -541,6 +546,21 @@
                                     },
                                     {
                                         "name": "last_suppressed",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_suppressed_by",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "the user who last suppressed the alarm"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_suppressed_time",
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "the time this alarm was last suppressed."
@@ -638,6 +658,24 @@
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "Indicates the end time of the suppression."
+                                        }
+                                    },
+                                    {
+                                        "name": "targets_affected",
+                                        "list_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {
+                                                "attributes": [
+                                                    {
+                                                        "name": "name",
+                                                        "string": {
+                                                            "computed_optional_required": "computed",
+                                                            "description": "Name of the target node."
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "description": "List of nodes affected by this alarm."
                                         }
                                     },
                                     {
@@ -1574,6 +1612,20 @@
                                     }
                                 },
                                 {
+                                    "name": "federation_provider_name",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The name of the federation provider for this user. Absent if the user is not federated"
+                                    }
+                                },
+                                {
+                                    "name": "federation_provider_uuid",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The UUID of the federation provider for this user. Absent if the user is not federated"
+                                    }
+                                },
+                                {
                                     "name": "is_federated_user",
                                     "bool": {
                                         "computed_optional_required": "computed",
@@ -1888,6 +1940,20 @@
                                                                     }
                                                                 },
                                                                 {
+                                                                    "name": "federation_provider_name",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "The name of the federation provider for this user. Absent if the user is not federated"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "federation_provider_uuid",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "The UUID of the federation provider for this user. Absent if the user is not federated"
+                                                                    }
+                                                                },
+                                                                {
                                                                     "name": "is_federated_user",
                                                                     "bool": {
                                                                         "computed_optional_required": "computed",
@@ -2177,6 +2243,20 @@
                                                     }
                                                 },
                                                 {
+                                                    "name": "federation_provider_name",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "The name of the federation provider for this user. Absent if the user is not federated"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "federation_provider_uuid",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "The UUID of the federation provider for this user. Absent if the user is not federated"
+                                                    }
+                                                },
+                                                {
                                                     "name": "is_federated_user",
                                                     "bool": {
                                                         "computed_optional_required": "computed",
@@ -2256,6 +2336,13 @@
                         }
                     },
                     {
+                        "name": "additional_text",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "adds extra context related to the alarm"
+                        }
+                    },
+                    {
                         "name": "cleared",
                         "bool": {
                             "computed_optional_required": "computed",
@@ -2266,7 +2353,15 @@
                         "name": "cluster_member",
                         "string": {
                             "computed_optional_required": "computed",
-                            "description": "The cluster member that generated this alarm."
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "The cluster member that generated this alarm.  Use clusterName instead.\nDeprecated: true"
+                        }
+                    },
+                    {
+                        "name": "cluster_name",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The name of the cluster member which generated this alarm."
                         }
                     },
                     {
@@ -2284,10 +2379,24 @@
                         }
                     },
                     {
-                        "name": "js_path",
-                        "string": {
+                        "name": "js_paths",
+                        "list": {
                             "computed_optional_required": "computed",
-                            "description": "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}."
+                            "element_type": {
+                                "string": {}
+                            },
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true"
+                        }
+                    },
+                    {
+                        "name": "jspaths",
+                        "list": {
+                            "computed_optional_required": "computed",
+                            "element_type": {
+                                "string": {}
+                            },
+                            "description": "An unnormalized jspath relating to the object in the alarm state."
                         }
                     },
                     {
@@ -2299,6 +2408,21 @@
                     },
                     {
                         "name": "last_acknowledged",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true"
+                        }
+                    },
+                    {
+                        "name": "last_acknowledged_by",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "the user who last acknowledged the alarm"
+                        }
+                    },
+                    {
+                        "name": "last_acknowledged_time",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "the time this alarm was last acknowledged."
@@ -2313,6 +2437,21 @@
                     },
                     {
                         "name": "last_suppressed",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true"
+                        }
+                    },
+                    {
+                        "name": "last_suppressed_by",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "the user who last suppressed the alarm"
+                        }
+                    },
+                    {
+                        "name": "last_suppressed_time",
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "the time this alarm was last suppressed."
@@ -2413,6 +2552,24 @@
                         }
                     },
                     {
+                        "name": "targets_affected",
+                        "list_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "name",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "Name of the target node."
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "List of nodes affected by this alarm."
+                        }
+                    },
+                    {
                         "name": "type",
                         "string": {
                             "computed_optional_required": "computed",
@@ -2452,10 +2609,17 @@
                                                     }
                                                 },
                                                 {
-                                                    "name": "acknowledged_until",
+                                                    "name": "acknowledged_by",
                                                     "string": {
                                                         "computed_optional_required": "computed",
-                                                        "description": "Indicates the end time of the acknowledgement."
+                                                        "description": "the user who acknowledged the alarm for this alarm history entry"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "additional_text",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "adds extra context related to the alarm"
                                                     }
                                                 },
                                                 {
@@ -2466,59 +2630,10 @@
                                                     }
                                                 },
                                                 {
-                                                    "name": "cluster_member",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "The cluster member that generated this alarm."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "description",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "A description for the alarm."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "group",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the group of the resource the alarm is present on."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "js_path",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "kind",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the kind of resource the alarm is present on."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "last_acknowledged",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "the time this alarm was last acknowledged."
-                                                    }
-                                                },
-                                                {
                                                     "name": "last_changed",
                                                     "string": {
                                                         "computed_optional_required": "computed",
                                                         "description": "The last time that the alarm was changed; as provided by the raiser of the alarm."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "last_suppressed",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "the time this alarm was last suppressed."
                                                     }
                                                 },
                                                 {
@@ -2536,23 +2651,6 @@
                                                     }
                                                 },
                                                 {
-                                                    "name": "occurrences",
-                                                    "int64": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "The number of occurrences of this alarm (the number of times it has been raised)."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "parent_alarms",
-                                                    "list": {
-                                                        "computed_optional_required": "computed",
-                                                        "element_type": {
-                                                            "string": {}
-                                                        },
-                                                        "description": "The names of other alarms that are parents of this alarm. This may be used to\nfilter out alarms that are not a root cause."
-                                                    }
-                                                },
-                                                {
                                                     "name": "probable_cause",
                                                     "string": {
                                                         "computed_optional_required": "computed",
@@ -2565,65 +2663,8 @@
                                                         "computed_optional_required": "computed",
                                                         "description": "any remedial actions the user could try to resolve/clear the alarm. This\nfield is optional, and may also be enriched with relevant information\nfrom this specific alarm instance. The complete alarm below contains an\nexample."
                                                     }
-                                                },
-                                                {
-                                                    "name": "resource",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "The name of the resource that this alarm is present on."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "severity",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Severity of the alarm"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "source_group",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates indicates the group of the resource that raised this alarm, e.g. interfaces.eda.nokia.com."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "source_kind",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the Kind of the resource that raised this alarm, e.g. InterfaceState."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "source_resource",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the the name of the resource that raised this alarm, e.g. spine-1-1-ethernet-1-1."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "suppressed",
-                                                    "bool": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "An indication if the alarm has been suppressed."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "suppressed_until",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "Indicates the end time of the suppression."
-                                                    }
-                                                },
-                                                {
-                                                    "name": "type",
-                                                    "string": {
-                                                        "computed_optional_required": "computed",
-                                                        "description": "A kind for the alarm, e.g. InterfaceDown"
-                                                    }
                                                 }
-                                            ],
-                                            "description": "The information about a single alarm or alarm history"
+                                            ]
                                         }
                                     },
                                     {
@@ -2686,6 +2727,13 @@
                                         }
                                     },
                                     {
+                                        "name": "additional_text",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "adds extra context related to the alarm"
+                                        }
+                                    },
+                                    {
                                         "name": "cleared",
                                         "bool": {
                                             "computed_optional_required": "computed",
@@ -2696,7 +2744,15 @@
                                         "name": "cluster_member",
                                         "string": {
                                             "computed_optional_required": "computed",
-                                            "description": "The cluster member that generated this alarm."
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "The cluster member that generated this alarm.  Use clusterName instead.\nDeprecated: true"
+                                        }
+                                    },
+                                    {
+                                        "name": "cluster_name",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The name of the cluster member which generated this alarm."
                                         }
                                     },
                                     {
@@ -2714,10 +2770,24 @@
                                         }
                                     },
                                     {
-                                        "name": "js_path",
-                                        "string": {
+                                        "name": "js_paths",
+                                        "list": {
                                             "computed_optional_required": "computed",
-                                            "description": "a unnormalized jspath relating to the object in the alarm state. For\nexample\n.node{.name==\"spine-1-1\"}.srl{.version==\"24.10.1\"}.interface{.name==\"ethernet-1-1\"}."
+                                            "element_type": {
+                                                "string": {}
+                                            },
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true"
+                                        }
+                                    },
+                                    {
+                                        "name": "jspaths",
+                                        "list": {
+                                            "computed_optional_required": "computed",
+                                            "element_type": {
+                                                "string": {}
+                                            },
+                                            "description": "An unnormalized jspath relating to the object in the alarm state."
                                         }
                                     },
                                     {
@@ -2729,6 +2799,21 @@
                                     },
                                     {
                                         "name": "last_acknowledged",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_acknowledged_by",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "the user who last acknowledged the alarm"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_acknowledged_time",
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "the time this alarm was last acknowledged."
@@ -2743,6 +2828,21 @@
                                     },
                                     {
                                         "name": "last_suppressed",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_suppressed_by",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "the user who last suppressed the alarm"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_suppressed_time",
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "the time this alarm was last suppressed."
@@ -2840,6 +2940,24 @@
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "Indicates the end time of the suppression."
+                                        }
+                                    },
+                                    {
+                                        "name": "targets_affected",
+                                        "list_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {
+                                                "attributes": [
+                                                    {
+                                                        "name": "name",
+                                                        "string": {
+                                                            "computed_optional_required": "computed",
+                                                            "description": "Name of the target node."
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "description": "List of nodes affected by this alarm."
                                         }
                                     },
                                     {
@@ -3094,58 +3212,187 @@
             }
         },
         {
-            "name": "cluster_workflow_list",
+            "name": "conversation_history",
             "schema": {
                 "attributes": [
                     {
-                        "name": "flows",
+                        "name": "chat_id",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "The ID of the requested chat"
+                        }
+                    },
+                    {
+                        "name": "created",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Time when the conversation was created"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Conversation ID"
+                        }
+                    },
+                    {
+                        "name": "last_updated",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Time when the conversation was last updated"
+                        }
+                    },
+                    {
+                        "name": "message_count",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "Number of messages in the conversation"
+                        }
+                    },
+                    {
+                        "name": "messages",
                         "list_nested": {
                             "computed_optional_required": "computed",
                             "nested_object": {
                                 "attributes": [
                                     {
-                                        "name": "id",
-                                        "int64": {
-                                            "computed_optional_required": "computed",
-                                            "description": "The id of the workflow"
-                                        }
-                                    },
-                                    {
-                                        "name": "name",
-                                        "string": {
-                                            "computed_optional_required": "computed",
-                                            "description": "Name of the workflow"
-                                        }
-                                    },
-                                    {
-                                        "name": "namespace",
-                                        "string": {
-                                            "computed_optional_required": "computed",
-                                            "description": "The namespace in which the workflow ran"
-                                        }
-                                    },
-                                    {
-                                        "name": "parent_id",
-                                        "int64": {
-                                            "computed_optional_required": "computed",
-                                            "description": "The id of the parent workflow, if any"
-                                        }
-                                    },
-                                    {
-                                        "name": "state",
+                                        "name": "role",
                                         "string": {
                                             "computed_optional_required": "computed"
                                         }
                                     },
                                     {
                                         "name": "type",
+                                        "int64": {
+                                            "computed_optional_required": "computed"
+                                        }
+                                    },
+                                    {
+                                        "name": "value",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The content of the message returned from ai"
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "List of messages in the conversation"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Conversation name"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "conversation_list",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "conversation_list",
+                        "set_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "created",
                                         "string": {
                                             "computed_optional_required": "computed",
-                                            "description": "The type of workflow"
+                                            "description": "Time when the conversation was created"
+                                        }
+                                    },
+                                    {
+                                        "name": "id",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "Conversation ID"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_updated",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "Time when the conversation was last updated"
+                                        }
+                                    },
+                                    {
+                                        "name": "message_count",
+                                        "int64": {
+                                            "computed_optional_required": "computed",
+                                            "description": "Number of messages in the conversation"
+                                        }
+                                    },
+                                    {
+                                        "name": "name",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "Conversation name"
                                         }
                                     }
                                 ]
                             }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "db_get_result",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "fields",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "a comma-separated list of table fields to fetch/return.  If unspecified, all fields are fetched.  If empty, no data for a row will be returned; only the JSON path for the table row."
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "an EQL \"where\" expression that will be used to filter the set of table rows returned."
+                        }
+                    },
+                    {
+                        "name": "updatesonly",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "if true/present, only send updates to the table rows, not the current rows.  Only applicable if streaming the results."
+                        }
+                    },
+                    {
+                        "name": "include_keys",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "if true/present, the keys of the table are included in the table data."
+                        }
+                    },
+                    {
+                        "name": "js_path",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "the jsPath for the table to retrieve from the DB, with or without keys embedded in the path"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "db_get_schema",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "table_name",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "the name of the table to retrieve the schema from the database"
                         }
                     }
                 ]
@@ -3178,74 +3425,9 @@
                     },
                     {
                         "name": "json_schema",
-                        "map_nested": {
-                            "computed_optional_required": "computed",
-                            "nested_object": {},
-                            "description": "The JSON schema definition for the query data being returned."
-                        }
-                    },
-                    {
-                        "name": "schema",
                         "single_nested": {
                             "computed_optional_required": "computed",
-                            "attributes": [
-                                {
-                                    "name": "fields",
-                                    "list_nested": {
-                                        "computed_optional_required": "computed",
-                                        "nested_object": {
-                                            "attributes": [
-                                                {
-                                                    "name": "alias",
-                                                    "bool": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "annotations",
-                                                    "list_nested": {
-                                                        "computed_optional_required": "computed",
-                                                        "nested_object": {
-                                                            "attributes": [
-                                                                {
-                                                                    "name": "end_char",
-                                                                    "int64": {
-                                                                        "computed_optional_required": "computed"
-                                                                    }
-                                                                },
-                                                                {
-                                                                    "name": "start_char",
-                                                                    "int64": {
-                                                                        "computed_optional_required": "computed"
-                                                                    }
-                                                                }
-                                                            ]
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "name": "display_name",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "name",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "type",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "description": "The JSON schema definition for the query data being returned."
                         }
                     }
                 ]
@@ -3435,7 +3617,7 @@
             }
         },
         {
-            "name": "namespace_get_response",
+            "name": "namespaces",
             "schema": {
                 "attributes": [
                     {
@@ -3610,74 +3792,9 @@
                     },
                     {
                         "name": "json_schema",
-                        "map_nested": {
-                            "computed_optional_required": "computed",
-                            "nested_object": {},
-                            "description": "The JSON schema definition for the query data being returned."
-                        }
-                    },
-                    {
-                        "name": "schema",
                         "single_nested": {
                             "computed_optional_required": "computed",
-                            "attributes": [
-                                {
-                                    "name": "fields",
-                                    "list_nested": {
-                                        "computed_optional_required": "computed",
-                                        "nested_object": {
-                                            "attributes": [
-                                                {
-                                                    "name": "alias",
-                                                    "bool": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "annotations",
-                                                    "list_nested": {
-                                                        "computed_optional_required": "computed",
-                                                        "nested_object": {
-                                                            "attributes": [
-                                                                {
-                                                                    "name": "end_char",
-                                                                    "int64": {
-                                                                        "computed_optional_required": "computed"
-                                                                    }
-                                                                },
-                                                                {
-                                                                    "name": "start_char",
-                                                                    "int64": {
-                                                                        "computed_optional_required": "computed"
-                                                                    }
-                                                                }
-                                                            ]
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "name": "display_name",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "name",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "type",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "description": "The JSON schema definition for the query data being returned."
                         }
                     }
                 ]
@@ -4882,9 +4999,308 @@
             }
         },
         {
+            "name": "store_app_settings_definition",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "catalog",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "The catalog where the application version resides"
+                        }
+                    },
+                    {
+                        "name": "app_id",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "application ID of the application version"
+                        }
+                    },
+                    {
+                        "name": "sem_ver",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "The semantic version for the application version."
+                        }
+                    },
+                    {
+                        "name": "commit_hash",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "The commit hash for the application version."
+                        }
+                    },
+                    {
+                        "name": "definition",
+                        "map_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {},
+                            "description": "The settings definition for the application as a JSON object."
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "store_app_summary",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "prioritize_installed_info",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "If present and true, and the application is installed, the application information will be derived from the installed application version."
+                        }
+                    },
+                    {
+                        "name": "installed",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "When true, only return the summary for the specified application if the application is installed"
+                        }
+                    },
+                    {
+                        "name": "upgradable",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "When true, only return the summary for the specified application if the application is upgradable"
+                        }
+                    },
+                    {
+                        "name": "app_id",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "Application ID of the application summary to be returned"
+                        }
+                    },
+                    {
+                        "name": "catalogs",
+                        "list": {
+                            "computed_optional_required": "computed",
+                            "element_type": {
+                                "string": {}
+                            },
+                            "description": "Catalogs where this app was found"
+                        }
+                    },
+                    {
+                        "name": "categories",
+                        "list": {
+                            "computed_optional_required": "computed",
+                            "element_type": {
+                                "string": {}
+                            },
+                            "description": "Application categories."
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Application description that can be used for user display purposes"
+                        }
+                    },
+                    {
+                        "name": "has_settings",
+                        "bool": {
+                            "computed_optional_required": "computed",
+                            "description": "Application has settings"
+                        }
+                    },
+                    {
+                        "name": "info_version",
+                        "single_nested": {
+                            "computed_optional_required": "computed",
+                            "attributes": [
+                                {
+                                    "name": "app_id",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The identifier for the application"
+                                    }
+                                },
+                                {
+                                    "name": "catalog",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The catalog in which this application version was found"
+                                    }
+                                },
+                                {
+                                    "name": "commit_hash",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The commit hash for the application version."
+                                    }
+                                },
+                                {
+                                    "name": "sem_ver",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The semantic version for the application version."
+                                    }
+                                }
+                            ],
+                            "description": "The information about an application version available from a catalog.\nAt least one of \"semVer\" or \"commitHash\" must/will be defined."
+                        }
+                    },
+                    {
+                        "name": "info_version_metadata",
+                        "single_nested": {
+                            "computed_optional_required": "computed",
+                            "attributes": [
+                                {
+                                    "name": "published_time",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The date and time when the application version was published."
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "installed_version",
+                        "single_nested": {
+                            "computed_optional_required": "computed",
+                            "attributes": [
+                                {
+                                    "name": "app_id",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The identifier for the application"
+                                    }
+                                },
+                                {
+                                    "name": "catalog",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The catalog in which this application version was found"
+                                    }
+                                },
+                                {
+                                    "name": "commit_hash",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The commit hash for the application version."
+                                    }
+                                },
+                                {
+                                    "name": "sem_ver",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The semantic version for the application version."
+                                    }
+                                }
+                            ],
+                            "description": "The information about an application version available from a catalog.\nAt least one of \"semVer\" or \"commitHash\" must/will be defined."
+                        }
+                    },
+                    {
+                        "name": "installed_version_metadata",
+                        "single_nested": {
+                            "computed_optional_required": "computed",
+                            "attributes": [
+                                {
+                                    "name": "published_time",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The date and time when the application version was published."
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "latest_version",
+                        "single_nested": {
+                            "computed_optional_required": "computed",
+                            "attributes": [
+                                {
+                                    "name": "app_id",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The identifier for the application"
+                                    }
+                                },
+                                {
+                                    "name": "catalog",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The catalog in which this application version was found"
+                                    }
+                                },
+                                {
+                                    "name": "commit_hash",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The commit hash for the application version."
+                                    }
+                                },
+                                {
+                                    "name": "sem_ver",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The semantic version for the application version."
+                                    }
+                                }
+                            ],
+                            "description": "The information about an application version available from a catalog.\nAt least one of \"semVer\" or \"commitHash\" must/will be defined."
+                        }
+                    },
+                    {
+                        "name": "latest_version_metadata",
+                        "single_nested": {
+                            "computed_optional_required": "computed",
+                            "attributes": [
+                                {
+                                    "name": "published_time",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The date and time when the application version was published."
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "supported_endpoints",
+                        "list": {
+                            "computed_optional_required": "computed",
+                            "element_type": {
+                                "string": {}
+                            },
+                            "description": "Application supported endpoints."
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Application title that can be used for user display purposes"
+                        }
+                    },
+                    {
+                        "name": "vendor",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Name of the vendor for this app"
+                        }
+                    }
+                ]
+            }
+        },
+        {
             "name": "store_app_summary_list",
             "schema": {
                 "attributes": [
+                    {
+                        "name": "prioritize_installed_info",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "If present and true, and the application is installed, the application information will be derived from the installed application version."
+                        }
+                    },
                     {
                         "name": "installed",
                         "bool": {
@@ -4937,6 +5353,13 @@
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "Application description that can be used for user display purposes"
+                                        }
+                                    },
+                                    {
+                                        "name": "has_settings",
+                                        "bool": {
+                                            "computed_optional_required": "computed",
+                                            "description": "Application has settings"
                                         }
                                     },
                                     {
@@ -5125,6 +5548,13 @@
                                             "computed_optional_required": "computed",
                                             "description": "\"true\" if there is a new version that can be installed"
                                         }
+                                    },
+                                    {
+                                        "name": "vendor",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "Name of the vendor for this app"
+                                        }
                                     }
                                 ]
                             }
@@ -5252,74 +5682,9 @@
                     },
                     {
                         "name": "json_schema",
-                        "map_nested": {
-                            "computed_optional_required": "computed",
-                            "nested_object": {},
-                            "description": "The JSON schema definition for the query data being returned."
-                        }
-                    },
-                    {
-                        "name": "schema",
                         "single_nested": {
                             "computed_optional_required": "computed",
-                            "attributes": [
-                                {
-                                    "name": "fields",
-                                    "list_nested": {
-                                        "computed_optional_required": "computed",
-                                        "nested_object": {
-                                            "attributes": [
-                                                {
-                                                    "name": "alias",
-                                                    "bool": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "annotations",
-                                                    "list_nested": {
-                                                        "computed_optional_required": "computed",
-                                                        "nested_object": {
-                                                            "attributes": [
-                                                                {
-                                                                    "name": "end_char",
-                                                                    "int64": {
-                                                                        "computed_optional_required": "computed"
-                                                                    }
-                                                                },
-                                                                {
-                                                                    "name": "start_char",
-                                                                    "int64": {
-                                                                        "computed_optional_required": "computed"
-                                                                    }
-                                                                }
-                                                            ]
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "name": "display_name",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "name",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "type",
-                                                    "string": {
-                                                        "computed_optional_required": "computed"
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "description": "The JSON schema definition for the query data being returned."
                         }
                     }
                 ]
@@ -6009,6 +6374,200 @@
             }
         },
         {
+            "name": "topology_grouping_instance",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "topology_name",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "the name of the topology whose grouping(s) should be retrieved"
+                        }
+                    },
+                    {
+                        "name": "grouping_name",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "the name of the grouping to retrieve"
+                        }
+                    },
+                    {
+                        "name": "api_version",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The group/version for the topology grouping data."
+                        }
+                    },
+                    {
+                        "name": "kind",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The kind for the topology grouping data."
+                        }
+                    },
+                    {
+                        "name": "metadata",
+                        "single_nested": {
+                            "computed_optional_required": "computed",
+                            "attributes": [
+                                {
+                                    "name": "annotations",
+                                    "map": {
+                                        "computed_optional_required": "computed",
+                                        "element_type": {
+                                            "string": {}
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "labels",
+                                    "map": {
+                                        "computed_optional_required": "computed",
+                                        "element_type": {
+                                            "string": {}
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "name",
+                                    "string": {
+                                        "computed_optional_required": "computed"
+                                    }
+                                },
+                                {
+                                    "name": "namespace",
+                                    "string": {
+                                        "computed_optional_required": "computed"
+                                    }
+                                }
+                            ],
+                            "description": "The metadata kind for the topology grouping data."
+                        }
+                    },
+                    {
+                        "name": "spec",
+                        "map_nested": {
+                            "computed_optional_required": "optional",
+                            "nested_object": {}
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "map_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "topology_groupings_list",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "topology_name",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "the name of the topology whose grouping(s) should be retrieved"
+                        }
+                    },
+                    {
+                        "name": "api_version",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The group/version for the topology grouping data."
+                        }
+                    },
+                    {
+                        "name": "items",
+                        "list_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "api_version",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The group/version for the topology grouping data."
+                                        }
+                                    },
+                                    {
+                                        "name": "kind",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The kind for the topology grouping data."
+                                        }
+                                    },
+                                    {
+                                        "name": "metadata",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed",
+                                            "attributes": [
+                                                {
+                                                    "name": "annotations",
+                                                    "map": {
+                                                        "computed_optional_required": "computed",
+                                                        "element_type": {
+                                                            "string": {}
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "name": "labels",
+                                                    "map": {
+                                                        "computed_optional_required": "computed",
+                                                        "element_type": {
+                                                            "string": {}
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "name": "name",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "namespace",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                }
+                                            ],
+                                            "description": "The metadata kind for the topology grouping data."
+                                        }
+                                    },
+                                    {
+                                        "name": "spec",
+                                        "map_nested": {
+                                            "computed_optional_required": "optional",
+                                            "nested_object": {}
+                                        }
+                                    },
+                                    {
+                                        "name": "status",
+                                        "map_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {}
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "The metadata kind for the topology grouping data."
+                        }
+                    },
+                    {
+                        "name": "kind",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The kind for the topology grouping data."
+                        }
+                    }
+                ]
+            }
+        },
+        {
             "name": "transaction_execution_result",
             "schema": {
                 "attributes": [
@@ -6021,7 +6580,7 @@
                     },
                     {
                         "name": "wait_for_complete",
-                        "string": {
+                        "bool": {
                             "computed_optional_required": "computed_optional",
                             "description": "Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state."
                         }
@@ -6491,11 +7050,25 @@
                         }
                     },
                     {
+                        "name": "full",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "If true the response will contain the full resource body for each input resource"
+                        }
+                    },
+                    {
                         "name": "input_crs",
                         "list_nested": {
                             "computed_optional_required": "computed",
                             "nested_object": {
                                 "attributes": [
+                                    {
+                                        "name": "data",
+                                        "map_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {}
+                                        }
+                                    },
                                     {
                                         "name": "is_delete",
                                         "bool": {
@@ -6550,6 +7123,12 @@
                                                 }
                                             ]
                                         }
+                                    },
+                                    {
+                                        "name": "operation",
+                                        "string": {
+                                            "computed_optional_required": "computed"
+                                        }
                                     }
                                 ]
                             },
@@ -6599,6 +7178,20 @@
                         }
                     },
                     {
+                        "name": "wait_for_complete",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state."
+                        }
+                    },
+                    {
+                        "name": "bundled_transaction_id",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier."
+                        }
+                    },
+                    {
                         "name": "commit_hash",
                         "string": {
                             "computed_optional_required": "computed",
@@ -6613,10 +7206,18 @@
                         }
                     },
                     {
+                        "name": "detail_level",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The level of detail available in the transaction details."
+                        }
+                    },
+                    {
                         "name": "details",
                         "string": {
                             "computed_optional_required": "computed",
-                            "description": "The type of details available for the transaction, as posted in the transaction request."
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "The type of details available for the transaction, as posted in the transaction request.\nDeprecated: use \"detailLevel\" instead."
                         }
                     },
                     {
@@ -6689,6 +7290,13 @@
                             "nested_object": {
                                 "attributes": [
                                     {
+                                        "name": "bundled_transaction_id",
+                                        "int64": {
+                                            "computed_optional_required": "computed",
+                                            "description": "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier."
+                                        }
+                                    },
+                                    {
                                         "name": "commit_hash",
                                         "string": {
                                             "computed_optional_required": "computed",
@@ -6703,10 +7311,18 @@
                                         }
                                     },
                                     {
+                                        "name": "detail_level",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The level of detail available in the transaction details."
+                                        }
+                                    },
+                                    {
                                         "name": "details",
                                         "string": {
                                             "computed_optional_required": "computed",
-                                            "description": "The type of details available for the transaction, as posted in the transaction request."
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "The type of details available for the transaction, as posted in the transaction request.\nDeprecated: use \"detailLevel\" instead."
                                         }
                                     },
                                     {
@@ -6978,263 +7594,171 @@
             }
         },
         {
-            "name": "workflow",
+            "name": "workflow_status_summary",
             "schema": {
                 "attributes": [
                     {
-                        "name": "workflow_id",
+                        "name": "fields",
                         "string": {
-                            "computed_optional_required": "required",
-                            "description": "The id for the requested workflow"
+                            "computed_optional_required": "computed_optional",
+                            "description": "a comma-separated list of resource fields to fetch/return.  If unspecified, all fields are fetched.  If empty, only key-fields are fetched."
                         }
                     },
                     {
-                        "name": "error",
+                        "name": "filter",
                         "string": {
-                            "computed_optional_required": "computed",
-                            "description": "If no error is present, the flow completed successfully"
+                            "computed_optional_required": "computed_optional",
+                            "description": "an EQL \"where\" expression that will be used to filter the set of resources returned."
                         }
                     },
                     {
-                        "name": "id",
-                        "int64": {
-                            "computed_optional_required": "computed",
-                            "description": "The id of the workflow"
-                        }
-                    },
-                    {
-                        "name": "json_result",
+                        "name": "label_selector",
                         "string": {
-                            "computed_optional_required": "computed",
-                            "description": "A JSON representation of the result"
+                            "computed_optional_required": "computed_optional",
+                            "description": "a label selector string to filter the results based on CR labels"
                         }
                     },
                     {
-                        "name": "log",
+                        "name": "labelselector",
                         "string": {
-                            "computed_optional_required": "computed",
-                            "description": "Log output from the flow"
+                            "computed_optional_required": "computed_optional",
+                            "description": "Deprecated: a label selector string to filter the results based on CR labels"
                         }
                     },
                     {
-                        "name": "name",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "Name of the workflow"
-                        }
-                    },
-                    {
-                        "name": "namespace",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The namespace in which the flow ran"
-                        }
-                    },
-                    {
-                        "name": "parent_id",
-                        "int64": {
-                            "computed_optional_required": "computed",
-                            "description": "The id of the parent workflow, if any"
-                        }
-                    },
-                    {
-                        "name": "stages",
-                        "list_nested": {
+                        "name": "workflow_status_summary",
+                        "set_nested": {
                             "computed_optional_required": "computed",
                             "nested_object": {
                                 "attributes": [
                                     {
-                                        "name": "completed",
-                                        "bool": {
-                                            "computed_optional_required": "computed",
-                                            "description": "True if the stage has completed"
-                                        }
-                                    },
-                                    {
-                                        "name": "had_error",
-                                        "bool": {
-                                            "computed_optional_required": "computed",
-                                            "description": "True if the stage is complete and there was an error"
-                                        }
-                                    },
-                                    {
-                                        "name": "name",
+                                        "name": "creation_time",
                                         "string": {
-                                            "computed_optional_required": "computed",
-                                            "description": "Name of the flow stage"
+                                            "computed_optional_required": "computed"
                                         }
                                     },
                                     {
-                                        "name": "skipped",
-                                        "bool": {
-                                            "computed_optional_required": "computed",
-                                            "description": "True if the stage was skipped"
+                                        "name": "group",
+                                        "string": {
+                                            "computed_optional_required": "computed"
                                         }
                                     },
-                                    {
-                                        "name": "started",
-                                        "bool": {
-                                            "computed_optional_required": "computed",
-                                            "description": "True if the stage has started"
-                                        }
-                                    },
-                                    {
-                                        "name": "sub_flow_ids",
-                                        "list": {
-                                            "computed_optional_required": "computed",
-                                            "element_type": {
-                                                "int64": {}
-                                            },
-                                            "description": "The ids of flows triggered by the stage"
-                                        }
-                                    }
-                                ]
-                            },
-                            "description": "The list of stages of the workflow"
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "string": {
-                            "computed_optional_required": "computed"
-                        }
-                    },
-                    {
-                        "name": "subflows_waiting_for_input",
-                        "list": {
-                            "computed_optional_required": "computed",
-                            "element_type": {
-                                "int64": {}
-                            },
-                            "description": "The ids of any subflows that are waiting for user input"
-                        }
-                    },
-                    {
-                        "name": "type",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The type of workflow"
-                        }
-                    },
-                    {
-                        "name": "wait_for_input_prompt",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "Set if the state is waiting for input"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "workflow_detail",
-            "schema": {
-                "attributes": [
-                    {
-                        "name": "workflow_id",
-                        "int64": {
-                            "computed_optional_required": "required",
-                            "description": "The identifier for the workflow whose details is being requested"
-                        }
-                    },
-                    {
-                        "name": "wait_for_complete",
-                        "string": {
-                            "computed_optional_required": "computed_optional",
-                            "description": "Flag for the request to wait until the workflow is complete before returning"
-                        }
-                    },
-                    {
-                        "name": "fail_on_errors",
-                        "string": {
-                            "computed_optional_required": "computed_optional",
-                            "description": "Flag to tell the request to fail if the workflow has errors"
-                        }
-                    },
-                    {
-                        "name": "error_message",
-                        "string": {
-                            "computed_optional_required": "computed"
-                        }
-                    },
-                    {
-                        "name": "result_message",
-                        "string": {
-                            "computed_optional_required": "computed"
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "single_nested": {
-                            "computed_optional_required": "computed",
-                            "attributes": [
-                                {
-                                    "name": "running_state",
-                                    "string": {
-                                        "computed_optional_required": "computed"
-                                    }
-                                },
-                                {
-                                    "name": "state",
-                                    "string": {
-                                        "computed_optional_required": "computed"
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "success",
-                        "bool": {
-                            "computed_optional_required": "computed"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "workflow_list",
-            "schema": {
-                "attributes": [
-                    {
-                        "name": "ns_name",
-                        "string": {
-                            "computed_optional_required": "required",
-                            "description": "The namespace for the requested workflow list"
-                        }
-                    },
-                    {
-                        "name": "flows",
-                        "list_nested": {
-                            "computed_optional_required": "computed",
-                            "nested_object": {
-                                "attributes": [
                                     {
                                         "name": "id",
                                         "int64": {
-                                            "computed_optional_required": "computed",
-                                            "description": "The id of the workflow"
+                                            "computed_optional_required": "computed"
+                                        }
+                                    },
+                                    {
+                                        "name": "kind",
+                                        "string": {
+                                            "computed_optional_required": "computed"
+                                        }
+                                    },
+                                    {
+                                        "name": "last_update",
+                                        "string": {
+                                            "computed_optional_required": "computed"
                                         }
                                     },
                                     {
                                         "name": "name",
                                         "string": {
-                                            "computed_optional_required": "computed",
-                                            "description": "Name of the workflow"
+                                            "computed_optional_required": "computed"
                                         }
                                     },
                                     {
                                         "name": "namespace",
                                         "string": {
-                                            "computed_optional_required": "computed",
-                                            "description": "The namespace in which the workflow ran"
+                                            "computed_optional_required": "computed"
                                         }
                                     },
                                     {
-                                        "name": "parent_id",
-                                        "int64": {
+                                        "name": "parent",
+                                        "single_nested": {
                                             "computed_optional_required": "computed",
-                                            "description": "The id of the parent workflow, if any"
+                                            "attributes": [
+                                                {
+                                                    "name": "group",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "id",
+                                                    "int64": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "kind",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "name",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "namespace",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "version",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "root_workflow",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed",
+                                            "attributes": [
+                                                {
+                                                    "name": "group",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "id",
+                                                    "int64": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "kind",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "name",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "namespace",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "version",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                }
+                                            ]
                                         }
                                     },
                                     {
@@ -7244,40 +7768,19 @@
                                         }
                                     },
                                     {
-                                        "name": "type",
+                                        "name": "username",
                                         "string": {
-                                            "computed_optional_required": "computed",
-                                            "description": "The type of workflow"
+                                            "computed_optional_required": "computed"
+                                        }
+                                    },
+                                    {
+                                        "name": "version",
+                                        "string": {
+                                            "computed_optional_required": "computed"
                                         }
                                     }
                                 ]
                             }
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "workflow_state",
-            "schema": {
-                "attributes": [
-                    {
-                        "name": "workflow_id",
-                        "int64": {
-                            "computed_optional_required": "required",
-                            "description": "The identifier for the workflow whose state is being requested"
-                        }
-                    },
-                    {
-                        "name": "running_state",
-                        "string": {
-                            "computed_optional_required": "computed"
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "string": {
-                            "computed_optional_required": "computed"
                         }
                     }
                 ]
@@ -7874,6 +8377,20 @@
                                     }
                                 },
                                 {
+                                    "name": "federation_provider_name",
+                                    "string": {
+                                        "computed_optional_required": "computed_optional",
+                                        "description": "The name of the federation provider for this user. Absent if the user is not federated"
+                                    }
+                                },
+                                {
+                                    "name": "federation_provider_uuid",
+                                    "string": {
+                                        "computed_optional_required": "computed_optional",
+                                        "description": "The UUID of the federation provider for this user. Absent if the user is not federated"
+                                    }
+                                },
+                                {
                                     "name": "is_federated_user",
                                     "bool": {
                                         "computed_optional_required": "computed_optional",
@@ -7988,6 +8505,20 @@
                                                     "name": "failed_login_since_successful_login",
                                                     "int64": {
                                                         "computed_optional_required": "computed_optional"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "federation_provider_name",
+                                                    "string": {
+                                                        "computed_optional_required": "computed_optional",
+                                                        "description": "The name of the federation provider for this user. Absent if the user is not federated"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "federation_provider_uuid",
+                                                    "string": {
+                                                        "computed_optional_required": "computed_optional",
+                                                        "description": "The UUID of the federation provider for this user. Absent if the user is not federated"
                                                     }
                                                 },
                                                 {
@@ -8312,6 +8843,9 @@
                         "name": "fullroles",
                         "bool": {
                             "computed_optional_required": "computed_optional",
+                            "default": {
+                                "static": false
+                            },
                             "description": "If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names."
                         }
                     }
@@ -8543,170 +9077,6 @@
                                 ]
                             },
                             "description": "Rules for access to APIServer routes."
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "workflow",
-            "schema": {
-                "attributes": [
-                    {
-                        "name": "cr",
-                        "map_nested": {
-                            "computed_optional_required": "required",
-                            "nested_object": {},
-                            "description": "Custom resource that defines the workflow to execute"
-                        }
-                    },
-                    {
-                        "name": "description",
-                        "string": {
-                            "computed_optional_required": "required",
-                            "description": "Description message for the workflow"
-                        }
-                    },
-                    {
-                        "name": "id",
-                        "int64": {
-                            "computed_optional_required": "computed",
-                            "description": "A workflow identifier; these are assigned by the system to a posted workflow."
-                        }
-                    },
-                    {
-                        "name": "error",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "If no error is present, the flow completed successfully"
-                        }
-                    },
-                    {
-                        "name": "json_result",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "A JSON representation of the result"
-                        }
-                    },
-                    {
-                        "name": "log",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "Log output from the flow"
-                        }
-                    },
-                    {
-                        "name": "name",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "Name of the workflow"
-                        }
-                    },
-                    {
-                        "name": "namespace",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The namespace in which the flow ran"
-                        }
-                    },
-                    {
-                        "name": "parent_id",
-                        "int64": {
-                            "computed_optional_required": "computed",
-                            "description": "The id of the parent workflow, if any"
-                        }
-                    },
-                    {
-                        "name": "stages",
-                        "list_nested": {
-                            "computed_optional_required": "computed",
-                            "nested_object": {
-                                "attributes": [
-                                    {
-                                        "name": "completed",
-                                        "bool": {
-                                            "computed_optional_required": "computed",
-                                            "description": "True if the stage has completed"
-                                        }
-                                    },
-                                    {
-                                        "name": "had_error",
-                                        "bool": {
-                                            "computed_optional_required": "computed",
-                                            "description": "True if the stage is complete and there was an error"
-                                        }
-                                    },
-                                    {
-                                        "name": "name",
-                                        "string": {
-                                            "computed_optional_required": "computed",
-                                            "description": "Name of the flow stage"
-                                        }
-                                    },
-                                    {
-                                        "name": "skipped",
-                                        "bool": {
-                                            "computed_optional_required": "computed",
-                                            "description": "True if the stage was skipped"
-                                        }
-                                    },
-                                    {
-                                        "name": "started",
-                                        "bool": {
-                                            "computed_optional_required": "computed",
-                                            "description": "True if the stage has started"
-                                        }
-                                    },
-                                    {
-                                        "name": "sub_flow_ids",
-                                        "list": {
-                                            "computed_optional_required": "computed",
-                                            "element_type": {
-                                                "int64": {}
-                                            },
-                                            "description": "The ids of flows triggered by the stage"
-                                        }
-                                    }
-                                ]
-                            },
-                            "description": "The list of stages of the workflow"
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "string": {
-                            "computed_optional_required": "computed"
-                        }
-                    },
-                    {
-                        "name": "subflows_waiting_for_input",
-                        "list": {
-                            "computed_optional_required": "computed",
-                            "element_type": {
-                                "int64": {}
-                            },
-                            "description": "The ids of any subflows that are waiting for user input"
-                        }
-                    },
-                    {
-                        "name": "type",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "The type of workflow"
-                        }
-                    },
-                    {
-                        "name": "wait_for_input_prompt",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "description": "Set if the state is waiting for input"
-                        }
-                    },
-                    {
-                        "name": "workflow_id",
-                        "string": {
-                            "computed_optional_required": "computed_optional",
-                            "description": "The id for the requested workflow"
                         }
                     }
                 ]

@@ -19,8 +19,6 @@ description: |-
 
 - `description` (String)
 - `full_roles` (Attributes List) contains the full role definitions of the Roles and ClusterRoles associated with the group, if requested (see [below for nested schema](#nestedatt--full_roles))
-- `fullroles` (Boolean) If true, the full definitions of the roles associated with the group
-are returned, rather than just the role names.
 - `fullusers` (Attributes List) contains the full user definitions of the users who are members of the group, if requested (see [below for nested schema](#nestedatt--fullusers))
 - `is_federated` (Boolean) if true, indicates that the group was imported from a federated LDAP server
 - `name` (String)
@@ -113,6 +111,8 @@ Optional:
 Optional:
 
 - `failed_login_since_successful_login` (Number)
+- `federation_provider_name` (String) The name of the federation provider for this user. Absent if the user is not federated
+- `federation_provider_uuid` (String) The UUID of the federation provider for this user. Absent if the user is not federated
 - `is_federated_user` (Boolean) True if the user comes from a federated LDAP server
 - `last_failed_login` (String)
 - `last_successful_login` (String)

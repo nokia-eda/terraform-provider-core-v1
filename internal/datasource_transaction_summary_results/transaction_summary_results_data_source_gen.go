@@ -21,6 +21,11 @@ func TransactionSummaryResultsDataSourceSchema(ctx context.Context) schema.Schem
 			"results": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"bundled_transaction_id": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.",
+							MarkdownDescription: "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.",
+						},
 						"commit_hash": schema.StringAttribute{
 							Computed:            true,
 							Description:         "The git commit hash for the transaction",
@@ -31,10 +36,16 @@ func TransactionSummaryResultsDataSourceSchema(ctx context.Context) schema.Schem
 							Description:         "The description of the transaction, as posted in the transaction request.",
 							MarkdownDescription: "The description of the transaction, as posted in the transaction request.",
 						},
+						"detail_level": schema.StringAttribute{
+							Computed:            true,
+							Description:         "The level of detail available in the transaction details.",
+							MarkdownDescription: "The level of detail available in the transaction details.",
+						},
 						"details": schema.StringAttribute{
 							Computed:            true,
-							Description:         "The type of details available for the transaction, as posted in the transaction request.",
-							MarkdownDescription: "The type of details available for the transaction, as posted in the transaction request.",
+							Description:         "The type of details available for the transaction, as posted in the transaction request.\nDeprecated: use \"detailLevel\" instead.",
+							MarkdownDescription: "The type of details available for the transaction, as posted in the transaction request.\nDeprecated: use \"detailLevel\" instead.",
+							DeprecationMessage:  "This attribute is deprecated.",
 						},
 						"dry_run": schema.BoolAttribute{
 							Computed:            true,
@@ -123,6 +134,24 @@ func (t ResultsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 
 	attributes := in.Attributes()
 
+	bundledTransactionIdAttribute, ok := attributes["bundled_transaction_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bundled_transaction_id is missing from object`)
+
+		return nil, diags
+	}
+
+	bundledTransactionIdVal, ok := bundledTransactionIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bundled_transaction_id expected to be basetypes.Int64Value, was: %T`, bundledTransactionIdAttribute))
+	}
+
 	commitHashAttribute, ok := attributes["commit_hash"]
 
 	if !ok {
@@ -157,6 +186,24 @@ func (t ResultsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
+	}
+
+	detailLevelAttribute, ok := attributes["detail_level"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`detail_level is missing from object`)
+
+		return nil, diags
+	}
+
+	detailLevelVal, ok := detailLevelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`detail_level expected to be basetypes.StringValue, was: %T`, detailLevelAttribute))
 	}
 
 	detailsAttribute, ok := attributes["details"]
@@ -290,16 +337,18 @@ func (t ResultsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 	}
 
 	return ResultsValue{
-		CommitHash:          commitHashVal,
-		Description:         descriptionVal,
-		Details:             detailsVal,
-		DryRun:              dryRunVal,
-		Id:                  idVal,
-		LastChangeTimestamp: lastChangeTimestampVal,
-		State:               stateVal,
-		Success:             successVal,
-		Username:            usernameVal,
-		state:               attr.ValueStateKnown,
+		BundledTransactionId: bundledTransactionIdVal,
+		CommitHash:           commitHashVal,
+		Description:          descriptionVal,
+		DetailLevel:          detailLevelVal,
+		Details:              detailsVal,
+		DryRun:               dryRunVal,
+		Id:                   idVal,
+		LastChangeTimestamp:  lastChangeTimestampVal,
+		State:                stateVal,
+		Success:              successVal,
+		Username:             usernameVal,
+		state:                attr.ValueStateKnown,
 	}, diags
 }
 
@@ -366,6 +415,24 @@ func NewResultsValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewResultsValueUnknown(), diags
 	}
 
+	bundledTransactionIdAttribute, ok := attributes["bundled_transaction_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bundled_transaction_id is missing from object`)
+
+		return NewResultsValueUnknown(), diags
+	}
+
+	bundledTransactionIdVal, ok := bundledTransactionIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bundled_transaction_id expected to be basetypes.Int64Value, was: %T`, bundledTransactionIdAttribute))
+	}
+
 	commitHashAttribute, ok := attributes["commit_hash"]
 
 	if !ok {
@@ -400,6 +467,24 @@ func NewResultsValue(attributeTypes map[string]attr.Type, attributes map[string]
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
+	}
+
+	detailLevelAttribute, ok := attributes["detail_level"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`detail_level is missing from object`)
+
+		return NewResultsValueUnknown(), diags
+	}
+
+	detailLevelVal, ok := detailLevelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`detail_level expected to be basetypes.StringValue, was: %T`, detailLevelAttribute))
 	}
 
 	detailsAttribute, ok := attributes["details"]
@@ -533,16 +618,18 @@ func NewResultsValue(attributeTypes map[string]attr.Type, attributes map[string]
 	}
 
 	return ResultsValue{
-		CommitHash:          commitHashVal,
-		Description:         descriptionVal,
-		Details:             detailsVal,
-		DryRun:              dryRunVal,
-		Id:                  idVal,
-		LastChangeTimestamp: lastChangeTimestampVal,
-		State:               stateVal,
-		Success:             successVal,
-		Username:            usernameVal,
-		state:               attr.ValueStateKnown,
+		BundledTransactionId: bundledTransactionIdVal,
+		CommitHash:           commitHashVal,
+		Description:          descriptionVal,
+		DetailLevel:          detailLevelVal,
+		Details:              detailsVal,
+		DryRun:               dryRunVal,
+		Id:                   idVal,
+		LastChangeTimestamp:  lastChangeTimestampVal,
+		State:                stateVal,
+		Success:              successVal,
+		Username:             usernameVal,
+		state:                attr.ValueStateKnown,
 	}, diags
 }
 
@@ -614,26 +701,30 @@ func (t ResultsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ResultsValue{}
 
 type ResultsValue struct {
-	CommitHash          basetypes.StringValue `tfsdk:"commit_hash"`
-	Description         basetypes.StringValue `tfsdk:"description"`
-	Details             basetypes.StringValue `tfsdk:"details"`
-	DryRun              basetypes.BoolValue   `tfsdk:"dry_run"`
-	Id                  basetypes.Int64Value  `tfsdk:"id"`
-	LastChangeTimestamp basetypes.StringValue `tfsdk:"last_change_timestamp"`
-	State               basetypes.StringValue `tfsdk:"state"`
-	Success             basetypes.BoolValue   `tfsdk:"success"`
-	Username            basetypes.StringValue `tfsdk:"username"`
-	state               attr.ValueState
+	BundledTransactionId basetypes.Int64Value  `tfsdk:"bundled_transaction_id"`
+	CommitHash           basetypes.StringValue `tfsdk:"commit_hash"`
+	Description          basetypes.StringValue `tfsdk:"description"`
+	DetailLevel          basetypes.StringValue `tfsdk:"detail_level"`
+	Details              basetypes.StringValue `tfsdk:"details"`
+	DryRun               basetypes.BoolValue   `tfsdk:"dry_run"`
+	Id                   basetypes.Int64Value  `tfsdk:"id"`
+	LastChangeTimestamp  basetypes.StringValue `tfsdk:"last_change_timestamp"`
+	State                basetypes.StringValue `tfsdk:"state"`
+	Success              basetypes.BoolValue   `tfsdk:"success"`
+	Username             basetypes.StringValue `tfsdk:"username"`
+	state                attr.ValueState
 }
 
 func (v ResultsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 11)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["bundled_transaction_id"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["commit_hash"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["detail_level"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["details"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["dry_run"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.Int64Type{}.TerraformType(ctx)
@@ -646,7 +737,15 @@ func (v ResultsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 11)
+
+		val, err = v.BundledTransactionId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bundled_transaction_id"] = val
 
 		val, err = v.CommitHash.ToTerraformValue(ctx)
 
@@ -663,6 +762,14 @@ func (v ResultsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["description"] = val
+
+		val, err = v.DetailLevel.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["detail_level"] = val
 
 		val, err = v.Details.ToTerraformValue(ctx)
 
@@ -750,15 +857,17 @@ func (v ResultsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"commit_hash":           basetypes.StringType{},
-		"description":           basetypes.StringType{},
-		"details":               basetypes.StringType{},
-		"dry_run":               basetypes.BoolType{},
-		"id":                    basetypes.Int64Type{},
-		"last_change_timestamp": basetypes.StringType{},
-		"state":                 basetypes.StringType{},
-		"success":               basetypes.BoolType{},
-		"username":              basetypes.StringType{},
+		"bundled_transaction_id": basetypes.Int64Type{},
+		"commit_hash":            basetypes.StringType{},
+		"description":            basetypes.StringType{},
+		"detail_level":           basetypes.StringType{},
+		"details":                basetypes.StringType{},
+		"dry_run":                basetypes.BoolType{},
+		"id":                     basetypes.Int64Type{},
+		"last_change_timestamp":  basetypes.StringType{},
+		"state":                  basetypes.StringType{},
+		"success":                basetypes.BoolType{},
+		"username":               basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -772,15 +881,17 @@ func (v ResultsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"commit_hash":           v.CommitHash,
-			"description":           v.Description,
-			"details":               v.Details,
-			"dry_run":               v.DryRun,
-			"id":                    v.Id,
-			"last_change_timestamp": v.LastChangeTimestamp,
-			"state":                 v.State,
-			"success":               v.Success,
-			"username":              v.Username,
+			"bundled_transaction_id": v.BundledTransactionId,
+			"commit_hash":            v.CommitHash,
+			"description":            v.Description,
+			"detail_level":           v.DetailLevel,
+			"details":                v.Details,
+			"dry_run":                v.DryRun,
+			"id":                     v.Id,
+			"last_change_timestamp":  v.LastChangeTimestamp,
+			"state":                  v.State,
+			"success":                v.Success,
+			"username":               v.Username,
 		})
 
 	return objVal, diags
@@ -801,11 +912,19 @@ func (v ResultsValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.BundledTransactionId.Equal(other.BundledTransactionId) {
+		return false
+	}
+
 	if !v.CommitHash.Equal(other.CommitHash) {
 		return false
 	}
 
 	if !v.Description.Equal(other.Description) {
+		return false
+	}
+
+	if !v.DetailLevel.Equal(other.DetailLevel) {
 		return false
 	}
 
@@ -850,14 +969,16 @@ func (v ResultsValue) Type(ctx context.Context) attr.Type {
 
 func (v ResultsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"commit_hash":           basetypes.StringType{},
-		"description":           basetypes.StringType{},
-		"details":               basetypes.StringType{},
-		"dry_run":               basetypes.BoolType{},
-		"id":                    basetypes.Int64Type{},
-		"last_change_timestamp": basetypes.StringType{},
-		"state":                 basetypes.StringType{},
-		"success":               basetypes.BoolType{},
-		"username":              basetypes.StringType{},
+		"bundled_transaction_id": basetypes.Int64Type{},
+		"commit_hash":            basetypes.StringType{},
+		"description":            basetypes.StringType{},
+		"detail_level":           basetypes.StringType{},
+		"details":                basetypes.StringType{},
+		"dry_run":                basetypes.BoolType{},
+		"id":                     basetypes.Int64Type{},
+		"last_change_timestamp":  basetypes.StringType{},
+		"state":                  basetypes.StringType{},
+		"success":                basetypes.BoolType{},
+		"username":               basetypes.StringType{},
 	}
 }

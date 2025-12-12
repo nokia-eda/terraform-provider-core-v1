@@ -61,7 +61,7 @@ func (d *topologiesDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	})
 
 	t0 := time.Now()
-	result := map[string]any{}
+	result := []any{}
 	err = d.client.GetByQuery(ctx, read_ds_topologies, nil, queryParams, &result)
 
 	tflog.Info(ctx, "Read()::API returned", map[string]any{
@@ -75,8 +75,12 @@ func (d *topologiesDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
+	newResult := map[string]any{
+		"topologies": result,
+	}
+
 	// Convert API response to Terraform model
-	err = tfutils.AnyMapToModel(ctx, result, &data)
+	err = tfutils.AnyMapToModel(ctx, newResult, &data)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to build response from API result", err.Error())
 		return

@@ -12,6 +12,11 @@ import (
 func TransactionSummaryResultDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"bundled_transaction_id": schema.Int64Attribute{
+				Computed:            true,
+				Description:         "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.",
+				MarkdownDescription: "If present (and non-zero) indicates that the execution of this transaction was bundled into the transaction with this identifier.",
+			},
 			"commit_hash": schema.StringAttribute{
 				Computed:            true,
 				Description:         "The git commit hash for the transaction",
@@ -22,10 +27,16 @@ func TransactionSummaryResultDataSourceSchema(ctx context.Context) schema.Schema
 				Description:         "The description of the transaction, as posted in the transaction request.",
 				MarkdownDescription: "The description of the transaction, as posted in the transaction request.",
 			},
+			"detail_level": schema.StringAttribute{
+				Computed:            true,
+				Description:         "The level of detail available in the transaction details.",
+				MarkdownDescription: "The level of detail available in the transaction details.",
+			},
 			"details": schema.StringAttribute{
 				Computed:            true,
-				Description:         "The type of details available for the transaction, as posted in the transaction request.",
-				MarkdownDescription: "The type of details available for the transaction, as posted in the transaction request.",
+				Description:         "The type of details available for the transaction, as posted in the transaction request.\nDeprecated: use \"detailLevel\" instead.",
+				MarkdownDescription: "The type of details available for the transaction, as posted in the transaction request.\nDeprecated: use \"detailLevel\" instead.",
+				DeprecationMessage:  "This attribute is deprecated.",
 			},
 			"dry_run": schema.BoolAttribute{
 				Computed:            true,
@@ -62,19 +73,28 @@ func TransactionSummaryResultDataSourceSchema(ctx context.Context) schema.Schema
 				Description:         "The user who posted the transaction.",
 				MarkdownDescription: "The user who posted the transaction.",
 			},
+			"wait_for_complete": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state.",
+				MarkdownDescription: "Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state.",
+			},
 		},
 	}
 }
 
 type TransactionSummaryResultModel struct {
-	CommitHash          types.String `tfsdk:"commit_hash"`
-	Description         types.String `tfsdk:"description"`
-	Details             types.String `tfsdk:"details"`
-	DryRun              types.Bool   `tfsdk:"dry_run"`
-	Id                  types.Int64  `tfsdk:"id"`
-	LastChangeTimestamp types.String `tfsdk:"last_change_timestamp"`
-	State               types.String `tfsdk:"state"`
-	Success             types.Bool   `tfsdk:"success"`
-	TransactionId       types.Int64  `tfsdk:"transaction_id"`
-	Username            types.String `tfsdk:"username"`
+	BundledTransactionId types.Int64  `tfsdk:"bundled_transaction_id"`
+	CommitHash           types.String `tfsdk:"commit_hash"`
+	Description          types.String `tfsdk:"description"`
+	DetailLevel          types.String `tfsdk:"detail_level"`
+	Details              types.String `tfsdk:"details"`
+	DryRun               types.Bool   `tfsdk:"dry_run"`
+	Id                   types.Int64  `tfsdk:"id"`
+	LastChangeTimestamp  types.String `tfsdk:"last_change_timestamp"`
+	State                types.String `tfsdk:"state"`
+	Success              types.Bool   `tfsdk:"success"`
+	TransactionId        types.Int64  `tfsdk:"transaction_id"`
+	Username             types.String `tfsdk:"username"`
+	WaitForComplete      types.Bool   `tfsdk:"wait_for_complete"`
 }

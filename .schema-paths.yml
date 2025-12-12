@@ -12,7 +12,7 @@ alarm_data:
       path: /core/alarm/v2/namespaces/{nsName}/alarms/{alarm-name}
       method: GET
 
-alarm_history_data:
+alarm_history_entry:
   - read:
       path: /core/alarm/v2/alarms/{alarm-name}/history
       method: GET
@@ -126,28 +126,50 @@ auth_users:
       path: /core/admin/users
       method: GET
 
+auto_complete_request:
+  - create:
+      path: /core/autocomplete/v1/fields
+      method: POST
+  - create:
+      path: /core/autocomplete/v1/gvk
+      method: POST
+  - create:
+      path: /core/autocomplete/v1/gvr
+      method: POST
+  - create:
+      path: /core/autocomplete/v1/labelselector
+      method: POST
+  - create:
+      path: /core/autocomplete/v1/table
+      method: POST
+  - create:
+      path: /core/autocomplete/v1/where
+      method: POST
+
 check_access_request:
   - create:
       path: /core/access/v1/checkAccess
       method: POST
 
+conversation_history:
+  - read:
+      path: /core/chat/v1/chats/{chatId}
+      method: GET
+
+conversation_info:
+  - update:
+      path: /core/chat/v1/chats/{chatId}
+      method: PUT
+
+conversation_list:
+  - read:
+      path: /core/chat/v1/chats
+      method: GET
+
 credentials:
   - update:
       path: /core/admin/users/{uuid}/resetpassword
       method: PUT
-
-flow_get_response:
-  - read:
-      path: /core/workflow/v1/workflow/{workflowId}
-      method: GET
-
-flow_list_result:
-  - read:
-      path: /core/workflow/v1/list
-      method: GET
-  - read:
-      path: /core/workflow/v1/{nsName}/list
-      method: GET
 
 get_label_completion_request:
   - create:
@@ -195,6 +217,11 @@ query_completion_response:
       path: /core/query/v1/eql/autocomplete
       method: GET
 
+query_convert_request:
+  - create:
+      path: /core/query/v1/convert
+      method: POST
+
 query_response:
   - read:
       path: /core/query/v1
@@ -219,6 +246,16 @@ store_app_manifest:
 store_app_requirements_graph:
   - read:
       path: /core/store/v1/requirementsgraph/catalog/{catalog}/app/{appId}
+      method: GET
+
+store_app_settings_definition:
+  - read:
+      path: /core/store/v1/appsettingsdefinition/catalog/{catalog}/app/{appId}
+      method: GET
+
+store_app_summary:
+  - read:
+      path: /core/store/v1/appsummaries/app/{appId}
       method: GET
 
 store_app_summary_list:
@@ -251,6 +288,16 @@ topology:
       path: /core/topology/v1/{topologyName}
       method: GET
 
+topology_grouping_instance:
+  - read:
+      path: /core/topology/v1/{topologyName}/groupings/{groupingName}
+      method: GET
+
+topology_groupings_list:
+  - read:
+      path: /core/topology/v1/{topologyName}/groupings
+      method: GET
+
 transaction:
   - create:
       path: /core/transaction/v2
@@ -266,14 +313,6 @@ transaction_execution_result:
       path: /core/transaction/v2/result/execution/{transactionId}
       method: GET
 
-transaction_id:
-  - create:
-      path: /core/transaction/v2/restore/{transactionId}
-      method: POST
-  - create:
-      path: /core/transaction/v2/revert/{transactionId}
-      method: POST
-
 transaction_result_input_resources:
   - read:
       path: /core/transaction/v2/result/inputresources/{transactionId}
@@ -286,6 +325,14 @@ transaction_result_object:
   - read:
       path: /core/transaction/v2/result/diffs/resource/{transactionId}
       method: GET
+
+transaction_revert_restore_request:
+  - create:
+      path: /core/transaction/v2/restore/{transactionId}
+      method: POST
+  - create:
+      path: /core/transaction/v2/revert/{transactionId}
+      method: POST
 
 transaction_state:
   - read:
@@ -337,47 +384,55 @@ user_storage_out_file_content:
       path: /core/user-storage/v2/shared/file
       method: GET
 
-workflow:
-  - create:
-      path: /core/workflow/v1
-      method: POST
-
-workflow_result:
-  - read:
-      path: /core/workflow/v1/details/{workflowId}
-      method: GET
-
-workflow_state:
-  - read:
-      path: /core/workflow/v1/state/{workflowId}
-      method: GET
-
 workflow_status_summary:
   - read:
       path: /core/workflows/v1
       method: GET
+
+db_get_result:
+  - read:
+      path: /core/db/v1/{path}
+      method: GET
+  - read:
+      path: /core/db/v2/data
+      method: GET
+  - read:
+      path: /core/db/v2/schema
+      method: GET
+
+transaction_topology_request:
+  - create:
+      path: /core/transaction/v2/result/topology/{transactionId}
+      method: POST
 
 version_info:
   - read:
       path: /core/about/version
       method: GET
 
-totalPaths: 70
-totalSchemas: 126
-usedSchemas: 53
-unusedSchemas: 73
+totalPaths: 81
+totalSchemas: 154
+usedSchemas: 59
+unusedSchemas: 95
 unusedSchemaList:
   - AccessQuery
   - AccessResult
+  - AlarmHistoryData
+  - AlarmTarget
   - AuthProvider_auth
   - AuthProvider_groupSupport
+  - AutoCompleteDetails
+  - AutoCompleteResponse
+  - AutoCompletion
+  - ChatResponseType
   - CheckAccessResponse
+  - ConversationHistoryMessage
+  - ConversationHistoryRole
   - CrAnnotation
   - ErrorIndex
   - ErrorItem
   - ErrorResponse
-  - FlowListEntry
-  - FlowStage
+  - GroupID
   - GroupVersionKind
   - GroupVersionResource
   - HealthServiceStatus
@@ -388,26 +443,33 @@ unusedSchemaList:
   - Metadata
   - NamespaceData
   - NsCrGvkName
+  - OperationType
   - OverlayState
   - Patch
   - ProviderAuth
   - QueryCompletion
-  - QueryField
-  - QueryFieldAnnotation
-  - QuerySchema
+  - QueryConvertResponse
   - ResourceRule
   - StoreAppRequirementsGraphItem
   - StoreAppRequirementsGraphItem_installedAppVersion
   - StoreAppRequirementsGraphItem_targetAppVersion
-  - StoreAppSummary
   - StoreAppVersion
   - StoreAppVersionMetadata
   - StoreAppVersionWithMetadata
   - TableRule
   - TopoAttrMetadata
+  - TopoAttribute
+  - TopoBoolExpression
+  - TopoBoolLiteral
   - TopoElemMetadata
+  - TopoEndpointBoolExpression
+  - TopoField
+  - TopoFixedBoolExpression
   - TopoGroupingStateRequest
-  - TopoLinkEndpoint
+  - TopoLabelSelector
+  - TopoLiteralStatusOrBadge
+  - TopoLiteralValue
+  - TopoLogicalExpression
   - TopoNodeGrouping
   - TopoOverlayAttrMetadata
   - TopoOverlayAttrQuery
@@ -415,16 +477,25 @@ unusedSchemaList:
   - TopoOverlayEndpoint
   - TopoOverlayEndpointState
   - TopoOverlayLink
+  - TopoOverlayLinkGroup
+  - TopoOverlayLinkGroupEndpoint
   - TopoOverlayLinkState
   - TopoOverlayNode
+  - TopoOverlayNodeOrGroup
   - TopoOverlayNodeState
   - TopoOverlayStateMetadata
+  - TopoOverlayValue
   - TopoSchema
+  - TopoStateFilter
+  - TopoValue
+  - TopoValueExpression
+  - TopologyGroupingInstance_metadata
   - TopologyStateGroupSelector
   - TopologyStateGroupingBase
   - TopologyStateTierSelector
   - TransactionAppError
   - TransactionContent
+  - TransactionId
   - TransactionInputResource
   - TransactionIntentResult
   - TransactionNodeResult
@@ -438,5 +509,4 @@ unusedSchemaList:
   - UrlRule
   - UserStatus
   - UserStorageOutDirEntry
-  - WorkflowId
   - singleVersionInfo

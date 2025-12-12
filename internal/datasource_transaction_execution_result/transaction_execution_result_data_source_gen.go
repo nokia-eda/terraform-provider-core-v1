@@ -274,7 +274,7 @@ func TransactionExecutionResultDataSourceSchema(ctx context.Context) schema.Sche
 				Description:         "The identifier for the transaction whose details are being requested",
 				MarkdownDescription: "The identifier for the transaction whose details are being requested",
 			},
-			"wait_for_complete": schema.StringAttribute{
+			"wait_for_complete": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
 				Description:         "Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state.",
@@ -293,7 +293,7 @@ type TransactionExecutionResultModel struct {
 	NodesWithConfigChanges types.List   `tfsdk:"nodes_with_config_changes"`
 	TopologySupported      types.Bool   `tfsdk:"topology_supported"`
 	TransactionId          types.Int64  `tfsdk:"transaction_id"`
-	WaitForComplete        types.String `tfsdk:"wait_for_complete"`
+	WaitForComplete        types.Bool   `tfsdk:"wait_for_complete"`
 }
 
 var _ basetypes.ObjectTypable = ChangedCrsType{}

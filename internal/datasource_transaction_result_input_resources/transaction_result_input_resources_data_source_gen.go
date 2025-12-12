@@ -18,9 +18,26 @@ import (
 func TransactionResultInputResourcesDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"full": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "If true the response will contain the full resource body for each input resource",
+				MarkdownDescription: "If true the response will contain the full resource body for each input resource",
+			},
 			"input_crs": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"data": schema.MapNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{},
+								CustomType: DataType{
+									ObjectType: types.ObjectType{
+										AttrTypes: DataValue{}.AttributeTypes(ctx),
+									},
+								},
+							},
+							Computed: true,
+						},
 						"is_delete": schema.BoolAttribute{
 							Computed: true,
 						},
@@ -65,6 +82,9 @@ func TransactionResultInputResourcesDataSourceSchema(ctx context.Context) schema
 							},
 							Computed: true,
 						},
+						"operation": schema.StringAttribute{
+							Computed: true,
+						},
 					},
 					CustomType: InputCrsType{
 						ObjectType: types.ObjectType{
@@ -91,6 +111,7 @@ func TransactionResultInputResourcesDataSourceSchema(ctx context.Context) schema
 }
 
 type TransactionResultInputResourcesModel struct {
+	Full          types.Bool  `tfsdk:"full"`
 	InputCrs      types.List  `tfsdk:"input_crs"`
 	LimitedAccess types.Bool  `tfsdk:"limited_access"`
 	TransactionId types.Int64 `tfsdk:"transaction_id"`
@@ -120,6 +141,24 @@ func (t InputCrsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
+
+	dataAttribute, ok := attributes["data"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`data is missing from object`)
+
+		return nil, diags
+	}
+
+	dataVal, ok := dataAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`data expected to be basetypes.MapValue, was: %T`, dataAttribute))
+	}
 
 	isDeleteAttribute, ok := attributes["is_delete"]
 
@@ -157,14 +196,34 @@ func (t InputCrsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`name expected to be basetypes.ObjectValue, was: %T`, nameAttribute))
 	}
 
+	operationAttribute, ok := attributes["operation"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`operation is missing from object`)
+
+		return nil, diags
+	}
+
+	operationVal, ok := operationAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`operation expected to be basetypes.StringValue, was: %T`, operationAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return InputCrsValue{
-		IsDelete: isDeleteVal,
-		Name:     nameVal,
-		state:    attr.ValueStateKnown,
+		Data:      dataVal,
+		IsDelete:  isDeleteVal,
+		Name:      nameVal,
+		Operation: operationVal,
+		state:     attr.ValueStateKnown,
 	}, diags
 }
 
@@ -231,6 +290,24 @@ func NewInputCrsValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewInputCrsValueUnknown(), diags
 	}
 
+	dataAttribute, ok := attributes["data"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`data is missing from object`)
+
+		return NewInputCrsValueUnknown(), diags
+	}
+
+	dataVal, ok := dataAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`data expected to be basetypes.MapValue, was: %T`, dataAttribute))
+	}
+
 	isDeleteAttribute, ok := attributes["is_delete"]
 
 	if !ok {
@@ -267,14 +344,34 @@ func NewInputCrsValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`name expected to be basetypes.ObjectValue, was: %T`, nameAttribute))
 	}
 
+	operationAttribute, ok := attributes["operation"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`operation is missing from object`)
+
+		return NewInputCrsValueUnknown(), diags
+	}
+
+	operationVal, ok := operationAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`operation expected to be basetypes.StringValue, was: %T`, operationAttribute))
+	}
+
 	if diags.HasError() {
 		return NewInputCrsValueUnknown(), diags
 	}
 
 	return InputCrsValue{
-		IsDelete: isDeleteVal,
-		Name:     nameVal,
-		state:    attr.ValueStateKnown,
+		Data:      dataVal,
+		IsDelete:  isDeleteVal,
+		Name:      nameVal,
+		Operation: operationVal,
+		state:     attr.ValueStateKnown,
 	}, diags
 }
 
@@ -346,27 +443,41 @@ func (t InputCrsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = InputCrsValue{}
 
 type InputCrsValue struct {
-	IsDelete basetypes.BoolValue   `tfsdk:"is_delete"`
-	Name     basetypes.ObjectValue `tfsdk:"name"`
-	state    attr.ValueState
+	Data      basetypes.MapValue    `tfsdk:"data"`
+	IsDelete  basetypes.BoolValue   `tfsdk:"is_delete"`
+	Name      basetypes.ObjectValue `tfsdk:"name"`
+	Operation basetypes.StringValue `tfsdk:"operation"`
+	state     attr.ValueState
 }
 
 func (v InputCrsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["data"] = basetypes.MapType{
+		ElemType: DataValue{}.Type(ctx),
+	}.TerraformType(ctx)
 	attrTypes["is_delete"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.ObjectType{
 		AttrTypes: NameValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["operation"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.Data.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["data"] = val
 
 		val, err = v.IsDelete.ToTerraformValue(ctx)
 
@@ -383,6 +494,14 @@ func (v InputCrsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["name"] = val
+
+		val, err = v.Operation.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["operation"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -413,6 +532,35 @@ func (v InputCrsValue) String() string {
 func (v InputCrsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	data := types.MapValueMust(
+		DataType{
+			basetypes.ObjectType{
+				AttrTypes: DataValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.Data.Elements(),
+	)
+
+	if v.Data.IsNull() {
+		data = types.MapNull(
+			DataType{
+				basetypes.ObjectType{
+					AttrTypes: DataValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.Data.IsUnknown() {
+		data = types.MapUnknown(
+			DataType{
+				basetypes.ObjectType{
+					AttrTypes: DataValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
 	var name basetypes.ObjectValue
 
 	if v.Name.IsNull() {
@@ -435,10 +583,14 @@ func (v InputCrsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"data": basetypes.MapType{
+			ElemType: DataValue{}.Type(ctx),
+		},
 		"is_delete": basetypes.BoolType{},
 		"name": basetypes.ObjectType{
 			AttrTypes: NameValue{}.AttributeTypes(ctx),
 		},
+		"operation": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -452,8 +604,10 @@ func (v InputCrsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"data":      data,
 			"is_delete": v.IsDelete,
 			"name":      name,
+			"operation": v.Operation,
 		})
 
 	return objVal, diags
@@ -474,11 +628,19 @@ func (v InputCrsValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.Data.Equal(other.Data) {
+		return false
+	}
+
 	if !v.IsDelete.Equal(other.IsDelete) {
 		return false
 	}
 
 	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	if !v.Operation.Equal(other.Operation) {
 		return false
 	}
 
@@ -495,11 +657,275 @@ func (v InputCrsValue) Type(ctx context.Context) attr.Type {
 
 func (v InputCrsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"data": basetypes.MapType{
+			ElemType: DataValue{}.Type(ctx),
+		},
 		"is_delete": basetypes.BoolType{},
 		"name": basetypes.ObjectType{
 			AttrTypes: NameValue{}.AttributeTypes(ctx),
 		},
+		"operation": basetypes.StringType{},
 	}
+}
+
+var _ basetypes.ObjectTypable = DataType{}
+
+type DataType struct {
+	basetypes.ObjectType
+}
+
+func (t DataType) Equal(o attr.Type) bool {
+	other, ok := o.(DataType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t DataType) String() string {
+	return "DataType"
+}
+
+func (t DataType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return DataValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDataValueNull() DataValue {
+	return DataValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewDataValueUnknown() DataValue {
+	return DataValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewDataValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (DataValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing DataValue Attribute Value",
+				"While creating a DataValue value, a missing attribute value was detected. "+
+					"A DataValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DataValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid DataValue Attribute Type",
+				"While creating a DataValue value, an invalid attribute value was detected. "+
+					"A DataValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DataValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("DataValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra DataValue Attribute Value",
+				"While creating a DataValue value, an extra attribute value was detected. "+
+					"A DataValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra DataValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewDataValueUnknown(), diags
+	}
+
+	if diags.HasError() {
+		return NewDataValueUnknown(), diags
+	}
+
+	return DataValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDataValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) DataValue {
+	object, diags := NewDataValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewDataValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t DataType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewDataValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewDataValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewDataValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewDataValueMust(DataValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t DataType) ValueType(ctx context.Context) attr.Value {
+	return DataValue{}
+}
+
+var _ basetypes.ObjectValuable = DataValue{}
+
+type DataValue struct {
+	state attr.ValueState
+}
+
+func (v DataValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 0)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 0)
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v DataValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v DataValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v DataValue) String() string {
+	return "DataValue"
+}
+
+func (v DataValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{})
+
+	return objVal, diags
+}
+
+func (v DataValue) Equal(o attr.Value) bool {
+	other, ok := o.(DataValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	return true
+}
+
+func (v DataValue) Type(ctx context.Context) attr.Type {
+	return DataType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v DataValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{}
 }
 
 var _ basetypes.ObjectTypable = NameType{}
