@@ -90,7 +90,7 @@ func AuthRoleResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "EDB path to which this rule applies. It can end in \".*\"\nin which case the final portion of the table path can be anything, if the\nprefix matches. It can end in \".**\" in which case the table path can be\nanything if the prefix matches.",
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
-								stringvalidator.RegexMatches(regexp.MustCompile("^\\\\..*"), ""),
+								stringvalidator.RegexMatches(regexp.MustCompile("^\\..*"), ""),
 							},
 						},
 						"permissions": schema.StringAttribute{

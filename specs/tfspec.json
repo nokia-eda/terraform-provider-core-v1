@@ -8220,7 +8220,7 @@
                                                                 "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
                                                             }
                                                         ],
-                                                        "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^\\\\\\\\..*\"), \"\")"
+                                                        "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^\\\\..*\"), \"\")"
                                                     }
                                                 }
                                             ]
@@ -8702,7 +8702,7 @@
                                                                                 "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
                                                                             }
                                                                         ],
-                                                                        "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^\\\\\\\\..*\"), \"\")"
+                                                                        "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^\\\\..*\"), \"\")"
                                                                     }
                                                                 }
                                                             ]
@@ -8987,7 +8987,7 @@
                                                                 "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
                                                             }
                                                         ],
-                                                        "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^\\\\\\\\..*\"), \"\")"
+                                                        "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^\\\\..*\"), \"\")"
                                                     }
                                                 }
                                             ]
