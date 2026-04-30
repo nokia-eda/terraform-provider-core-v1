@@ -20,6 +20,12 @@ func NamespacesDataSourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"all_namesapces": schema.BoolAttribute{
 				Computed:            true,
+				Description:         "Deprecated: If true, the requestor is considered to have permission to access all namespaces. Use allNamespaces instead",
+				MarkdownDescription: "Deprecated: If true, the requestor is considered to have permission to access all namespaces. Use allNamespaces instead",
+				DeprecationMessage:  "This attribute is deprecated.",
+			},
+			"all_namespaces": schema.BoolAttribute{
+				Computed:            true,
 				Description:         "If true, the requestor is considered to have permission to access all namespaces",
 				MarkdownDescription: "If true, the requestor is considered to have permission to access all namespaces",
 			},
@@ -53,6 +59,7 @@ func NamespacesDataSourceSchema(ctx context.Context) schema.Schema {
 
 type NamespacesModel struct {
 	AllNamesapces types.Bool `tfsdk:"all_namesapces"`
+	AllNamespaces types.Bool `tfsdk:"all_namespaces"`
 	Namespaces    types.List `tfsdk:"namespaces"`
 }
 
