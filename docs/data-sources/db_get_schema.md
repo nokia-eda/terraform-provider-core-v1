@@ -18,7 +18,3 @@ description: |-
 ### Required
 
 - `table_name` (String) the name of the table to retrieve the schema from the database
-
-### Optional
-
-- `remove_read_only` (Boolean) whether to remove read only fields from the schema

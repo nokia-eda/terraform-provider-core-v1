@@ -70,6 +70,13 @@ func AlarmDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Indicates the group of the resource the alarm is present on.",
 				MarkdownDescription: "Indicates the group of the resource the alarm is present on.",
 			},
+			"js_paths": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Computed:            true,
+				Description:         "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true",
+				MarkdownDescription: "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true",
+				DeprecationMessage:  "This attribute is deprecated.",
+			},
 			"jspaths": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Computed:            true,
@@ -80,6 +87,12 @@ func AlarmDataSourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Indicates the kind of resource the alarm is present on.",
 				MarkdownDescription: "Indicates the kind of resource the alarm is present on.",
+			},
+			"last_acknowledged": schema.StringAttribute{
+				Computed:            true,
+				Description:         "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true",
+				MarkdownDescription: "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true",
+				DeprecationMessage:  "This attribute is deprecated.",
 			},
 			"last_acknowledged_by": schema.StringAttribute{
 				Computed:            true,
@@ -95,6 +108,12 @@ func AlarmDataSourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "The last time that the alarm was changed; as provided by the raiser of the alarm.",
 				MarkdownDescription: "The last time that the alarm was changed; as provided by the raiser of the alarm.",
+			},
+			"last_suppressed": schema.StringAttribute{
+				Computed:            true,
+				Description:         "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true",
+				MarkdownDescription: "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true",
+				DeprecationMessage:  "This attribute is deprecated.",
 			},
 			"last_suppressed_by": schema.StringAttribute{
 				Computed:            true,
@@ -216,11 +235,14 @@ type AlarmModel struct {
 	ClusterName          types.String `tfsdk:"cluster_name"`
 	Description          types.String `tfsdk:"description"`
 	Group                types.String `tfsdk:"group"`
+	JsPaths              types.List   `tfsdk:"js_paths"`
 	Jspaths              types.List   `tfsdk:"jspaths"`
 	Kind                 types.String `tfsdk:"kind"`
+	LastAcknowledged     types.String `tfsdk:"last_acknowledged"`
 	LastAcknowledgedBy   types.String `tfsdk:"last_acknowledged_by"`
 	LastAcknowledgedTime types.String `tfsdk:"last_acknowledged_time"`
 	LastChanged          types.String `tfsdk:"last_changed"`
+	LastSuppressed       types.String `tfsdk:"last_suppressed"`
 	LastSuppressedBy     types.String `tfsdk:"last_suppressed_by"`
 	LastSuppressedTime   types.String `tfsdk:"last_suppressed_time"`
 	Name                 types.String `tfsdk:"name"`

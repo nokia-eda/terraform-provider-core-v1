@@ -74,30 +74,11 @@ func StoreAppRequirementsGraphDataSourceSchema(ctx context.Context) schema.Schem
 							Description:         "The application version installed in the cluster, if installed.",
 							MarkdownDescription: "The application version installed in the cluster, if installed.",
 						},
-						"relation": schema.StringAttribute{
+						"requires": schema.ListAttribute{
+							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "The relation of this app w.r.t. the requested root app",
-							MarkdownDescription: "The relation of this app w.r.t. the requested root app",
-						},
-						"requires": schema.ListNestedAttribute{
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"app_id": schema.StringAttribute{
-										Computed: true,
-									},
-									"constraint": schema.StringAttribute{
-										Computed: true,
-									},
-								},
-								CustomType: RequiresType{
-									ObjectType: types.ObjectType{
-										AttrTypes: RequiresValue{}.AttributeTypes(ctx),
-									},
-								},
-							},
-							Computed:            true,
-							Description:         "The applications that this app directly depends on, along with their version constraints.",
-							MarkdownDescription: "The applications that this app directly depends on, along with their version constraints.",
+							Description:         "The identifiers for the applications on which this application version depends.",
+							MarkdownDescription: "The identifiers for the applications on which this application version depends.",
 						},
 						"target_app_version": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -227,24 +208,6 @@ func (t GraphItemsType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`installed_app_version expected to be basetypes.ObjectValue, was: %T`, installedAppVersionAttribute))
 	}
 
-	relationAttribute, ok := attributes["relation"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`relation is missing from object`)
-
-		return nil, diags
-	}
-
-	relationVal, ok := relationAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`relation expected to be basetypes.StringValue, was: %T`, relationAttribute))
-	}
-
 	requiresAttribute, ok := attributes["requires"]
 
 	if !ok {
@@ -288,7 +251,6 @@ func (t GraphItemsType) ValueFromObject(ctx context.Context, in basetypes.Object
 	return GraphItemsValue{
 		AppId:               appIdVal,
 		InstalledAppVersion: installedAppVersionVal,
-		Relation:            relationVal,
 		Requires:            requiresVal,
 		TargetAppVersion:    targetAppVersionVal,
 		state:               attr.ValueStateKnown,
@@ -394,24 +356,6 @@ func NewGraphItemsValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`installed_app_version expected to be basetypes.ObjectValue, was: %T`, installedAppVersionAttribute))
 	}
 
-	relationAttribute, ok := attributes["relation"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`relation is missing from object`)
-
-		return NewGraphItemsValueUnknown(), diags
-	}
-
-	relationVal, ok := relationAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`relation expected to be basetypes.StringValue, was: %T`, relationAttribute))
-	}
-
 	requiresAttribute, ok := attributes["requires"]
 
 	if !ok {
@@ -455,7 +399,6 @@ func NewGraphItemsValue(attributeTypes map[string]attr.Type, attributes map[stri
 	return GraphItemsValue{
 		AppId:               appIdVal,
 		InstalledAppVersion: installedAppVersionVal,
-		Relation:            relationVal,
 		Requires:            requiresVal,
 		TargetAppVersion:    targetAppVersionVal,
 		state:               attr.ValueStateKnown,
@@ -532,14 +475,13 @@ var _ basetypes.ObjectValuable = GraphItemsValue{}
 type GraphItemsValue struct {
 	AppId               basetypes.StringValue `tfsdk:"app_id"`
 	InstalledAppVersion basetypes.ObjectValue `tfsdk:"installed_app_version"`
-	Relation            basetypes.StringValue `tfsdk:"relation"`
 	Requires            basetypes.ListValue   `tfsdk:"requires"`
 	TargetAppVersion    basetypes.ObjectValue `tfsdk:"target_app_version"`
 	state               attr.ValueState
 }
 
 func (v GraphItemsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -548,9 +490,8 @@ func (v GraphItemsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["installed_app_version"] = basetypes.ObjectType{
 		AttrTypes: InstalledAppVersionValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["relation"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["requires"] = basetypes.ListType{
-		ElemType: RequiresValue{}.Type(ctx),
+		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["target_app_version"] = basetypes.ObjectType{
 		AttrTypes: TargetAppVersionValue{}.AttributeTypes(ctx),
@@ -560,7 +501,7 @@ func (v GraphItemsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.AppId.ToTerraformValue(ctx)
 
@@ -577,14 +518,6 @@ func (v GraphItemsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["installed_app_version"] = val
-
-		val, err = v.Relation.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["relation"] = val
 
 		val, err = v.Requires.ToTerraformValue(ctx)
 
@@ -652,35 +585,6 @@ func (v GraphItemsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
-	requires := types.ListValueMust(
-		RequiresType{
-			basetypes.ObjectType{
-				AttrTypes: RequiresValue{}.AttributeTypes(ctx),
-			},
-		},
-		v.Requires.Elements(),
-	)
-
-	if v.Requires.IsNull() {
-		requires = types.ListNull(
-			RequiresType{
-				basetypes.ObjectType{
-					AttrTypes: RequiresValue{}.AttributeTypes(ctx),
-				},
-			},
-		)
-	}
-
-	if v.Requires.IsUnknown() {
-		requires = types.ListUnknown(
-			RequiresType{
-				basetypes.ObjectType{
-					AttrTypes: RequiresValue{}.AttributeTypes(ctx),
-				},
-			},
-		)
-	}
-
 	var targetAppVersion basetypes.ObjectValue
 
 	if v.TargetAppVersion.IsNull() {
@@ -702,14 +606,40 @@ func (v GraphItemsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
+	var requiresVal basetypes.ListValue
+	switch {
+	case v.Requires.IsUnknown():
+		requiresVal = types.ListUnknown(types.StringType)
+	case v.Requires.IsNull():
+		requiresVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		requiresVal, d = types.ListValue(types.StringType, v.Requires.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"app_id": basetypes.StringType{},
+			"installed_app_version": basetypes.ObjectType{
+				AttrTypes: InstalledAppVersionValue{}.AttributeTypes(ctx),
+			},
+			"requires": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"target_app_version": basetypes.ObjectType{
+				AttrTypes: TargetAppVersionValue{}.AttributeTypes(ctx),
+			},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"app_id": basetypes.StringType{},
 		"installed_app_version": basetypes.ObjectType{
 			AttrTypes: InstalledAppVersionValue{}.AttributeTypes(ctx),
 		},
-		"relation": basetypes.StringType{},
 		"requires": basetypes.ListType{
-			ElemType: RequiresValue{}.Type(ctx),
+			ElemType: types.StringType,
 		},
 		"target_app_version": basetypes.ObjectType{
 			AttrTypes: TargetAppVersionValue{}.AttributeTypes(ctx),
@@ -729,8 +659,7 @@ func (v GraphItemsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		map[string]attr.Value{
 			"app_id":                v.AppId,
 			"installed_app_version": installedAppVersion,
-			"relation":              v.Relation,
-			"requires":              requires,
+			"requires":              requiresVal,
 			"target_app_version":    targetAppVersion,
 		})
 
@@ -760,10 +689,6 @@ func (v GraphItemsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Relation.Equal(other.Relation) {
-		return false
-	}
-
 	if !v.Requires.Equal(other.Requires) {
 		return false
 	}
@@ -789,9 +714,8 @@ func (v GraphItemsValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"installed_app_version": basetypes.ObjectType{
 			AttrTypes: InstalledAppVersionValue{}.AttributeTypes(ctx),
 		},
-		"relation": basetypes.StringType{},
 		"requires": basetypes.ListType{
-			ElemType: RequiresValue{}.Type(ctx),
+			ElemType: types.StringType,
 		},
 		"target_app_version": basetypes.ObjectType{
 			AttrTypes: TargetAppVersionValue{}.AttributeTypes(ctx),
@@ -1285,385 +1209,6 @@ func (v InstalledAppVersionValue) AttributeTypes(ctx context.Context) map[string
 		"catalog":     basetypes.StringType{},
 		"commit_hash": basetypes.StringType{},
 		"sem_ver":     basetypes.StringType{},
-	}
-}
-
-var _ basetypes.ObjectTypable = RequiresType{}
-
-type RequiresType struct {
-	basetypes.ObjectType
-}
-
-func (t RequiresType) Equal(o attr.Type) bool {
-	other, ok := o.(RequiresType)
-
-	if !ok {
-		return false
-	}
-
-	return t.ObjectType.Equal(other.ObjectType)
-}
-
-func (t RequiresType) String() string {
-	return "RequiresType"
-}
-
-func (t RequiresType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributes := in.Attributes()
-
-	appIdAttribute, ok := attributes["app_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`app_id is missing from object`)
-
-		return nil, diags
-	}
-
-	appIdVal, ok := appIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`app_id expected to be basetypes.StringValue, was: %T`, appIdAttribute))
-	}
-
-	constraintAttribute, ok := attributes["constraint"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`constraint is missing from object`)
-
-		return nil, diags
-	}
-
-	constraintVal, ok := constraintAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`constraint expected to be basetypes.StringValue, was: %T`, constraintAttribute))
-	}
-
-	if diags.HasError() {
-		return nil, diags
-	}
-
-	return RequiresValue{
-		AppId:      appIdVal,
-		Constraint: constraintVal,
-		state:      attr.ValueStateKnown,
-	}, diags
-}
-
-func NewRequiresValueNull() RequiresValue {
-	return RequiresValue{
-		state: attr.ValueStateNull,
-	}
-}
-
-func NewRequiresValueUnknown() RequiresValue {
-	return RequiresValue{
-		state: attr.ValueStateUnknown,
-	}
-}
-
-func NewRequiresValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (RequiresValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
-	ctx := context.Background()
-
-	for name, attributeType := range attributeTypes {
-		attribute, ok := attributes[name]
-
-		if !ok {
-			diags.AddError(
-				"Missing RequiresValue Attribute Value",
-				"While creating a RequiresValue value, a missing attribute value was detected. "+
-					"A RequiresValue must contain values for all attributes, even if null or unknown. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("RequiresValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
-			)
-
-			continue
-		}
-
-		if !attributeType.Equal(attribute.Type(ctx)) {
-			diags.AddError(
-				"Invalid RequiresValue Attribute Type",
-				"While creating a RequiresValue value, an invalid attribute value was detected. "+
-					"A RequiresValue must use a matching attribute type for the value. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("RequiresValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("RequiresValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
-			)
-		}
-	}
-
-	for name := range attributes {
-		_, ok := attributeTypes[name]
-
-		if !ok {
-			diags.AddError(
-				"Extra RequiresValue Attribute Value",
-				"While creating a RequiresValue value, an extra attribute value was detected. "+
-					"A RequiresValue must not contain values beyond the expected attribute types. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra RequiresValue Attribute Name: %s", name),
-			)
-		}
-	}
-
-	if diags.HasError() {
-		return NewRequiresValueUnknown(), diags
-	}
-
-	appIdAttribute, ok := attributes["app_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`app_id is missing from object`)
-
-		return NewRequiresValueUnknown(), diags
-	}
-
-	appIdVal, ok := appIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`app_id expected to be basetypes.StringValue, was: %T`, appIdAttribute))
-	}
-
-	constraintAttribute, ok := attributes["constraint"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`constraint is missing from object`)
-
-		return NewRequiresValueUnknown(), diags
-	}
-
-	constraintVal, ok := constraintAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`constraint expected to be basetypes.StringValue, was: %T`, constraintAttribute))
-	}
-
-	if diags.HasError() {
-		return NewRequiresValueUnknown(), diags
-	}
-
-	return RequiresValue{
-		AppId:      appIdVal,
-		Constraint: constraintVal,
-		state:      attr.ValueStateKnown,
-	}, diags
-}
-
-func NewRequiresValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) RequiresValue {
-	object, diags := NewRequiresValue(attributeTypes, attributes)
-
-	if diags.HasError() {
-		// This could potentially be added to the diag package.
-		diagsStrings := make([]string, 0, len(diags))
-
-		for _, diagnostic := range diags {
-			diagsStrings = append(diagsStrings, fmt.Sprintf(
-				"%s | %s | %s",
-				diagnostic.Severity(),
-				diagnostic.Summary(),
-				diagnostic.Detail()))
-		}
-
-		panic("NewRequiresValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
-	}
-
-	return object
-}
-
-func (t RequiresType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
-	if in.Type() == nil {
-		return NewRequiresValueNull(), nil
-	}
-
-	if !in.Type().Equal(t.TerraformType(ctx)) {
-		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
-	}
-
-	if !in.IsKnown() {
-		return NewRequiresValueUnknown(), nil
-	}
-
-	if in.IsNull() {
-		return NewRequiresValueNull(), nil
-	}
-
-	attributes := map[string]attr.Value{}
-
-	val := map[string]tftypes.Value{}
-
-	err := in.As(&val)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range val {
-		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
-
-		if err != nil {
-			return nil, err
-		}
-
-		attributes[k] = a
-	}
-
-	return NewRequiresValueMust(RequiresValue{}.AttributeTypes(ctx), attributes), nil
-}
-
-func (t RequiresType) ValueType(ctx context.Context) attr.Value {
-	return RequiresValue{}
-}
-
-var _ basetypes.ObjectValuable = RequiresValue{}
-
-type RequiresValue struct {
-	AppId      basetypes.StringValue `tfsdk:"app_id"`
-	Constraint basetypes.StringValue `tfsdk:"constraint"`
-	state      attr.ValueState
-}
-
-func (v RequiresValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
-
-	var val tftypes.Value
-	var err error
-
-	attrTypes["app_id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["constraint"] = basetypes.StringType{}.TerraformType(ctx)
-
-	objectType := tftypes.Object{AttributeTypes: attrTypes}
-
-	switch v.state {
-	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
-
-		val, err = v.AppId.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["app_id"] = val
-
-		val, err = v.Constraint.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["constraint"] = val
-
-		if err := tftypes.ValidateValue(objectType, vals); err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		return tftypes.NewValue(objectType, vals), nil
-	case attr.ValueStateNull:
-		return tftypes.NewValue(objectType, nil), nil
-	case attr.ValueStateUnknown:
-		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
-	default:
-		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
-	}
-}
-
-func (v RequiresValue) IsNull() bool {
-	return v.state == attr.ValueStateNull
-}
-
-func (v RequiresValue) IsUnknown() bool {
-	return v.state == attr.ValueStateUnknown
-}
-
-func (v RequiresValue) String() string {
-	return "RequiresValue"
-}
-
-func (v RequiresValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributeTypes := map[string]attr.Type{
-		"app_id":     basetypes.StringType{},
-		"constraint": basetypes.StringType{},
-	}
-
-	if v.IsNull() {
-		return types.ObjectNull(attributeTypes), diags
-	}
-
-	if v.IsUnknown() {
-		return types.ObjectUnknown(attributeTypes), diags
-	}
-
-	objVal, diags := types.ObjectValue(
-		attributeTypes,
-		map[string]attr.Value{
-			"app_id":     v.AppId,
-			"constraint": v.Constraint,
-		})
-
-	return objVal, diags
-}
-
-func (v RequiresValue) Equal(o attr.Value) bool {
-	other, ok := o.(RequiresValue)
-
-	if !ok {
-		return false
-	}
-
-	if v.state != other.state {
-		return false
-	}
-
-	if v.state != attr.ValueStateKnown {
-		return true
-	}
-
-	if !v.AppId.Equal(other.AppId) {
-		return false
-	}
-
-	if !v.Constraint.Equal(other.Constraint) {
-		return false
-	}
-
-	return true
-}
-
-func (v RequiresValue) Type(ctx context.Context) attr.Type {
-	return RequiresType{
-		basetypes.ObjectType{
-			AttrTypes: v.AttributeTypes(ctx),
-		},
-	}
-}
-
-func (v RequiresValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
-	return map[string]attr.Type{
-		"app_id":     basetypes.StringType{},
-		"constraint": basetypes.StringType{},
 	}
 }
 

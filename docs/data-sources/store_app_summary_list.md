@@ -49,7 +49,6 @@ At least one of "semVer" or "commitHash" must/will be defined. (see [below for n
 - `title` (String) Application title that can be used for user display purposes
 - `upgradable` (Boolean) "true" if there is a new version that can be installed
 - `vendor` (String) Name of the vendor for this app
-- `vendor_title` (String) The vendor title to display to the user (e.g. "Nokia" or "VMware").
 
 <a id="nestedatt--store_app_summary_list--info_version"></a>
 ### Nested Schema for `store_app_summary_list.info_version`
@@ -67,8 +66,6 @@ Read-Only:
 
 Read-Only:
 
-- `compatible` (Boolean) "true" if the application version is compatible with the current core version
-- `incompatibility_reason` (String) The reason why the application version is not compatible with the current core version
 - `published_time` (String) The date and time when the application version was published.
 
 
@@ -88,8 +85,6 @@ Read-Only:
 
 Read-Only:
 
-- `compatible` (Boolean) "true" if the application version is compatible with the current core version
-- `incompatibility_reason` (String) The reason why the application version is not compatible with the current core version
 - `published_time` (String) The date and time when the application version was published.
 
 
@@ -109,6 +104,4 @@ Read-Only:
 
 Read-Only:
 
-- `compatible` (Boolean) "true" if the application version is compatible with the current core version
-- `incompatibility_reason` (String) The reason why the application version is not compatible with the current core version
 - `published_time` (String) The date and time when the application version was published.

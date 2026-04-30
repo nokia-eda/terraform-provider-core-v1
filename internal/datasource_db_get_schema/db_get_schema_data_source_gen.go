@@ -12,12 +12,6 @@ import (
 func DbGetSchemaDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"remove_read_only": schema.BoolAttribute{
-				Optional:            true,
-				Computed:            true,
-				Description:         "whether to remove read only fields from the schema",
-				MarkdownDescription: "whether to remove read only fields from the schema",
-			},
 			"table_name": schema.StringAttribute{
 				Required:            true,
 				Description:         "the name of the table to retrieve the schema from the database",
@@ -28,6 +22,5 @@ func DbGetSchemaDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type DbGetSchemaModel struct {
-	RemoveReadOnly types.Bool   `tfsdk:"remove_read_only"`
-	TableName      types.String `tfsdk:"table_name"`
+	TableName types.String `tfsdk:"table_name"`
 }

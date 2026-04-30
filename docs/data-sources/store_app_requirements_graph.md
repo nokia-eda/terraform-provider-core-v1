@@ -37,8 +37,7 @@ Read-Only:
 
 - `app_id` (String) The application identifier to which the 'requires' elements of graph items will refer.
 - `installed_app_version` (Attributes) The application version installed in the cluster, if installed. (see [below for nested schema](#nestedatt--graph_items--installed_app_version))
-- `relation` (String) The relation of this app w.r.t. the requested root app
-- `requires` (Attributes List) The applications that this app directly depends on, along with their version constraints. (see [below for nested schema](#nestedatt--graph_items--requires))
+- `requires` (List of String) The identifiers for the applications on which this application version depends.
 - `target_app_version` (Attributes) This graph item instance contains the dependencies for this particular application version. (see [below for nested schema](#nestedatt--graph_items--target_app_version))
 
 <a id="nestedatt--graph_items--installed_app_version"></a>
@@ -50,15 +49,6 @@ Read-Only:
 - `catalog` (String) The catalog in which this application version was found
 - `commit_hash` (String) The commit hash for the application version.
 - `sem_ver` (String) The semantic version for the application version.
-
-
-<a id="nestedatt--graph_items--requires"></a>
-### Nested Schema for `graph_items.requires`
-
-Read-Only:
-
-- `app_id` (String)
-- `constraint` (String)
 
 
 <a id="nestedatt--graph_items--target_app_version"></a>

@@ -1,9 +1,5 @@
 # Changelog
 
-## 1.0.2
-
-- Deprecate the `full-roles` parameter for the `groups` module and introduce the `fullRoles` parameter instead.
-
 ## 1.0.1
 
 - Fix K8s Patch operation for the resource.

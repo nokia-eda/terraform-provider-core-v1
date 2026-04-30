@@ -68,59 +68,20 @@ Read-Only:
 
 Read-Only:
 
-- `error` (Attributes) (see [below for nested schema](#nestedatt--intents_run--errors--error))
 - `raw_error` (String)
+- `structured_error` (Attributes) (see [below for nested schema](#nestedatt--intents_run--errors--structured_error))
 
-<a id="nestedatt--intents_run--errors--error"></a>
-### Nested Schema for `intents_run.errors.error`
+<a id="nestedatt--intents_run--errors--structured_error"></a>
+### Nested Schema for `intents_run.errors.structured_error`
 
 Read-Only:
 
-- `cause_collection` (Attributes List) A lower-level set of structured errors.
+- `message` (String)
+- `message_key` (String)
+- `values` (Attributes Map) (see [below for nested schema](#nestedatt--intents_run--errors--structured_error--values))
 
-Only oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set. (see [below for nested schema](#nestedatt--intents_run--errors--error--cause_collection))
-- `cause_indexed_collection` (Attributes List) A lower-level set of structured errors.
-Each of these errors MUST have index set.
-
-Only oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set. (see [below for nested schema](#nestedatt--intents_run--errors--error--cause_indexed_collection))
-- `cause_is_internal` (Boolean) If true, then the cause (`causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection`) should be hidden from the user.
-- `cause_simple` (String) Simple string error type.
-
-Only oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.
-- `cause_wrapped` (Attributes) (see [below for nested schema](#nestedatt--intents_run--errors--error--cause_wrapped))
-- `domain` (String) The "domain" for the error.  If empty, it is an EDA
-core error.  Alternatively it can be an EDA application
-"apiVersion" value (e.g. interfaces.eda.nokia.com/v1alpha1)
-indicating that the error is specific to that application.
-The domain gives the receiver information that they can use
-to help them interpret the "type" field.
-- `index` (Number) When processing an array, errors may be generated related to a particular array item.
-If set, this index indicates to which array item the error applies.
-- `message` (String) The basic text error message for the error response.
-- `ref` (String) Reference to the error source. Should typically be the URI of the request.
-- `type` (String) Type defines a unique identifier for the error, within the domain.
-This may be used (along with the domain) to find an internationalization translation for the message.
-
-SHOULD be a valid golang identifier, and SHOULD be in UpperCamelCase.
-- `values` (Attributes Map) Associated data/information.
-The error "message" may contain {{name}} escapes that should be substituted with information from this dictionary.
-
-Note that this map MUST NOT contain JSON objects (`{...}`) or arrays (`[...]`), only simple JSON types are permitted. (see [below for nested schema](#nestedatt--intents_run--errors--error--values))
-
-<a id="nestedatt--intents_run--errors--error--cause_collection"></a>
-### Nested Schema for `intents_run.errors.error.cause_collection`
-
-
-<a id="nestedatt--intents_run--errors--error--cause_indexed_collection"></a>
-### Nested Schema for `intents_run.errors.error.cause_indexed_collection`
-
-
-<a id="nestedatt--intents_run--errors--error--cause_wrapped"></a>
-### Nested Schema for `intents_run.errors.error.cause_wrapped`
-
-
-<a id="nestedatt--intents_run--errors--error--values"></a>
-### Nested Schema for `intents_run.errors.error.values`
+<a id="nestedatt--intents_run--errors--structured_error--values"></a>
+### Nested Schema for `intents_run.errors.structured_error.values`
 
 
 

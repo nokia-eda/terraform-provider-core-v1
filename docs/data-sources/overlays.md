@@ -80,7 +80,6 @@ Read-Only:
 - `ui_name` (String)
 - `ui_name_key` (String)
 - `value` (Number)
-- `weight` (Number)
 
 
 <a id="nestedatt--overlays--link_attr_queries"></a>
@@ -114,7 +113,6 @@ Read-Only:
 - `ui_name` (String)
 - `ui_name_key` (String)
 - `value` (Number)
-- `weight` (Number)
 
 
 <a id="nestedatt--overlays--node_attr_queries"></a>
@@ -145,17 +143,11 @@ Read-Only:
 - `badge_name` (String)
 - `badge_path` (String)
 - `color` (String)
-- `nav_target` (Attributes Map) (see [below for nested schema](#nestedatt--overlays--node_badge--nav_target))
 - `ui_description` (String)
 - `ui_description_key` (String)
 - `ui_name` (String)
 - `ui_name_key` (String)
 - `value` (Number)
-- `weight` (Number)
-
-<a id="nestedatt--overlays--node_badge--nav_target"></a>
-### Nested Schema for `overlays.node_badge.nav_target`
-
 
 
 <a id="nestedatt--overlays--node_state"></a>
@@ -169,4 +161,3 @@ Read-Only:
 - `ui_name` (String)
 - `ui_name_key` (String)
 - `value` (Number)
-- `weight` (Number)

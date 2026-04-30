@@ -81,9 +81,6 @@ func OverlaysDataSourceSchema(ctx context.Context) schema.Schema {
 									"value": schema.Int64Attribute{
 										Computed: true,
 									},
-									"weight": schema.Int64Attribute{
-										Computed: true,
-									},
 								},
 								CustomType: EndpointStateType{
 									ObjectType: types.ObjectType{
@@ -162,9 +159,6 @@ func OverlaysDataSourceSchema(ctx context.Context) schema.Schema {
 									"value": schema.Int64Attribute{
 										Computed: true,
 									},
-									"weight": schema.Int64Attribute{
-										Computed: true,
-									},
 								},
 								CustomType: LinkStateType{
 									ObjectType: types.ObjectType{
@@ -234,17 +228,6 @@ func OverlaysDataSourceSchema(ctx context.Context) schema.Schema {
 									"color": schema.StringAttribute{
 										Computed: true,
 									},
-									"nav_target": schema.MapNestedAttribute{
-										NestedObject: schema.NestedAttributeObject{
-											Attributes: map[string]schema.Attribute{},
-											CustomType: NavTargetType{
-												ObjectType: types.ObjectType{
-													AttrTypes: NavTargetValue{}.AttributeTypes(ctx),
-												},
-											},
-										},
-										Computed: true,
-									},
 									"ui_description": schema.StringAttribute{
 										Computed: true,
 									},
@@ -258,9 +241,6 @@ func OverlaysDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"value": schema.Int64Attribute{
-										Computed: true,
-									},
-									"weight": schema.Int64Attribute{
 										Computed: true,
 									},
 								},
@@ -291,9 +271,6 @@ func OverlaysDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"value": schema.Int64Attribute{
-										Computed: true,
-									},
-									"weight": schema.Int64Attribute{
 										Computed: true,
 									},
 								},
@@ -2999,24 +2976,6 @@ func (t EndpointStateType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`value expected to be basetypes.Int64Value, was: %T`, valueAttribute))
 	}
 
-	weightAttribute, ok := attributes["weight"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`weight is missing from object`)
-
-		return nil, diags
-	}
-
-	weightVal, ok := weightAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`weight expected to be basetypes.Int64Value, was: %T`, weightAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -3028,7 +2987,6 @@ func (t EndpointStateType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		UiName:           uiNameVal,
 		UiNameKey:        uiNameKeyVal,
 		Value:            valueVal,
-		Weight:           weightVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -3204,24 +3162,6 @@ func NewEndpointStateValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`value expected to be basetypes.Int64Value, was: %T`, valueAttribute))
 	}
 
-	weightAttribute, ok := attributes["weight"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`weight is missing from object`)
-
-		return NewEndpointStateValueUnknown(), diags
-	}
-
-	weightVal, ok := weightAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`weight expected to be basetypes.Int64Value, was: %T`, weightAttribute))
-	}
-
 	if diags.HasError() {
 		return NewEndpointStateValueUnknown(), diags
 	}
@@ -3233,7 +3173,6 @@ func NewEndpointStateValue(attributeTypes map[string]attr.Type, attributes map[s
 		UiName:           uiNameVal,
 		UiNameKey:        uiNameKeyVal,
 		Value:            valueVal,
-		Weight:           weightVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -3312,12 +3251,11 @@ type EndpointStateValue struct {
 	UiName           basetypes.StringValue `tfsdk:"ui_name"`
 	UiNameKey        basetypes.StringValue `tfsdk:"ui_name_key"`
 	Value            basetypes.Int64Value  `tfsdk:"value"`
-	Weight           basetypes.Int64Value  `tfsdk:"weight"`
 	state            attr.ValueState
 }
 
 func (v EndpointStateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
@@ -3328,13 +3266,12 @@ func (v EndpointStateValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["ui_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ui_name_key"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["value"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["weight"] = basetypes.Int64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.Color.ToTerraformValue(ctx)
 
@@ -3384,14 +3321,6 @@ func (v EndpointStateValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 		vals["value"] = val
 
-		val, err = v.Weight.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["weight"] = val
-
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -3428,7 +3357,6 @@ func (v EndpointStateValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"ui_name":            basetypes.StringType{},
 		"ui_name_key":        basetypes.StringType{},
 		"value":              basetypes.Int64Type{},
-		"weight":             basetypes.Int64Type{},
 	}
 
 	if v.IsNull() {
@@ -3448,7 +3376,6 @@ func (v EndpointStateValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"ui_name":            v.UiName,
 			"ui_name_key":        v.UiNameKey,
 			"value":              v.Value,
-			"weight":             v.Weight,
 		})
 
 	return objVal, diags
@@ -3493,10 +3420,6 @@ func (v EndpointStateValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Weight.Equal(other.Weight) {
-		return false
-	}
-
 	return true
 }
 
@@ -3516,7 +3439,6 @@ func (v EndpointStateValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"ui_name":            basetypes.StringType{},
 		"ui_name_key":        basetypes.StringType{},
 		"value":              basetypes.Int64Type{},
-		"weight":             basetypes.Int64Type{},
 	}
 }
 
@@ -4556,24 +4478,6 @@ func (t LinkStateType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`value expected to be basetypes.Int64Value, was: %T`, valueAttribute))
 	}
 
-	weightAttribute, ok := attributes["weight"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`weight is missing from object`)
-
-		return nil, diags
-	}
-
-	weightVal, ok := weightAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`weight expected to be basetypes.Int64Value, was: %T`, weightAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -4585,7 +4489,6 @@ func (t LinkStateType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		UiName:           uiNameVal,
 		UiNameKey:        uiNameKeyVal,
 		Value:            valueVal,
-		Weight:           weightVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -4761,24 +4664,6 @@ func NewLinkStateValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`value expected to be basetypes.Int64Value, was: %T`, valueAttribute))
 	}
 
-	weightAttribute, ok := attributes["weight"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`weight is missing from object`)
-
-		return NewLinkStateValueUnknown(), diags
-	}
-
-	weightVal, ok := weightAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`weight expected to be basetypes.Int64Value, was: %T`, weightAttribute))
-	}
-
 	if diags.HasError() {
 		return NewLinkStateValueUnknown(), diags
 	}
@@ -4790,7 +4675,6 @@ func NewLinkStateValue(attributeTypes map[string]attr.Type, attributes map[strin
 		UiName:           uiNameVal,
 		UiNameKey:        uiNameKeyVal,
 		Value:            valueVal,
-		Weight:           weightVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -4869,12 +4753,11 @@ type LinkStateValue struct {
 	UiName           basetypes.StringValue `tfsdk:"ui_name"`
 	UiNameKey        basetypes.StringValue `tfsdk:"ui_name_key"`
 	Value            basetypes.Int64Value  `tfsdk:"value"`
-	Weight           basetypes.Int64Value  `tfsdk:"weight"`
 	state            attr.ValueState
 }
 
 func (v LinkStateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
@@ -4885,13 +4768,12 @@ func (v LinkStateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["ui_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ui_name_key"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["value"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["weight"] = basetypes.Int64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.Color.ToTerraformValue(ctx)
 
@@ -4941,14 +4823,6 @@ func (v LinkStateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 		vals["value"] = val
 
-		val, err = v.Weight.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["weight"] = val
-
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -4985,7 +4859,6 @@ func (v LinkStateValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"ui_name":            basetypes.StringType{},
 		"ui_name_key":        basetypes.StringType{},
 		"value":              basetypes.Int64Type{},
-		"weight":             basetypes.Int64Type{},
 	}
 
 	if v.IsNull() {
@@ -5005,7 +4878,6 @@ func (v LinkStateValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"ui_name":            v.UiName,
 			"ui_name_key":        v.UiNameKey,
 			"value":              v.Value,
-			"weight":             v.Weight,
 		})
 
 	return objVal, diags
@@ -5050,10 +4922,6 @@ func (v LinkStateValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Weight.Equal(other.Weight) {
-		return false
-	}
-
 	return true
 }
 
@@ -5073,7 +4941,6 @@ func (v LinkStateValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"ui_name":            basetypes.StringType{},
 		"ui_name_key":        basetypes.StringType{},
 		"value":              basetypes.Int64Type{},
-		"weight":             basetypes.Int64Type{},
 	}
 }
 
@@ -6059,24 +5926,6 @@ func (t NodeBadgeType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`color expected to be basetypes.StringValue, was: %T`, colorAttribute))
 	}
 
-	navTargetAttribute, ok := attributes["nav_target"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`nav_target is missing from object`)
-
-		return nil, diags
-	}
-
-	navTargetVal, ok := navTargetAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`nav_target expected to be basetypes.MapValue, was: %T`, navTargetAttribute))
-	}
-
 	uiDescriptionAttribute, ok := attributes["ui_description"]
 
 	if !ok {
@@ -6167,24 +6016,6 @@ func (t NodeBadgeType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`value expected to be basetypes.Int64Value, was: %T`, valueAttribute))
 	}
 
-	weightAttribute, ok := attributes["weight"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`weight is missing from object`)
-
-		return nil, diags
-	}
-
-	weightVal, ok := weightAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`weight expected to be basetypes.Int64Value, was: %T`, weightAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -6193,13 +6024,11 @@ func (t NodeBadgeType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		BadgeName:        badgeNameVal,
 		BadgePath:        badgePathVal,
 		Color:            colorVal,
-		NavTarget:        navTargetVal,
 		UiDescription:    uiDescriptionVal,
 		UiDescriptionKey: uiDescriptionKeyVal,
 		UiName:           uiNameVal,
 		UiNameKey:        uiNameKeyVal,
 		Value:            valueVal,
-		Weight:           weightVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -6321,24 +6150,6 @@ func NewNodeBadgeValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`color expected to be basetypes.StringValue, was: %T`, colorAttribute))
 	}
 
-	navTargetAttribute, ok := attributes["nav_target"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`nav_target is missing from object`)
-
-		return NewNodeBadgeValueUnknown(), diags
-	}
-
-	navTargetVal, ok := navTargetAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`nav_target expected to be basetypes.MapValue, was: %T`, navTargetAttribute))
-	}
-
 	uiDescriptionAttribute, ok := attributes["ui_description"]
 
 	if !ok {
@@ -6429,24 +6240,6 @@ func NewNodeBadgeValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`value expected to be basetypes.Int64Value, was: %T`, valueAttribute))
 	}
 
-	weightAttribute, ok := attributes["weight"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`weight is missing from object`)
-
-		return NewNodeBadgeValueUnknown(), diags
-	}
-
-	weightVal, ok := weightAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`weight expected to be basetypes.Int64Value, was: %T`, weightAttribute))
-	}
-
 	if diags.HasError() {
 		return NewNodeBadgeValueUnknown(), diags
 	}
@@ -6455,13 +6248,11 @@ func NewNodeBadgeValue(attributeTypes map[string]attr.Type, attributes map[strin
 		BadgeName:        badgeNameVal,
 		BadgePath:        badgePathVal,
 		Color:            colorVal,
-		NavTarget:        navTargetVal,
 		UiDescription:    uiDescriptionVal,
 		UiDescriptionKey: uiDescriptionKeyVal,
 		UiName:           uiNameVal,
 		UiNameKey:        uiNameKeyVal,
 		Value:            valueVal,
-		Weight:           weightVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -6537,18 +6328,16 @@ type NodeBadgeValue struct {
 	BadgeName        basetypes.StringValue `tfsdk:"badge_name"`
 	BadgePath        basetypes.StringValue `tfsdk:"badge_path"`
 	Color            basetypes.StringValue `tfsdk:"color"`
-	NavTarget        basetypes.MapValue    `tfsdk:"nav_target"`
 	UiDescription    basetypes.StringValue `tfsdk:"ui_description"`
 	UiDescriptionKey basetypes.StringValue `tfsdk:"ui_description_key"`
 	UiName           basetypes.StringValue `tfsdk:"ui_name"`
 	UiNameKey        basetypes.StringValue `tfsdk:"ui_name_key"`
 	Value            basetypes.Int64Value  `tfsdk:"value"`
-	Weight           basetypes.Int64Value  `tfsdk:"weight"`
 	state            attr.ValueState
 }
 
 func (v NodeBadgeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 10)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
@@ -6556,21 +6345,17 @@ func (v NodeBadgeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["badge_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["badge_path"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["color"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["nav_target"] = basetypes.MapType{
-		ElemType: NavTargetValue{}.Type(ctx),
-	}.TerraformType(ctx)
 	attrTypes["ui_description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ui_description_key"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ui_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ui_name_key"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["value"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["weight"] = basetypes.Int64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 10)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.BadgeName.ToTerraformValue(ctx)
 
@@ -6595,14 +6380,6 @@ func (v NodeBadgeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["color"] = val
-
-		val, err = v.NavTarget.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["nav_target"] = val
 
 		val, err = v.UiDescription.ToTerraformValue(ctx)
 
@@ -6644,14 +6421,6 @@ func (v NodeBadgeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 		vals["value"] = val
 
-		val, err = v.Weight.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["weight"] = val
-
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -6681,48 +6450,15 @@ func (v NodeBadgeValue) String() string {
 func (v NodeBadgeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	navTarget := types.MapValueMust(
-		NavTargetType{
-			basetypes.ObjectType{
-				AttrTypes: NavTargetValue{}.AttributeTypes(ctx),
-			},
-		},
-		v.NavTarget.Elements(),
-	)
-
-	if v.NavTarget.IsNull() {
-		navTarget = types.MapNull(
-			NavTargetType{
-				basetypes.ObjectType{
-					AttrTypes: NavTargetValue{}.AttributeTypes(ctx),
-				},
-			},
-		)
-	}
-
-	if v.NavTarget.IsUnknown() {
-		navTarget = types.MapUnknown(
-			NavTargetType{
-				basetypes.ObjectType{
-					AttrTypes: NavTargetValue{}.AttributeTypes(ctx),
-				},
-			},
-		)
-	}
-
 	attributeTypes := map[string]attr.Type{
-		"badge_name": basetypes.StringType{},
-		"badge_path": basetypes.StringType{},
-		"color":      basetypes.StringType{},
-		"nav_target": basetypes.MapType{
-			ElemType: NavTargetValue{}.Type(ctx),
-		},
+		"badge_name":         basetypes.StringType{},
+		"badge_path":         basetypes.StringType{},
+		"color":              basetypes.StringType{},
 		"ui_description":     basetypes.StringType{},
 		"ui_description_key": basetypes.StringType{},
 		"ui_name":            basetypes.StringType{},
 		"ui_name_key":        basetypes.StringType{},
 		"value":              basetypes.Int64Type{},
-		"weight":             basetypes.Int64Type{},
 	}
 
 	if v.IsNull() {
@@ -6739,13 +6475,11 @@ func (v NodeBadgeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"badge_name":         v.BadgeName,
 			"badge_path":         v.BadgePath,
 			"color":              v.Color,
-			"nav_target":         navTarget,
 			"ui_description":     v.UiDescription,
 			"ui_description_key": v.UiDescriptionKey,
 			"ui_name":            v.UiName,
 			"ui_name_key":        v.UiNameKey,
 			"value":              v.Value,
-			"weight":             v.Weight,
 		})
 
 	return objVal, diags
@@ -6778,10 +6512,6 @@ func (v NodeBadgeValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.NavTarget.Equal(other.NavTarget) {
-		return false
-	}
-
 	if !v.UiDescription.Equal(other.UiDescription) {
 		return false
 	}
@@ -6802,10 +6532,6 @@ func (v NodeBadgeValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Weight.Equal(other.Weight) {
-		return false
-	}
-
 	return true
 }
 
@@ -6819,279 +6545,15 @@ func (v NodeBadgeValue) Type(ctx context.Context) attr.Type {
 
 func (v NodeBadgeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"badge_name": basetypes.StringType{},
-		"badge_path": basetypes.StringType{},
-		"color":      basetypes.StringType{},
-		"nav_target": basetypes.MapType{
-			ElemType: NavTargetValue{}.Type(ctx),
-		},
+		"badge_name":         basetypes.StringType{},
+		"badge_path":         basetypes.StringType{},
+		"color":              basetypes.StringType{},
 		"ui_description":     basetypes.StringType{},
 		"ui_description_key": basetypes.StringType{},
 		"ui_name":            basetypes.StringType{},
 		"ui_name_key":        basetypes.StringType{},
 		"value":              basetypes.Int64Type{},
-		"weight":             basetypes.Int64Type{},
 	}
-}
-
-var _ basetypes.ObjectTypable = NavTargetType{}
-
-type NavTargetType struct {
-	basetypes.ObjectType
-}
-
-func (t NavTargetType) Equal(o attr.Type) bool {
-	other, ok := o.(NavTargetType)
-
-	if !ok {
-		return false
-	}
-
-	return t.ObjectType.Equal(other.ObjectType)
-}
-
-func (t NavTargetType) String() string {
-	return "NavTargetType"
-}
-
-func (t NavTargetType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	if diags.HasError() {
-		return nil, diags
-	}
-
-	return NavTargetValue{
-		state: attr.ValueStateKnown,
-	}, diags
-}
-
-func NewNavTargetValueNull() NavTargetValue {
-	return NavTargetValue{
-		state: attr.ValueStateNull,
-	}
-}
-
-func NewNavTargetValueUnknown() NavTargetValue {
-	return NavTargetValue{
-		state: attr.ValueStateUnknown,
-	}
-}
-
-func NewNavTargetValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (NavTargetValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
-	ctx := context.Background()
-
-	for name, attributeType := range attributeTypes {
-		attribute, ok := attributes[name]
-
-		if !ok {
-			diags.AddError(
-				"Missing NavTargetValue Attribute Value",
-				"While creating a NavTargetValue value, a missing attribute value was detected. "+
-					"A NavTargetValue must contain values for all attributes, even if null or unknown. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("NavTargetValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
-			)
-
-			continue
-		}
-
-		if !attributeType.Equal(attribute.Type(ctx)) {
-			diags.AddError(
-				"Invalid NavTargetValue Attribute Type",
-				"While creating a NavTargetValue value, an invalid attribute value was detected. "+
-					"A NavTargetValue must use a matching attribute type for the value. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("NavTargetValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("NavTargetValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
-			)
-		}
-	}
-
-	for name := range attributes {
-		_, ok := attributeTypes[name]
-
-		if !ok {
-			diags.AddError(
-				"Extra NavTargetValue Attribute Value",
-				"While creating a NavTargetValue value, an extra attribute value was detected. "+
-					"A NavTargetValue must not contain values beyond the expected attribute types. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra NavTargetValue Attribute Name: %s", name),
-			)
-		}
-	}
-
-	if diags.HasError() {
-		return NewNavTargetValueUnknown(), diags
-	}
-
-	if diags.HasError() {
-		return NewNavTargetValueUnknown(), diags
-	}
-
-	return NavTargetValue{
-		state: attr.ValueStateKnown,
-	}, diags
-}
-
-func NewNavTargetValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) NavTargetValue {
-	object, diags := NewNavTargetValue(attributeTypes, attributes)
-
-	if diags.HasError() {
-		// This could potentially be added to the diag package.
-		diagsStrings := make([]string, 0, len(diags))
-
-		for _, diagnostic := range diags {
-			diagsStrings = append(diagsStrings, fmt.Sprintf(
-				"%s | %s | %s",
-				diagnostic.Severity(),
-				diagnostic.Summary(),
-				diagnostic.Detail()))
-		}
-
-		panic("NewNavTargetValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
-	}
-
-	return object
-}
-
-func (t NavTargetType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
-	if in.Type() == nil {
-		return NewNavTargetValueNull(), nil
-	}
-
-	if !in.Type().Equal(t.TerraformType(ctx)) {
-		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
-	}
-
-	if !in.IsKnown() {
-		return NewNavTargetValueUnknown(), nil
-	}
-
-	if in.IsNull() {
-		return NewNavTargetValueNull(), nil
-	}
-
-	attributes := map[string]attr.Value{}
-
-	val := map[string]tftypes.Value{}
-
-	err := in.As(&val)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range val {
-		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
-
-		if err != nil {
-			return nil, err
-		}
-
-		attributes[k] = a
-	}
-
-	return NewNavTargetValueMust(NavTargetValue{}.AttributeTypes(ctx), attributes), nil
-}
-
-func (t NavTargetType) ValueType(ctx context.Context) attr.Value {
-	return NavTargetValue{}
-}
-
-var _ basetypes.ObjectValuable = NavTargetValue{}
-
-type NavTargetValue struct {
-	state attr.ValueState
-}
-
-func (v NavTargetValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 0)
-
-	objectType := tftypes.Object{AttributeTypes: attrTypes}
-
-	switch v.state {
-	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 0)
-
-		if err := tftypes.ValidateValue(objectType, vals); err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		return tftypes.NewValue(objectType, vals), nil
-	case attr.ValueStateNull:
-		return tftypes.NewValue(objectType, nil), nil
-	case attr.ValueStateUnknown:
-		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
-	default:
-		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
-	}
-}
-
-func (v NavTargetValue) IsNull() bool {
-	return v.state == attr.ValueStateNull
-}
-
-func (v NavTargetValue) IsUnknown() bool {
-	return v.state == attr.ValueStateUnknown
-}
-
-func (v NavTargetValue) String() string {
-	return "NavTargetValue"
-}
-
-func (v NavTargetValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributeTypes := map[string]attr.Type{}
-
-	if v.IsNull() {
-		return types.ObjectNull(attributeTypes), diags
-	}
-
-	if v.IsUnknown() {
-		return types.ObjectUnknown(attributeTypes), diags
-	}
-
-	objVal, diags := types.ObjectValue(
-		attributeTypes,
-		map[string]attr.Value{})
-
-	return objVal, diags
-}
-
-func (v NavTargetValue) Equal(o attr.Value) bool {
-	other, ok := o.(NavTargetValue)
-
-	if !ok {
-		return false
-	}
-
-	if v.state != other.state {
-		return false
-	}
-
-	if v.state != attr.ValueStateKnown {
-		return true
-	}
-
-	return true
-}
-
-func (v NavTargetValue) Type(ctx context.Context) attr.Type {
-	return NavTargetType{
-		basetypes.ObjectType{
-			AttrTypes: v.AttributeTypes(ctx),
-		},
-	}
-}
-
-func (v NavTargetValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
-	return map[string]attr.Type{}
 }
 
 var _ basetypes.ObjectTypable = NodeStateType{}
@@ -7227,24 +6689,6 @@ func (t NodeStateType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`value expected to be basetypes.Int64Value, was: %T`, valueAttribute))
 	}
 
-	weightAttribute, ok := attributes["weight"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`weight is missing from object`)
-
-		return nil, diags
-	}
-
-	weightVal, ok := weightAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`weight expected to be basetypes.Int64Value, was: %T`, weightAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -7256,7 +6700,6 @@ func (t NodeStateType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		UiName:           uiNameVal,
 		UiNameKey:        uiNameKeyVal,
 		Value:            valueVal,
-		Weight:           weightVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -7432,24 +6875,6 @@ func NewNodeStateValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`value expected to be basetypes.Int64Value, was: %T`, valueAttribute))
 	}
 
-	weightAttribute, ok := attributes["weight"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`weight is missing from object`)
-
-		return NewNodeStateValueUnknown(), diags
-	}
-
-	weightVal, ok := weightAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`weight expected to be basetypes.Int64Value, was: %T`, weightAttribute))
-	}
-
 	if diags.HasError() {
 		return NewNodeStateValueUnknown(), diags
 	}
@@ -7461,7 +6886,6 @@ func NewNodeStateValue(attributeTypes map[string]attr.Type, attributes map[strin
 		UiName:           uiNameVal,
 		UiNameKey:        uiNameKeyVal,
 		Value:            valueVal,
-		Weight:           weightVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -7540,12 +6964,11 @@ type NodeStateValue struct {
 	UiName           basetypes.StringValue `tfsdk:"ui_name"`
 	UiNameKey        basetypes.StringValue `tfsdk:"ui_name_key"`
 	Value            basetypes.Int64Value  `tfsdk:"value"`
-	Weight           basetypes.Int64Value  `tfsdk:"weight"`
 	state            attr.ValueState
 }
 
 func (v NodeStateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
@@ -7556,13 +6979,12 @@ func (v NodeStateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["ui_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ui_name_key"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["value"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["weight"] = basetypes.Int64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.Color.ToTerraformValue(ctx)
 
@@ -7612,14 +7034,6 @@ func (v NodeStateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 		vals["value"] = val
 
-		val, err = v.Weight.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["weight"] = val
-
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -7656,7 +7070,6 @@ func (v NodeStateValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"ui_name":            basetypes.StringType{},
 		"ui_name_key":        basetypes.StringType{},
 		"value":              basetypes.Int64Type{},
-		"weight":             basetypes.Int64Type{},
 	}
 
 	if v.IsNull() {
@@ -7676,7 +7089,6 @@ func (v NodeStateValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"ui_name":            v.UiName,
 			"ui_name_key":        v.UiNameKey,
 			"value":              v.Value,
-			"weight":             v.Weight,
 		})
 
 	return objVal, diags
@@ -7721,10 +7133,6 @@ func (v NodeStateValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Weight.Equal(other.Weight) {
-		return false
-	}
-
 	return true
 }
 
@@ -7744,6 +7152,5 @@ func (v NodeStateValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"ui_name":            basetypes.StringType{},
 		"ui_name_key":        basetypes.StringType{},
 		"value":              basetypes.Int64Type{},
-		"weight":             basetypes.Int64Type{},
 	}
 }
