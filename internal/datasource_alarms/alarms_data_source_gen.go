@@ -62,13 +62,6 @@ func AlarmsDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Indicates the group of the resource the alarm is present on.",
 							MarkdownDescription: "Indicates the group of the resource the alarm is present on.",
 						},
-						"js_paths": schema.ListAttribute{
-							ElementType:         types.StringType,
-							Computed:            true,
-							Description:         "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true",
-							MarkdownDescription: "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true",
-							DeprecationMessage:  "This attribute is deprecated.",
-						},
 						"jspaths": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
@@ -79,12 +72,6 @@ func AlarmsDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Indicates the kind of resource the alarm is present on.",
 							MarkdownDescription: "Indicates the kind of resource the alarm is present on.",
-						},
-						"last_acknowledged": schema.StringAttribute{
-							Computed:            true,
-							Description:         "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true",
-							MarkdownDescription: "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true",
-							DeprecationMessage:  "This attribute is deprecated.",
 						},
 						"last_acknowledged_by": schema.StringAttribute{
 							Computed:            true,
@@ -100,12 +87,6 @@ func AlarmsDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "The last time that the alarm was changed; as provided by the raiser of the alarm.",
 							MarkdownDescription: "The last time that the alarm was changed; as provided by the raiser of the alarm.",
-						},
-						"last_suppressed": schema.StringAttribute{
-							Computed:            true,
-							Description:         "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true",
-							MarkdownDescription: "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true",
-							DeprecationMessage:  "This attribute is deprecated.",
 						},
 						"last_suppressed_by": schema.StringAttribute{
 							Computed:            true,
@@ -420,24 +401,6 @@ func (t AlarmsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`group expected to be basetypes.StringValue, was: %T`, groupAttribute))
 	}
 
-	jsPathsAttribute, ok := attributes["js_paths"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`js_paths is missing from object`)
-
-		return nil, diags
-	}
-
-	jsPathsVal, ok := jsPathsAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`js_paths expected to be basetypes.ListValue, was: %T`, jsPathsAttribute))
-	}
-
 	jspathsAttribute, ok := attributes["jspaths"]
 
 	if !ok {
@@ -472,24 +435,6 @@ func (t AlarmsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`kind expected to be basetypes.StringValue, was: %T`, kindAttribute))
-	}
-
-	lastAcknowledgedAttribute, ok := attributes["last_acknowledged"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`last_acknowledged is missing from object`)
-
-		return nil, diags
-	}
-
-	lastAcknowledgedVal, ok := lastAcknowledgedAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`last_acknowledged expected to be basetypes.StringValue, was: %T`, lastAcknowledgedAttribute))
 	}
 
 	lastAcknowledgedByAttribute, ok := attributes["last_acknowledged_by"]
@@ -544,24 +489,6 @@ func (t AlarmsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`last_changed expected to be basetypes.StringValue, was: %T`, lastChangedAttribute))
-	}
-
-	lastSuppressedAttribute, ok := attributes["last_suppressed"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`last_suppressed is missing from object`)
-
-		return nil, diags
-	}
-
-	lastSuppressedVal, ok := lastSuppressedAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`last_suppressed expected to be basetypes.StringValue, was: %T`, lastSuppressedAttribute))
 	}
 
 	lastSuppressedByAttribute, ok := attributes["last_suppressed_by"]
@@ -883,14 +810,11 @@ func (t AlarmsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		ClusterName:          clusterNameVal,
 		Description:          descriptionVal,
 		Group:                groupVal,
-		JsPaths:              jsPathsVal,
 		Jspaths:              jspathsVal,
 		Kind:                 kindVal,
-		LastAcknowledged:     lastAcknowledgedVal,
 		LastAcknowledgedBy:   lastAcknowledgedByVal,
 		LastAcknowledgedTime: lastAcknowledgedTimeVal,
 		LastChanged:          lastChangedVal,
-		LastSuppressed:       lastSuppressedVal,
 		LastSuppressedBy:     lastSuppressedByVal,
 		LastSuppressedTime:   lastSuppressedTimeVal,
 		Name:                 nameVal,
@@ -1119,24 +1043,6 @@ func NewAlarmsValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`group expected to be basetypes.StringValue, was: %T`, groupAttribute))
 	}
 
-	jsPathsAttribute, ok := attributes["js_paths"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`js_paths is missing from object`)
-
-		return NewAlarmsValueUnknown(), diags
-	}
-
-	jsPathsVal, ok := jsPathsAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`js_paths expected to be basetypes.ListValue, was: %T`, jsPathsAttribute))
-	}
-
 	jspathsAttribute, ok := attributes["jspaths"]
 
 	if !ok {
@@ -1171,24 +1077,6 @@ func NewAlarmsValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`kind expected to be basetypes.StringValue, was: %T`, kindAttribute))
-	}
-
-	lastAcknowledgedAttribute, ok := attributes["last_acknowledged"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`last_acknowledged is missing from object`)
-
-		return NewAlarmsValueUnknown(), diags
-	}
-
-	lastAcknowledgedVal, ok := lastAcknowledgedAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`last_acknowledged expected to be basetypes.StringValue, was: %T`, lastAcknowledgedAttribute))
 	}
 
 	lastAcknowledgedByAttribute, ok := attributes["last_acknowledged_by"]
@@ -1243,24 +1131,6 @@ func NewAlarmsValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`last_changed expected to be basetypes.StringValue, was: %T`, lastChangedAttribute))
-	}
-
-	lastSuppressedAttribute, ok := attributes["last_suppressed"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`last_suppressed is missing from object`)
-
-		return NewAlarmsValueUnknown(), diags
-	}
-
-	lastSuppressedVal, ok := lastSuppressedAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`last_suppressed expected to be basetypes.StringValue, was: %T`, lastSuppressedAttribute))
 	}
 
 	lastSuppressedByAttribute, ok := attributes["last_suppressed_by"]
@@ -1582,14 +1452,11 @@ func NewAlarmsValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		ClusterName:          clusterNameVal,
 		Description:          descriptionVal,
 		Group:                groupVal,
-		JsPaths:              jsPathsVal,
 		Jspaths:              jspathsVal,
 		Kind:                 kindVal,
-		LastAcknowledged:     lastAcknowledgedVal,
 		LastAcknowledgedBy:   lastAcknowledgedByVal,
 		LastAcknowledgedTime: lastAcknowledgedTimeVal,
 		LastChanged:          lastChangedVal,
-		LastSuppressed:       lastSuppressedVal,
 		LastSuppressedBy:     lastSuppressedByVal,
 		LastSuppressedTime:   lastSuppressedTimeVal,
 		Name:                 nameVal,
@@ -1687,14 +1554,11 @@ type AlarmsValue struct {
 	ClusterName          basetypes.StringValue `tfsdk:"cluster_name"`
 	Description          basetypes.StringValue `tfsdk:"description"`
 	Group                basetypes.StringValue `tfsdk:"group"`
-	JsPaths              basetypes.ListValue   `tfsdk:"js_paths"`
 	Jspaths              basetypes.ListValue   `tfsdk:"jspaths"`
 	Kind                 basetypes.StringValue `tfsdk:"kind"`
-	LastAcknowledged     basetypes.StringValue `tfsdk:"last_acknowledged"`
 	LastAcknowledgedBy   basetypes.StringValue `tfsdk:"last_acknowledged_by"`
 	LastAcknowledgedTime basetypes.StringValue `tfsdk:"last_acknowledged_time"`
 	LastChanged          basetypes.StringValue `tfsdk:"last_changed"`
-	LastSuppressed       basetypes.StringValue `tfsdk:"last_suppressed"`
 	LastSuppressedBy     basetypes.StringValue `tfsdk:"last_suppressed_by"`
 	LastSuppressedTime   basetypes.StringValue `tfsdk:"last_suppressed_time"`
 	Name                 basetypes.StringValue `tfsdk:"name"`
@@ -1716,7 +1580,7 @@ type AlarmsValue struct {
 }
 
 func (v AlarmsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 33)
+	attrTypes := make(map[string]tftypes.Type, 30)
 
 	var val tftypes.Value
 	var err error
@@ -1729,18 +1593,13 @@ func (v AlarmsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["cluster_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["group"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["js_paths"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
 	attrTypes["jspaths"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["kind"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["last_acknowledged"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["last_acknowledged_by"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["last_acknowledged_time"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["last_changed"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["last_suppressed"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["last_suppressed_by"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["last_suppressed_time"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
@@ -1767,7 +1626,7 @@ func (v AlarmsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 33)
+		vals := make(map[string]tftypes.Value, 30)
 
 		val, err = v.Acknowledged.ToTerraformValue(ctx)
 
@@ -1833,14 +1692,6 @@ func (v AlarmsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["group"] = val
 
-		val, err = v.JsPaths.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["js_paths"] = val
-
 		val, err = v.Jspaths.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1856,14 +1707,6 @@ func (v AlarmsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		}
 
 		vals["kind"] = val
-
-		val, err = v.LastAcknowledged.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["last_acknowledged"] = val
 
 		val, err = v.LastAcknowledgedBy.ToTerraformValue(ctx)
 
@@ -1888,14 +1731,6 @@ func (v AlarmsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		}
 
 		vals["last_changed"] = val
-
-		val, err = v.LastSuppressed.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["last_suppressed"] = val
 
 		val, err = v.LastSuppressedBy.ToTerraformValue(ctx)
 
@@ -2091,64 +1926,6 @@ func (v AlarmsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		)
 	}
 
-	var jsPathsVal basetypes.ListValue
-	switch {
-	case v.JsPaths.IsUnknown():
-		jsPathsVal = types.ListUnknown(types.StringType)
-	case v.JsPaths.IsNull():
-		jsPathsVal = types.ListNull(types.StringType)
-	default:
-		var d diag.Diagnostics
-		jsPathsVal, d = types.ListValue(types.StringType, v.JsPaths.Elements())
-		diags.Append(d...)
-	}
-
-	if diags.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"acknowledged":       basetypes.BoolType{},
-			"acknowledged_until": basetypes.StringType{},
-			"additional_text":    basetypes.StringType{},
-			"cleared":            basetypes.BoolType{},
-			"cluster_member":     basetypes.StringType{},
-			"cluster_name":       basetypes.StringType{},
-			"description":        basetypes.StringType{},
-			"group":              basetypes.StringType{},
-			"js_paths": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"jspaths": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"kind":                   basetypes.StringType{},
-			"last_acknowledged":      basetypes.StringType{},
-			"last_acknowledged_by":   basetypes.StringType{},
-			"last_acknowledged_time": basetypes.StringType{},
-			"last_changed":           basetypes.StringType{},
-			"last_suppressed":        basetypes.StringType{},
-			"last_suppressed_by":     basetypes.StringType{},
-			"last_suppressed_time":   basetypes.StringType{},
-			"name":                   basetypes.StringType{},
-			"namespace":              basetypes.StringType{},
-			"occurrences":            basetypes.Int64Type{},
-			"parent_alarms": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"probable_cause":   basetypes.StringType{},
-			"remedial_action":  basetypes.StringType{},
-			"resource":         basetypes.StringType{},
-			"severity":         basetypes.StringType{},
-			"source_group":     basetypes.StringType{},
-			"source_kind":      basetypes.StringType{},
-			"source_resource":  basetypes.StringType{},
-			"suppressed":       basetypes.BoolType{},
-			"suppressed_until": basetypes.StringType{},
-			"targets_affected": basetypes.ListType{
-				ElemType: TargetsAffectedValue{}.Type(ctx),
-			},
-			"type": basetypes.StringType{},
-		}), diags
-	}
-
 	var jspathsVal basetypes.ListValue
 	switch {
 	case v.Jspaths.IsUnknown():
@@ -2171,18 +1948,13 @@ func (v AlarmsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"cluster_name":       basetypes.StringType{},
 			"description":        basetypes.StringType{},
 			"group":              basetypes.StringType{},
-			"js_paths": basetypes.ListType{
-				ElemType: types.StringType,
-			},
 			"jspaths": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"kind":                   basetypes.StringType{},
-			"last_acknowledged":      basetypes.StringType{},
 			"last_acknowledged_by":   basetypes.StringType{},
 			"last_acknowledged_time": basetypes.StringType{},
 			"last_changed":           basetypes.StringType{},
-			"last_suppressed":        basetypes.StringType{},
 			"last_suppressed_by":     basetypes.StringType{},
 			"last_suppressed_time":   basetypes.StringType{},
 			"name":                   basetypes.StringType{},
@@ -2229,18 +2001,13 @@ func (v AlarmsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"cluster_name":       basetypes.StringType{},
 			"description":        basetypes.StringType{},
 			"group":              basetypes.StringType{},
-			"js_paths": basetypes.ListType{
-				ElemType: types.StringType,
-			},
 			"jspaths": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"kind":                   basetypes.StringType{},
-			"last_acknowledged":      basetypes.StringType{},
 			"last_acknowledged_by":   basetypes.StringType{},
 			"last_acknowledged_time": basetypes.StringType{},
 			"last_changed":           basetypes.StringType{},
-			"last_suppressed":        basetypes.StringType{},
 			"last_suppressed_by":     basetypes.StringType{},
 			"last_suppressed_time":   basetypes.StringType{},
 			"name":                   basetypes.StringType{},
@@ -2274,18 +2041,13 @@ func (v AlarmsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"cluster_name":       basetypes.StringType{},
 		"description":        basetypes.StringType{},
 		"group":              basetypes.StringType{},
-		"js_paths": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 		"jspaths": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"kind":                   basetypes.StringType{},
-		"last_acknowledged":      basetypes.StringType{},
 		"last_acknowledged_by":   basetypes.StringType{},
 		"last_acknowledged_time": basetypes.StringType{},
 		"last_changed":           basetypes.StringType{},
-		"last_suppressed":        basetypes.StringType{},
 		"last_suppressed_by":     basetypes.StringType{},
 		"last_suppressed_time":   basetypes.StringType{},
 		"name":                   basetypes.StringType{},
@@ -2328,14 +2090,11 @@ func (v AlarmsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"cluster_name":           v.ClusterName,
 			"description":            v.Description,
 			"group":                  v.Group,
-			"js_paths":               jsPathsVal,
 			"jspaths":                jspathsVal,
 			"kind":                   v.Kind,
-			"last_acknowledged":      v.LastAcknowledged,
 			"last_acknowledged_by":   v.LastAcknowledgedBy,
 			"last_acknowledged_time": v.LastAcknowledgedTime,
 			"last_changed":           v.LastChanged,
-			"last_suppressed":        v.LastSuppressed,
 			"last_suppressed_by":     v.LastSuppressedBy,
 			"last_suppressed_time":   v.LastSuppressedTime,
 			"name":                   v.Name,
@@ -2405,19 +2164,11 @@ func (v AlarmsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.JsPaths.Equal(other.JsPaths) {
-		return false
-	}
-
 	if !v.Jspaths.Equal(other.Jspaths) {
 		return false
 	}
 
 	if !v.Kind.Equal(other.Kind) {
-		return false
-	}
-
-	if !v.LastAcknowledged.Equal(other.LastAcknowledged) {
 		return false
 	}
 
@@ -2430,10 +2181,6 @@ func (v AlarmsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.LastChanged.Equal(other.LastChanged) {
-		return false
-	}
-
-	if !v.LastSuppressed.Equal(other.LastSuppressed) {
 		return false
 	}
 
@@ -2526,18 +2273,13 @@ func (v AlarmsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"cluster_name":       basetypes.StringType{},
 		"description":        basetypes.StringType{},
 		"group":              basetypes.StringType{},
-		"js_paths": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 		"jspaths": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"kind":                   basetypes.StringType{},
-		"last_acknowledged":      basetypes.StringType{},
 		"last_acknowledged_by":   basetypes.StringType{},
 		"last_acknowledged_time": basetypes.StringType{},
 		"last_changed":           basetypes.StringType{},
-		"last_suppressed":        basetypes.StringType{},
 		"last_suppressed_by":     basetypes.StringType{},
 		"last_suppressed_time":   basetypes.StringType{},
 		"name":                   basetypes.StringType{},

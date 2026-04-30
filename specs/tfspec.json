@@ -83,17 +83,6 @@
                         }
                     },
                     {
-                        "name": "js_paths",
-                        "list": {
-                            "computed_optional_required": "computed",
-                            "element_type": {
-                                "string": {}
-                            },
-                            "deprecation_message": "This attribute is deprecated.",
-                            "description": "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true"
-                        }
-                    },
-                    {
                         "name": "jspaths",
                         "list": {
                             "computed_optional_required": "computed",
@@ -108,14 +97,6 @@
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "Indicates the kind of resource the alarm is present on."
-                        }
-                    },
-                    {
-                        "name": "last_acknowledged",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "deprecation_message": "This attribute is deprecated.",
-                            "description": "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true"
                         }
                     },
                     {
@@ -137,14 +118,6 @@
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "The last time that the alarm was changed; as provided by the raiser of the alarm."
-                        }
-                    },
-                    {
-                        "name": "last_suppressed",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "deprecation_message": "This attribute is deprecated.",
-                            "description": "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true"
                         }
                     },
                     {
@@ -488,17 +461,6 @@
                                         }
                                     },
                                     {
-                                        "name": "js_paths",
-                                        "list": {
-                                            "computed_optional_required": "computed",
-                                            "element_type": {
-                                                "string": {}
-                                            },
-                                            "deprecation_message": "This attribute is deprecated.",
-                                            "description": "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true"
-                                        }
-                                    },
-                                    {
                                         "name": "jspaths",
                                         "list": {
                                             "computed_optional_required": "computed",
@@ -513,14 +475,6 @@
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "Indicates the kind of resource the alarm is present on."
-                                        }
-                                    },
-                                    {
-                                        "name": "last_acknowledged",
-                                        "string": {
-                                            "computed_optional_required": "computed",
-                                            "deprecation_message": "This attribute is deprecated.",
-                                            "description": "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true"
                                         }
                                     },
                                     {
@@ -542,14 +496,6 @@
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "The last time that the alarm was changed; as provided by the raiser of the alarm."
-                                        }
-                                    },
-                                    {
-                                        "name": "last_suppressed",
-                                        "string": {
-                                            "computed_optional_required": "computed",
-                                            "deprecation_message": "This attribute is deprecated.",
-                                            "description": "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true"
                                         }
                                     },
                                     {
@@ -1303,17 +1249,17 @@
             "schema": {
                 "attributes": [
                     {
-                        "name": "namespace",
-                        "string": {
-                            "computed_optional_required": "required",
-                            "description": "The namespace from which to retrieve the role."
-                        }
-                    },
-                    {
                         "name": "name",
                         "string": {
                             "computed_optional_required": "required",
                             "description": "The name of the EDA role whose definition should be retrieved/streamed."
+                        }
+                    },
+                    {
+                        "name": "namespace",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "The namespace from which to retrieve the role."
                         }
                     },
                     {
@@ -1667,6 +1613,34 @@
             "schema": {
                 "attributes": [
                     {
+                        "name": "full_roles",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names."
+                        }
+                    },
+                    {
+                        "name": "full_users",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names."
+                        }
+                    },
+                    {
+                        "name": "fullroles",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Deprecated: If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present."
+                        }
+                    },
+                    {
+                        "name": "fullusers",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Deprecated: If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.  Use fullRoles instead. Ignored if fullRoles present."
+                        }
+                    },
+                    {
                         "name": "uuid",
                         "string": {
                             "computed_optional_required": "required",
@@ -1674,140 +1648,9 @@
                         }
                     },
                     {
-                        "name": "fullroles",
-                        "bool": {
-                            "computed_optional_required": "computed_optional",
-                            "description": "If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names."
-                        }
-                    },
-                    {
-                        "name": "fullusers",
-                        "bool": {
-                            "computed_optional_required": "computed_optional",
-                            "description": "If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names."
-                        }
-                    },
-                    {
                         "name": "description",
                         "string": {
                             "computed_optional_required": "computed"
-                        }
-                    },
-                    {
-                        "name": "full_roles",
-                        "list_nested": {
-                            "computed_optional_required": "computed",
-                            "nested_object": {
-                                "attributes": [
-                                    {
-                                        "name": "description",
-                                        "string": {
-                                            "computed_optional_required": "computed"
-                                        }
-                                    },
-                                    {
-                                        "name": "name",
-                                        "string": {
-                                            "computed_optional_required": "computed"
-                                        }
-                                    },
-                                    {
-                                        "name": "namespace",
-                                        "string": {
-                                            "computed_optional_required": "computed"
-                                        }
-                                    },
-                                    {
-                                        "name": "resource_rules",
-                                        "list_nested": {
-                                            "computed_optional_required": "computed",
-                                            "nested_object": {
-                                                "attributes": [
-                                                    {
-                                                        "name": "api_groups",
-                                                        "list": {
-                                                            "computed_optional_required": "computed",
-                                                            "element_type": {
-                                                                "string": {}
-                                                            },
-                                                            "description": "The API groups for the resources controlled by the rule.\nAn API group consists of an apiGroup and a version, e.g. \"apigroup/version\".\nThe API group can be a wildcard (\"*\"), in which case it will match any API group.\nIn addition, the version can be a wildcard."
-                                                        }
-                                                    },
-                                                    {
-                                                        "name": "permissions",
-                                                        "string": {
-                                                            "computed_optional_required": "computed",
-                                                            "description": "Permissions for resources specified by the rule."
-                                                        }
-                                                    },
-                                                    {
-                                                        "name": "resources",
-                                                        "list": {
-                                                            "computed_optional_required": "computed",
-                                                            "element_type": {
-                                                                "string": {}
-                                                            },
-                                                            "description": "Names for the resources controlled by the rule.\nIt can be a wildcard (\"*\"), in which case it will match any resource\nin the matching API groups."
-                                                        }
-                                                    }
-                                                ]
-                                            },
-                                            "description": "Rules for access to resources."
-                                        }
-                                    },
-                                    {
-                                        "name": "table_rules",
-                                        "list_nested": {
-                                            "computed_optional_required": "computed",
-                                            "nested_object": {
-                                                "attributes": [
-                                                    {
-                                                        "name": "path",
-                                                        "string": {
-                                                            "computed_optional_required": "computed",
-                                                            "description": "EDB path to which this rule applies. It can end in \".*\"\nin which case the final portion of the table path can be anything, if the\nprefix matches. It can end in \".**\" in which case the table path can be\nanything if the prefix matches."
-                                                        }
-                                                    },
-                                                    {
-                                                        "name": "permissions",
-                                                        "string": {
-                                                            "computed_optional_required": "computed",
-                                                            "description": "Permissions for the given EDB path."
-                                                        }
-                                                    }
-                                                ]
-                                            },
-                                            "description": "Rules for access to EDB tables, including via EQL."
-                                        }
-                                    },
-                                    {
-                                        "name": "url_rules",
-                                        "list_nested": {
-                                            "computed_optional_required": "computed",
-                                            "nested_object": {
-                                                "attributes": [
-                                                    {
-                                                        "name": "path",
-                                                        "string": {
-                                                            "computed_optional_required": "computed",
-                                                            "description": "The API server URL path to which this rule applies. It can end in \"/*\"\nin which case the final portion of the URL path can be anything, if the\nprefix matches. It can end in \"/**\" in which case the URL path can be\nanything if the prefix matches.\","
-                                                        }
-                                                    },
-                                                    {
-                                                        "name": "permissions",
-                                                        "string": {
-                                                            "computed_optional_required": "computed",
-                                                            "description": "The permissions for the API server URL for the rule."
-                                                        }
-                                                    }
-                                                ]
-                                            },
-                                            "description": "Rules for access to APIServer routes."
-                                        }
-                                    }
-                                ]
-                            },
-                            "description": "contains the full role definitions of the Roles and ClusterRoles associated with the group, if requested"
                         }
                     },
                     {
@@ -1851,17 +1694,31 @@
             "schema": {
                 "attributes": [
                     {
-                        "name": "fullroles",
+                        "name": "full_roles",
                         "bool": {
                             "computed_optional_required": "computed_optional",
                             "description": "If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names."
                         }
                     },
                     {
-                        "name": "fullusers",
+                        "name": "full_users",
                         "bool": {
                             "computed_optional_required": "computed_optional",
                             "description": "If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names."
+                        }
+                    },
+                    {
+                        "name": "fullroles",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Deprecated: If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present."
+                        }
+                    },
+                    {
+                        "name": "fullusers",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Deprecated: If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.  Use fullRoles instead. Ignored if fullRoles present."
                         }
                     },
                     {
@@ -1995,7 +1852,8 @@
                                                     }
                                                 ]
                                             },
-                                            "description": "contains the full user definitions of the users who are members of the group, if requested"
+                                            "deprecation_message": "This attribute is deprecated.",
+                                            "description": "Deprecated: Contains the full user definitions of the users who are members of the group, if requested.  Use fullUsers instead."
                                         }
                                     },
                                     {
@@ -2113,6 +1971,128 @@
                                                 ]
                                             },
                                             "description": "contains the full role definitions of the Roles and ClusterRoles associated with the group, if requested"
+                                        }
+                                    },
+                                    {
+                                        "name": "full_users",
+                                        "list_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {
+                                                "attributes": [
+                                                    {
+                                                        "name": "email",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "enabled",
+                                                        "bool": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "first_name",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "groups",
+                                                        "list": {
+                                                            "computed_optional_required": "computed",
+                                                            "element_type": {
+                                                                "string": {}
+                                                            },
+                                                            "description": "contains the UUIDs of the groups of which the user is a member."
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "last_name",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "max_sessions",
+                                                        "int64": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "password",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "status_1",
+                                                        "single_nested": {
+                                                            "computed_optional_required": "computed",
+                                                            "attributes": [
+                                                                {
+                                                                    "name": "failed_login_since_successful_login",
+                                                                    "int64": {
+                                                                        "computed_optional_required": "computed"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "federation_provider_name",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "The name of the federation provider for this user. Absent if the user is not federated"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "federation_provider_uuid",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "The UUID of the federation provider for this user. Absent if the user is not federated"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "is_federated_user",
+                                                                    "bool": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "True if the user comes from a federated LDAP server"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "last_failed_login",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "last_successful_login",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "temporarily_disabled",
+                                                                    "bool": {
+                                                                        "computed_optional_required": "computed"
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "username",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "uuid",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "description": "contains the full user definitions of the users who are members of the group, if requested"
                                         }
                                     },
                                     {
@@ -2379,17 +2359,6 @@
                         }
                     },
                     {
-                        "name": "js_paths",
-                        "list": {
-                            "computed_optional_required": "computed",
-                            "element_type": {
-                                "string": {}
-                            },
-                            "deprecation_message": "This attribute is deprecated.",
-                            "description": "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true"
-                        }
-                    },
-                    {
                         "name": "jspaths",
                         "list": {
                             "computed_optional_required": "computed",
@@ -2404,14 +2373,6 @@
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "Indicates the kind of resource the alarm is present on."
-                        }
-                    },
-                    {
-                        "name": "last_acknowledged",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "deprecation_message": "This attribute is deprecated.",
-                            "description": "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true"
                         }
                     },
                     {
@@ -2433,14 +2394,6 @@
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "The last time that the alarm was changed; as provided by the raiser of the alarm."
-                        }
-                    },
-                    {
-                        "name": "last_suppressed",
-                        "string": {
-                            "computed_optional_required": "computed",
-                            "deprecation_message": "This attribute is deprecated.",
-                            "description": "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true"
                         }
                     },
                     {
@@ -2770,17 +2723,6 @@
                                         }
                                     },
                                     {
-                                        "name": "js_paths",
-                                        "list": {
-                                            "computed_optional_required": "computed",
-                                            "element_type": {
-                                                "string": {}
-                                            },
-                                            "deprecation_message": "This attribute is deprecated.",
-                                            "description": "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true"
-                                        }
-                                    },
-                                    {
                                         "name": "jspaths",
                                         "list": {
                                             "computed_optional_required": "computed",
@@ -2795,14 +2737,6 @@
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "Indicates the kind of resource the alarm is present on."
-                                        }
-                                    },
-                                    {
-                                        "name": "last_acknowledged",
-                                        "string": {
-                                            "computed_optional_required": "computed",
-                                            "deprecation_message": "This attribute is deprecated.",
-                                            "description": "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true"
                                         }
                                     },
                                     {
@@ -2824,14 +2758,6 @@
                                         "string": {
                                             "computed_optional_required": "computed",
                                             "description": "The last time that the alarm was changed; as provided by the raiser of the alarm."
-                                        }
-                                    },
-                                    {
-                                        "name": "last_suppressed",
-                                        "string": {
-                                            "computed_optional_required": "computed",
-                                            "deprecation_message": "This attribute is deprecated.",
-                                            "description": "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true"
                                         }
                                     },
                                     {
@@ -3394,6 +3320,13 @@
                             "computed_optional_required": "required",
                             "description": "the name of the table to retrieve the schema from the database"
                         }
+                    },
+                    {
+                        "name": "remove_read_only",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "whether to remove read only fields from the schema"
+                        }
                     }
                 ]
             }
@@ -3622,6 +3555,14 @@
                 "attributes": [
                     {
                         "name": "all_namesapces",
+                        "bool": {
+                            "computed_optional_required": "computed",
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "Deprecated: If true, the requestor is considered to have permission to access all namespaces. Use allNamespaces instead"
+                        }
+                    },
+                    {
+                        "name": "all_namespaces",
                         "bool": {
                             "computed_optional_required": "computed",
                             "description": "If true, the requestor is considered to have permission to access all namespaces"
@@ -3909,6 +3850,12 @@
                                         "int64": {
                                             "computed_optional_required": "computed"
                                         }
+                                    },
+                                    {
+                                        "name": "weight",
+                                        "int64": {
+                                            "computed_optional_required": "computed"
+                                        }
                                     }
                                 ]
                             }
@@ -4023,6 +3970,12 @@
                                         "int64": {
                                             "computed_optional_required": "computed"
                                         }
+                                    },
+                                    {
+                                        "name": "weight",
+                                        "int64": {
+                                            "computed_optional_required": "computed"
+                                        }
                                     }
                                 ]
                             }
@@ -4121,6 +4074,13 @@
                                         }
                                     },
                                     {
+                                        "name": "nav_target",
+                                        "map_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {}
+                                        }
+                                    },
+                                    {
                                         "name": "ui_description",
                                         "string": {
                                             "computed_optional_required": "computed"
@@ -4146,6 +4106,12 @@
                                     },
                                     {
                                         "name": "value",
+                                        "int64": {
+                                            "computed_optional_required": "computed"
+                                        }
+                                    },
+                                    {
+                                        "name": "weight",
                                         "int64": {
                                             "computed_optional_required": "computed"
                                         }
@@ -4192,6 +4158,12 @@
                                     },
                                     {
                                         "name": "value",
+                                        "int64": {
+                                            "computed_optional_required": "computed"
+                                        }
+                                    },
+                                    {
+                                        "name": "weight",
                                         "int64": {
                                             "computed_optional_required": "computed"
                                         }
@@ -4353,6 +4325,12 @@
                                                         "int64": {
                                                             "computed_optional_required": "computed"
                                                         }
+                                                    },
+                                                    {
+                                                        "name": "weight",
+                                                        "int64": {
+                                                            "computed_optional_required": "computed"
+                                                        }
                                                     }
                                                 ]
                                             }
@@ -4467,6 +4445,12 @@
                                                         "int64": {
                                                             "computed_optional_required": "computed"
                                                         }
+                                                    },
+                                                    {
+                                                        "name": "weight",
+                                                        "int64": {
+                                                            "computed_optional_required": "computed"
+                                                        }
                                                     }
                                                 ]
                                             }
@@ -4565,6 +4549,13 @@
                                                         }
                                                     },
                                                     {
+                                                        "name": "nav_target",
+                                                        "map_nested": {
+                                                            "computed_optional_required": "computed",
+                                                            "nested_object": {}
+                                                        }
+                                                    },
+                                                    {
                                                         "name": "ui_description",
                                                         "string": {
                                                             "computed_optional_required": "computed"
@@ -4590,6 +4581,12 @@
                                                     },
                                                     {
                                                         "name": "value",
+                                                        "int64": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "weight",
                                                         "int64": {
                                                             "computed_optional_required": "computed"
                                                         }
@@ -4636,6 +4633,12 @@
                                                     },
                                                     {
                                                         "name": "value",
+                                                        "int64": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "weight",
                                                         "int64": {
                                                             "computed_optional_required": "computed"
                                                         }
@@ -4805,6 +4808,20 @@
                             "computed_optional_required": "computed",
                             "attributes": [
                                 {
+                                    "name": "compatible",
+                                    "bool": {
+                                        "computed_optional_required": "computed",
+                                        "description": "\"true\" if the application version is compatible with the current core version"
+                                    }
+                                },
+                                {
+                                    "name": "incompatibility_reason",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The reason why the application version is not compatible with the current core version"
+                                    }
+                                },
+                                {
                                     "name": "published_time",
                                     "string": {
                                         "computed_optional_required": "computed",
@@ -4937,13 +4954,33 @@
                                         }
                                     },
                                     {
-                                        "name": "requires",
-                                        "list": {
+                                        "name": "relation",
+                                        "string": {
                                             "computed_optional_required": "computed",
-                                            "element_type": {
-                                                "string": {}
+                                            "description": "The relation of this app w.r.t. the requested root app"
+                                        }
+                                    },
+                                    {
+                                        "name": "requires",
+                                        "list_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {
+                                                "attributes": [
+                                                    {
+                                                        "name": "app_id",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "constraint",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    }
+                                                ]
                                             },
-                                            "description": "The identifiers for the applications on which this application version depends."
+                                            "description": "The applications that this app directly depends on, along with their version constraints."
                                         }
                                     },
                                     {
@@ -5150,6 +5187,20 @@
                             "computed_optional_required": "computed",
                             "attributes": [
                                 {
+                                    "name": "compatible",
+                                    "bool": {
+                                        "computed_optional_required": "computed",
+                                        "description": "\"true\" if the application version is compatible with the current core version"
+                                    }
+                                },
+                                {
+                                    "name": "incompatibility_reason",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The reason why the application version is not compatible with the current core version"
+                                    }
+                                },
+                                {
                                     "name": "published_time",
                                     "string": {
                                         "computed_optional_required": "computed",
@@ -5201,6 +5252,20 @@
                         "single_nested": {
                             "computed_optional_required": "computed",
                             "attributes": [
+                                {
+                                    "name": "compatible",
+                                    "bool": {
+                                        "computed_optional_required": "computed",
+                                        "description": "\"true\" if the application version is compatible with the current core version"
+                                    }
+                                },
+                                {
+                                    "name": "incompatibility_reason",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The reason why the application version is not compatible with the current core version"
+                                    }
+                                },
                                 {
                                     "name": "published_time",
                                     "string": {
@@ -5254,6 +5319,20 @@
                             "computed_optional_required": "computed",
                             "attributes": [
                                 {
+                                    "name": "compatible",
+                                    "bool": {
+                                        "computed_optional_required": "computed",
+                                        "description": "\"true\" if the application version is compatible with the current core version"
+                                    }
+                                },
+                                {
+                                    "name": "incompatibility_reason",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The reason why the application version is not compatible with the current core version"
+                                    }
+                                },
+                                {
                                     "name": "published_time",
                                     "string": {
                                         "computed_optional_required": "computed",
@@ -5285,6 +5364,13 @@
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "Name of the vendor for this app"
+                        }
+                    },
+                    {
+                        "name": "vendor_title",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The vendor title to display to the user (e.g. \"Nokia\" or \"VMware\")."
                         }
                     }
                 ]
@@ -5405,6 +5491,20 @@
                                             "computed_optional_required": "computed",
                                             "attributes": [
                                                 {
+                                                    "name": "compatible",
+                                                    "bool": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "\"true\" if the application version is compatible with the current core version"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "incompatibility_reason",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "The reason why the application version is not compatible with the current core version"
+                                                    }
+                                                },
+                                                {
                                                     "name": "published_time",
                                                     "string": {
                                                         "computed_optional_required": "computed",
@@ -5464,6 +5564,20 @@
                                             "computed_optional_required": "computed",
                                             "attributes": [
                                                 {
+                                                    "name": "compatible",
+                                                    "bool": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "\"true\" if the application version is compatible with the current core version"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "incompatibility_reason",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "The reason why the application version is not compatible with the current core version"
+                                                    }
+                                                },
+                                                {
                                                     "name": "published_time",
                                                     "string": {
                                                         "computed_optional_required": "computed",
@@ -5516,6 +5630,20 @@
                                             "computed_optional_required": "computed",
                                             "attributes": [
                                                 {
+                                                    "name": "compatible",
+                                                    "bool": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "\"true\" if the application version is compatible with the current core version"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "incompatibility_reason",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "The reason why the application version is not compatible with the current core version"
+                                                    }
+                                                },
+                                                {
                                                     "name": "published_time",
                                                     "string": {
                                                         "computed_optional_required": "computed",
@@ -5555,6 +5683,13 @@
                                             "computed_optional_required": "computed",
                                             "description": "Name of the vendor for this app"
                                         }
+                                    },
+                                    {
+                                        "name": "vendor_title",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The vendor title to display to the user (e.g. \"Nokia\" or \"VMware\")."
+                                        }
                                     }
                                 ]
                             }
@@ -5585,6 +5720,20 @@
                                         "single_nested": {
                                             "computed_optional_required": "computed",
                                             "attributes": [
+                                                {
+                                                    "name": "compatible",
+                                                    "bool": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "\"true\" if the application version is compatible with the current core version"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "incompatibility_reason",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "The reason why the application version is not compatible with the current core version"
+                                                    }
+                                                },
                                                 {
                                                     "name": "published_time",
                                                     "string": {
@@ -6677,36 +6826,96 @@
                                             "nested_object": {
                                                 "attributes": [
                                                     {
-                                                        "name": "raw_error",
-                                                        "string": {
-                                                            "computed_optional_required": "computed"
-                                                        }
-                                                    },
-                                                    {
-                                                        "name": "structured_error",
+                                                        "name": "error",
                                                         "single_nested": {
                                                             "computed_optional_required": "computed",
                                                             "attributes": [
                                                                 {
-                                                                    "name": "message",
+                                                                    "name": "cause_collection",
+                                                                    "list_nested": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "nested_object": {},
+                                                                        "description": "A lower-level set of structured errors.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "cause_indexed_collection",
+                                                                    "list_nested": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "nested_object": {},
+                                                                        "description": "A lower-level set of structured errors.\nEach of these errors MUST have index set.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "cause_is_internal",
+                                                                    "bool": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "If true, then the cause (`causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection`) should be hidden from the user."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "cause_simple",
                                                                     "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "Simple string error type.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "cause_wrapped",
+                                                                    "single_nested": {
                                                                         "computed_optional_required": "computed"
                                                                     }
                                                                 },
                                                                 {
-                                                                    "name": "message_key",
+                                                                    "name": "domain",
                                                                     "string": {
-                                                                        "computed_optional_required": "computed"
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "The \"domain\" for the error.  If empty, it is an EDA\ncore error.  Alternatively it can be an EDA application\n\"apiVersion\" value (e.g. interfaces.eda.nokia.com/v1alpha1)\nindicating that the error is specific to that application.\nThe domain gives the receiver information that they can use\nto help them interpret the \"type\" field."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "index",
+                                                                    "int64": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "When processing an array, errors may be generated related to a particular array item.\nIf set, this index indicates to which array item the error applies."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "message",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "The basic text error message for the error response."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "ref",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "Reference to the error source. Should typically be the URI of the request."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "type",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "Type defines a unique identifier for the error, within the domain.\nThis may be used (along with the domain) to find an internationalization translation for the message.\n\nSHOULD be a valid golang identifier, and SHOULD be in UpperCamelCase."
                                                                     }
                                                                 },
                                                                 {
                                                                     "name": "values",
                                                                     "map_nested": {
                                                                         "computed_optional_required": "computed",
-                                                                        "nested_object": {}
+                                                                        "nested_object": {},
+                                                                        "description": "Associated data/information.\nThe error \"message\" may contain {{name}} escapes that should be substituted with information from this dictionary.\n\nNote that this map MUST NOT contain JSON objects (`{...}`) or arrays (`[...]`), only simple JSON types are permitted."
                                                                     }
                                                                 }
                                                             ]
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "raw_error",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
                                                         }
                                                     }
                                                 ]
@@ -6878,6 +7087,86 @@
             }
         },
         {
+            "name": "transaction_execution_result_with_counts",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "transaction_id",
+                        "int64": {
+                            "computed_optional_required": "required",
+                            "description": "The identifier for the transaction whose details are being requested"
+                        }
+                    },
+                    {
+                        "name": "wait_for_complete",
+                        "bool": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state."
+                        }
+                    },
+                    {
+                        "name": "fail_on_errors",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Flag to tell the request to fail if the transaction has errors.  By default it will not fail."
+                        }
+                    },
+                    {
+                        "name": "changed_crs_count",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "Count of changed CRs as part of the transaction"
+                        }
+                    },
+                    {
+                        "name": "execution_summary",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Information about time taken during processing"
+                        }
+                    },
+                    {
+                        "name": "general_errors",
+                        "list": {
+                            "computed_optional_required": "computed",
+                            "element_type": {
+                                "string": {}
+                            },
+                            "description": "List of general errors while running the transaction"
+                        }
+                    },
+                    {
+                        "name": "intents_run_count",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "Count of intents which ran as part of the transaction"
+                        }
+                    },
+                    {
+                        "name": "nodes_with_config_changes_count",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "List of nodes with configuration changes from the transaction"
+                        }
+                    },
+                    {
+                        "name": "output_crs_count",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "Count of output resoures as part of the transaction"
+                        }
+                    },
+                    {
+                        "name": "topology_supported",
+                        "bool": {
+                            "computed_optional_required": "computed",
+                            "description": "Whether a topology representation of this transaction is supported"
+                        }
+                    }
+                ]
+            }
+        },
+        {
             "name": "transaction_node_config_diff",
             "schema": {
                 "attributes": [
@@ -6942,6 +7231,90 @@
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "The format of the response - Text or YAML"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transaction_nodes_result",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "transaction_id",
+                        "int64": {
+                            "computed_optional_required": "required",
+                            "description": "The identifier for the transaction whose details are being requested"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "int64": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Max items per page. Max allowed value is 1000. Omit or value of 0 will return full list (no pagination)."
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "int64": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Offset into the (optionally search-filtered) list; omit for first page."
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Filter nodes by case-insensitive substring match on node name, namespace, or \"name (namespace)\" display. When used with limit, the filtered list is paginated."
+                        }
+                    },
+                    {
+                        "name": "has_more",
+                        "bool": {
+                            "computed_optional_required": "computed",
+                            "description": "When paginating: true if more nodes exist; use nextCursor to fetch the next page."
+                        }
+                    },
+                    {
+                        "name": "next_cursor",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "When paginating: offset for the next page; present only when hasMore is true."
+                        }
+                    },
+                    {
+                        "name": "nodes_with_config_changes",
+                        "list_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "errors",
+                                        "list": {
+                                            "computed_optional_required": "computed",
+                                            "element_type": {
+                                                "string": {}
+                                            },
+                                            "description": "Resulting errors for the node"
+                                        }
+                                    },
+                                    {
+                                        "name": "name",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The name of the node"
+                                        }
+                                    },
+                                    {
+                                        "name": "namespace",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The namespace of the node"
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "List of nodes with configuration changes from the transaction"
                         }
                     }
                 ]
@@ -7033,6 +7406,138 @@
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "The format of the response - Text or YAML"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transaction_result_changed_crs",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "transaction_id",
+                        "int64": {
+                            "computed_optional_required": "required",
+                            "description": "The identifier for the transaction whose changed CRs are being requested."
+                        }
+                    },
+                    {
+                        "name": "gvk",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "When set, returns only a single category (combined list for all namespaces) for that GVK. Must be valid JSON for GroupVersionKind with non-empty group, version, and kind (URL-encoded in the request). Omit to return all categories. Ex: '{\"group\":\"core.eda.nokia.com\",\"version\":\"v1\",\"kind\":\"Node\"}'."
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "int64": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Max names per category per page. When gvk is absent: each category returns up to this many names (first page); when gvk is set: page size for that category. Omit or 0: return all names (no pagination). Max 1000."
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "int64": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "When gvk is set: offset into that category's (filtered) names; omit for first page. Ignored when gvk is not set."
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "If the query matches the category kind or the UI name of a CRD component from an app manifest, the full category is returned (subject to limit). Otherwise filters by case-insensitive substring on CR name, namespace, or \"name (namespace)\" display. When used with limit, pagination applies to the resulting list per category."
+                        }
+                    },
+                    {
+                        "name": "changed_crs",
+                        "list_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "gvk",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed",
+                                            "attributes": [
+                                                {
+                                                    "name": "group",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "Name of the API group"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "kind",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "The Kind of the resource"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "version",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "Version of the API group"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "has_more",
+                                        "bool": {
+                                            "computed_optional_required": "computed",
+                                            "description": "When limit/search is used: true if more names exist for this category; use nextCursor with gvk to fetch the next page."
+                                        }
+                                    },
+                                    {
+                                        "name": "names",
+                                        "list_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {
+                                                "attributes": [
+                                                    {
+                                                        "name": "name",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "namespace",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "next_cursor",
+                                        "int64": {
+                                            "computed_optional_required": "computed",
+                                            "description": "When limit/search is used: cursor for the next page for this category (send with gvk)."
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "One entry per GVK category; each entry has names as array of {name, namespace}. When gvk query param is set, at most one entry with optional pagination (hasMore, nextCursor)."
+                        }
+                    },
+                    {
+                        "name": "has_more",
+                        "bool": {
+                            "computed_optional_required": "computed",
+                            "description": "When paginating a single Names[] for a GVK: true if more names exist; use nextCursor to fetch the next page."
+                        }
+                    },
+                    {
+                        "name": "next_cursor",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "When paginating a single Names[] for a GVK: offset for the next page; present when hasMore is true."
                         }
                     }
                 ]
@@ -7140,6 +7645,283 @@
                         "bool": {
                             "computed_optional_required": "computed",
                             "description": "This field is true if the list returned here is not the complete list of input resources in the transaction because the user does not have read-access to some of them"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transaction_result_intents_run",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "transaction_id",
+                        "int64": {
+                            "computed_optional_required": "required",
+                            "description": "The identifier for the transaction whose details are being requested"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "int64": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Max items per page. Max allowed value is 1000. Omit or value of 0 will return full list (no pagination)."
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "int64": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Offset into the (optionally search-filtered) list; omit for first page."
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Case-insensitive substring match on intent name."
+                        }
+                    },
+                    {
+                        "name": "has_more",
+                        "bool": {
+                            "computed_optional_required": "computed",
+                            "description": "When paginating: true if more intents exist; use nextCursor to fetch the next page."
+                        }
+                    },
+                    {
+                        "name": "intents_run",
+                        "list_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "errors",
+                                        "list_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {
+                                                "attributes": [
+                                                    {
+                                                        "name": "error",
+                                                        "single_nested": {
+                                                            "computed_optional_required": "computed",
+                                                            "attributes": [
+                                                                {
+                                                                    "name": "cause_collection",
+                                                                    "list_nested": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "nested_object": {},
+                                                                        "description": "A lower-level set of structured errors.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "cause_indexed_collection",
+                                                                    "list_nested": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "nested_object": {},
+                                                                        "description": "A lower-level set of structured errors.\nEach of these errors MUST have index set.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "cause_is_internal",
+                                                                    "bool": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "If true, then the cause (`causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection`) should be hidden from the user."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "cause_simple",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "Simple string error type.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "cause_wrapped",
+                                                                    "single_nested": {
+                                                                        "computed_optional_required": "computed"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "domain",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "The \"domain\" for the error.  If empty, it is an EDA\ncore error.  Alternatively it can be an EDA application\n\"apiVersion\" value (e.g. interfaces.eda.nokia.com/v1alpha1)\nindicating that the error is specific to that application.\nThe domain gives the receiver information that they can use\nto help them interpret the \"type\" field."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "index",
+                                                                    "int64": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "When processing an array, errors may be generated related to a particular array item.\nIf set, this index indicates to which array item the error applies."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "message",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "The basic text error message for the error response."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "ref",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "Reference to the error source. Should typically be the URI of the request."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "type",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "Type defines a unique identifier for the error, within the domain.\nThis may be used (along with the domain) to find an internationalization translation for the message.\n\nSHOULD be a valid golang identifier, and SHOULD be in UpperCamelCase."
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "values",
+                                                                    "map_nested": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "nested_object": {},
+                                                                        "description": "Associated data/information.\nThe error \"message\" may contain {{name}} escapes that should be substituted with information from this dictionary.\n\nNote that this map MUST NOT contain JSON objects (`{...}`) or arrays (`[...]`), only simple JSON types are permitted."
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "raw_error",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "intent_name",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed",
+                                            "attributes": [
+                                                {
+                                                    "name": "gvk",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "computed",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "group",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed",
+                                                                    "description": "Name of the API group"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "kind",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed",
+                                                                    "description": "The Kind of the resource"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "version",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed",
+                                                                    "description": "Version of the API group"
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "name",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "namespace",
+                                                    "string": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "output_crs",
+                                        "list_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {
+                                                "attributes": [
+                                                    {
+                                                        "name": "gvk_1",
+                                                        "single_nested": {
+                                                            "computed_optional_required": "computed",
+                                                            "attributes": [
+                                                                {
+                                                                    "name": "group",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "Name of the API group"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "kind",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "The Kind of the resource"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "name": "version",
+                                                                    "string": {
+                                                                        "computed_optional_required": "computed",
+                                                                        "description": "Version of the API group"
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "name",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "namespace",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "script",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed",
+                                            "attributes": [
+                                                {
+                                                    "name": "execution_time",
+                                                    "int64": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "List of intents which ran as part of the transaction"
+                        }
+                    },
+                    {
+                        "name": "next_cursor",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "When paginating: offset for the next page; present only when hasMore is true."
                         }
                     }
                 ]
@@ -7615,7 +8397,7 @@
                         "name": "label_selector",
                         "string": {
                             "computed_optional_required": "computed_optional",
-                            "description": "a label selector string to filter the results based on CR labels"
+                            "description": "A label selector string to filter the results based on resource labels. If specified multiple times, the union of resources which satisfy a label-selector will be returned."
                         }
                     },
                     {
@@ -8563,7 +9345,8 @@
                                     }
                                 ]
                             },
-                            "description": "contains the full user definitions of the users who are members of the group, if requested"
+                            "deprecation_message": "This attribute is deprecated.",
+                            "description": "Deprecated: Contains the full user definitions of the users who are members of the group, if requested.  Use fullUsers instead."
                         }
                     },
                     {
@@ -8800,6 +9583,128 @@
                         }
                     },
                     {
+                        "name": "full_users",
+                        "list_nested": {
+                            "computed_optional_required": "computed_optional",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "email",
+                                        "string": {
+                                            "computed_optional_required": "computed_optional"
+                                        }
+                                    },
+                                    {
+                                        "name": "enabled",
+                                        "bool": {
+                                            "computed_optional_required": "computed_optional"
+                                        }
+                                    },
+                                    {
+                                        "name": "first_name",
+                                        "string": {
+                                            "computed_optional_required": "computed_optional"
+                                        }
+                                    },
+                                    {
+                                        "name": "groups",
+                                        "list": {
+                                            "computed_optional_required": "computed_optional",
+                                            "element_type": {
+                                                "string": {}
+                                            },
+                                            "description": "contains the UUIDs of the groups of which the user is a member."
+                                        }
+                                    },
+                                    {
+                                        "name": "last_name",
+                                        "string": {
+                                            "computed_optional_required": "computed_optional"
+                                        }
+                                    },
+                                    {
+                                        "name": "max_sessions",
+                                        "int64": {
+                                            "computed_optional_required": "computed_optional"
+                                        }
+                                    },
+                                    {
+                                        "name": "password",
+                                        "string": {
+                                            "computed_optional_required": "computed_optional"
+                                        }
+                                    },
+                                    {
+                                        "name": "status_1",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed_optional",
+                                            "attributes": [
+                                                {
+                                                    "name": "failed_login_since_successful_login",
+                                                    "int64": {
+                                                        "computed_optional_required": "computed_optional"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "federation_provider_name",
+                                                    "string": {
+                                                        "computed_optional_required": "computed_optional",
+                                                        "description": "The name of the federation provider for this user. Absent if the user is not federated"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "federation_provider_uuid",
+                                                    "string": {
+                                                        "computed_optional_required": "computed_optional",
+                                                        "description": "The UUID of the federation provider for this user. Absent if the user is not federated"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "is_federated_user",
+                                                    "bool": {
+                                                        "computed_optional_required": "computed_optional",
+                                                        "description": "True if the user comes from a federated LDAP server"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "last_failed_login",
+                                                    "string": {
+                                                        "computed_optional_required": "computed_optional"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "last_successful_login",
+                                                    "string": {
+                                                        "computed_optional_required": "computed_optional"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "temporarily_disabled",
+                                                    "bool": {
+                                                        "computed_optional_required": "computed_optional"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "username",
+                                        "string": {
+                                            "computed_optional_required": "computed_optional"
+                                        }
+                                    },
+                                    {
+                                        "name": "uuid",
+                                        "string": {
+                                            "computed_optional_required": "computed_optional"
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "contains the full user definitions of the users who are members of the group, if requested"
+                        }
+                    },
+                    {
                         "name": "is_federated",
                         "bool": {
                             "computed_optional_required": "computed_optional",
@@ -8846,7 +9751,7 @@
                             "default": {
                                 "static": false
                             },
-                            "description": "If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names."
+                            "description": "Deprecated: If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present."
                         }
                     }
                 ]

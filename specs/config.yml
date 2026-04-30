@@ -222,9 +222,19 @@ data_sources:
       path: /core/transaction/v2/result/execution/{transactionId}
       method: GET
 
+  transaction_execution_result_with_counts:
+    read:
+      path: /core/transaction/v3/result/execution/{transactionId}
+      method: GET
+
   transaction_node_config_diff:
     read:
       path: /core/transaction/v2/result/diffs/nodecfg/{transactionId}
+      method: GET
+
+  transaction_nodes_result:
+    read:
+      path: /core/transaction/v3/result/nodes/{transactionId}
       method: GET
 
   transaction_resource_diff:
@@ -232,9 +242,19 @@ data_sources:
       path: /core/transaction/v2/result/diffs/resource/{transactionId}
       method: GET
 
+  transaction_result_changed_crs:
+    read:
+      path: /core/transaction/v3/result/changedcrs/{transactionId}
+      method: GET
+
   transaction_result_input_resources:
     read:
       path: /core/transaction/v2/result/inputresources/{transactionId}
+      method: GET
+
+  transaction_result_intents_run:
+    read:
+      path: /core/transaction/v3/result/intentsrun/{transactionId}
       method: GET
 
   transaction_state:

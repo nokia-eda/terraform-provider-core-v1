@@ -17,14 +17,6 @@
             "description": "Target url or table of the access check. Provided when type is table or url",
             "type": "string"
           },
-          "permissions": {
-            "description": "The permissions for the requested resource/url/table.",
-            "enum": [
-              "read",
-              "readWrite"
-            ],
-            "type": "string"
-          },
           "type": {
             "description": "The type of rule to check for",
             "enum": [
@@ -44,8 +36,14 @@
       "AccessResult": {
         "properties": {
           "access": {
-            "description": "Indicates if the user can access the requested resource",
-            "type": "boolean"
+            "description": "Indicates the access level the user has for the requested resource",
+            "enum": [
+              "read",
+              "readWrite",
+              "readPropose",
+              "none"
+            ],
+            "type": "string"
           },
           "error": {
             "$ref": "#/components/schemas/ErrorResponse"
@@ -89,14 +87,6 @@
             "description": "Indicates the group of the resource the alarm is present on.",
             "type": "string"
           },
-          "jsPaths": {
-            "deprecated": true,
-            "description": "An unnormalized jspath relating to the object in the alarm state. Use jspaths instead.\nDeprecated: true",
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
           "jspaths": {
             "description": "An unnormalized jspath relating to the object in the alarm state.",
             "example": [
@@ -111,11 +101,6 @@
             "description": "Indicates the kind of resource the alarm is present on.",
             "type": "string"
           },
-          "lastAcknowledged": {
-            "deprecated": true,
-            "description": "the time this alarm was last acknowledged. Use lastAcknowledgedTime instead.\nDeprecated: true",
-            "type": "string"
-          },
           "lastAcknowledgedBy": {
             "description": "the user who last acknowledged the alarm",
             "type": "string"
@@ -126,11 +111,6 @@
           },
           "lastChanged": {
             "description": "The last time that the alarm was changed; as provided by the raiser of the alarm.",
-            "type": "string"
-          },
-          "lastSuppressed": {
-            "deprecated": true,
-            "description": "the time this alarm was last suppressed. Use lastSuppressedTime instead.\nDeprecated: true",
             "type": "string"
           },
           "lastSuppressedBy": {
@@ -791,9 +771,11 @@
       "AuthRole": {
         "properties": {
           "description": {
+            "example": "This role is intended for operators in the us-west namespace.",
             "type": "string"
           },
           "name": {
+            "example": "operator",
             "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$",
             "type": "string",
             "x-eda-nokia-com": {
@@ -801,6 +783,7 @@
             }
           },
           "namespace": {
+            "example": "us-west",
             "pattern": "^([a-z0-9]([-a-z0-9]*[a-z0-9])?)?$",
             "type": "string",
             "x-eda-nokia-com": {
@@ -838,6 +821,63 @@
       "AuthRoles": {
         "items": {
           "$ref": "#/components/schemas/AuthRole"
+        },
+        "type": "array"
+      },
+      "AuthSession": {
+        "properties": {
+          "clients": {
+            "description": "The client or clients through which the session was started.",
+            "items": {
+              "$ref": "#/components/schemas/AuthSessionClient"
+            },
+            "type": "array"
+          },
+          "id": {
+            "description": "The unique identifier for the session.",
+            "type": "string"
+          },
+          "ipAddress": {
+            "description": "The IP adddress from which the session was initiated.",
+            "type": "string"
+          },
+          "lastAccess": {
+            "description": "The last time that an access token was generated for the session.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "start": {
+            "description": "The time that the session was started.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "userId": {
+            "description": "The unique identifier for the user.",
+            "type": "string"
+          },
+          "username": {
+            "description": "The user name.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AuthSessionClient": {
+        "properties": {
+          "id": {
+            "description": "The client ID.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The client name.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AuthSessions": {
+        "items": {
+          "$ref": "#/components/schemas/AuthSession"
         },
         "type": "array"
       },
@@ -887,7 +927,8 @@
             "type": "string"
           },
           "full-users": {
-            "description": "contains the full user definitions of the users who are members of the group, if requested",
+            "deprecated": true,
+            "description": "Deprecated: Contains the full user definitions of the users who are members of the group, if requested.  Use fullUsers instead.",
             "items": {
               "$ref": "#/components/schemas/AuthUser"
             },
@@ -897,6 +938,13 @@
             "description": "contains the full role definitions of the Roles and ClusterRoles associated with the group, if requested",
             "items": {
               "$ref": "#/components/schemas/AuthRole"
+            },
+            "type": "array"
+          },
+          "fullUsers": {
+            "description": "contains the full user definitions of the users who are members of the group, if requested",
+            "items": {
+              "$ref": "#/components/schemas/AuthUser"
             },
             "type": "array"
           },
@@ -941,6 +989,14 @@
       },
       "AutoCompleteDetails": {
         "properties": {
+          "Field": {
+            "description": "The field name.\nValid with query autocomplete only.",
+            "type": "string"
+          },
+          "Where": {
+            "description": "The where clause.\nValid with query autocomplete only.",
+            "type": "string"
+          },
           "condition": {
             "description": "Accepted and ignored.",
             "type": "string"
@@ -966,7 +1022,7 @@
             "type": "boolean"
           },
           "table": {
-            "description": "The table name.\nValid with where or fields autocomplete only.",
+            "description": "The table name.\nValid with where, fields or query autocomplete only.",
             "type": "string"
           },
           "table-expression": {
@@ -997,6 +1053,10 @@
           },
           "version": {
             "description": "A resource version.\nValid with gvk, gvr, or label selector autocomplete only.",
+            "type": "string"
+          },
+          "where-expression": {
+            "description": "The where expression.\nAccepted and ignored.",
             "type": "string"
           }
         },
@@ -1052,6 +1112,9 @@
           },
           "error": {
             "$ref": "#/components/schemas/ErrorResponse"
+          },
+          "query": {
+            "$ref": "#/components/schemas/CompletionsQuery"
           }
         },
         "type": "object"
@@ -1073,6 +1136,191 @@
         ],
         "type": "object"
       },
+      "BranchDiffResponse": {
+        "properties": {
+          "after": {
+            "description": "After is the YAML form of the CR's current state (empty string for deletes).",
+            "type": "string"
+          },
+          "before": {
+            "description": "Before is the YAML form of the CR's prior state (empty string if there was no prior state).",
+            "type": "string"
+          }
+        },
+        "title": "BranchDiffResponse is the response for GET /core/branches/v1/crdiff/{hash}.",
+        "type": "object"
+      },
+      "BranchDiffSummary": {
+        "description": "It summarizes the current diffs between this branch and the production branch.\nPagination uses limit, cursor, gvk, and search query parameters (same semantics as GET /core/transaction/v3/result/changedcrs/{transactionId}).",
+        "properties": {
+          "branchHeadHash": {
+            "description": "Git commit hash describing the current state of this branch (head of branch). Should be passed to subsequent diff requests for the current state.",
+            "type": "string"
+          },
+          "changedCrs": {
+            "description": "Paginated list of changed CRs grouped by GVK.",
+            "items": {
+              "$ref": "#/components/schemas/TransactionChangedCrCategory"
+            },
+            "type": "array"
+          },
+          "changedCrsCount": {
+            "description": "Number of CRs that differ between this branch and production.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "visibleCrsCount": {
+            "description": "Number of changed CRs to which the user has access. Less than changedCrsCount when some are omitted due to permission.",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "title": "BranchDiffSummary is the response for the branches diffsummary endpoints.",
+        "type": "object"
+      },
+      "BranchMainCluster": {
+        "properties": {
+          "domainName": {
+            "description": "The external domain name of the main/production cluster",
+            "type": "string"
+          },
+          "httpsPort": {
+            "description": "HTTPS port used to reach the main/production cluster externally",
+            "format": "int32",
+            "type": "integer"
+          },
+          "ipv4Address": {
+            "description": "The external IPv4 address of the main/production cluster",
+            "type": "string"
+          },
+          "ipv6Address": {
+            "description": "The external IPv6 address of the main/production cluster",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BranchMergeRequest": {
+        "properties": {
+          "description": {
+            "description": "Description for the created merge request..",
+            "example": "Merge the changes for interface MTU optimization from the 'optimization' branch",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BranchMergeResponse": {
+        "properties": {
+          "crCount": {
+            "description": "The count of the CRs that were put in the merge request.",
+            "example": 123,
+            "format": "uint64",
+            "type": "integer"
+          },
+          "mrId": {
+            "description": "The ID of the resulting merge request in the main branch/cluster.",
+            "example": 950,
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "title": "BranchMergeResponse is the response to a successful branch merge request.",
+        "type": "object"
+      },
+      "BranchRebaseRequest": {
+        "description": "The body should be empty or an empty JSON object.",
+        "title": "The body for a branch rebase request.",
+        "type": "object"
+      },
+      "BranchRebaseResponse": {
+        "properties": {
+          "mainEndHash": {
+            "description": "Git commit hash in the main/production branch after the rebase; i.e. the new baseline hash for the content in this branch.",
+            "example": "13d42959f8eef3b9231e65ef88e6eda53274922c",
+            "type": "string"
+          },
+          "mainEndTransaction": {
+            "description": "The transaction ID in the main/production branch for the rebase; i.e. the last transaction whose content has been pulled into this branch.",
+            "example": 89,
+            "format": "uint64",
+            "type": "integer"
+          },
+          "mainStartHash": {
+            "description": "Git commit hash in the main/production branch before the rebase; i.e. the previous baseline hash for the content in this branch.",
+            "example": "ef235c121efe326af39eccf94246270b4227fd0a",
+            "type": "string"
+          },
+          "mainStartTransaction": {
+            "description": "The transaction ID in the main/production branch before the rebase; i.e. the previous baseline transaction for the content in this branch.",
+            "example": 88,
+            "format": "uint64",
+            "type": "integer"
+          },
+          "mergeRequestId": {
+            "description": "ID of the merge request containing local changes (conflicts), if any.",
+            "example": 42,
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "title": "BranchRebaseResponse is the response to a successful branch rebase request.",
+        "type": "object"
+      },
+      "BranchRestoreRequest": {
+        "description": "The body should be empty or an empty JSON object.",
+        "title": "The body for a branch restore request.",
+        "type": "object"
+      },
+      "BranchRestoreResponse": {
+        "properties": {
+          "mainEndHash": {
+            "description": "Git commit hash in the main/production branch after the restore; i.e. the new baseline hash for the content in this branch.",
+            "example": "13d42959f8eef3b9231e65ef88e6eda53274922c",
+            "type": "string"
+          },
+          "mainEndTransaction": {
+            "description": "The transaction ID in the main/production branch for the restore; i.e. the last transaction whose content has been restored into this branch.",
+            "example": 89,
+            "format": "uint64",
+            "type": "integer"
+          },
+          "mainStartHash": {
+            "description": "Git commit hash in the main/production branch before the restore; i.e. the previous baseline hash for the content in this branch.",
+            "example": "ef235c121efe326af39eccf94246270b4227fd0a",
+            "type": "string"
+          },
+          "mainStartTransaction": {
+            "description": "The transaction ID in the main/production branch before the restore; i.e. the previous baseline transaction for the content in this branch.",
+            "example": 88,
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "title": "BranchRestoreResponse is the response to a successful branch restore request.",
+        "type": "object"
+      },
+      "BranchStatusResponse": {
+        "description": "BranchStatusResponse is the response to a status request in the branch API",
+        "properties": {
+          "branchName": {
+            "description": "The name of the branch that the EDA instance is running within.  This only has a value when\nmode is branch.",
+            "type": "string"
+          },
+          "mainCluster": {
+            "$ref": "#/components/schemas/BranchMainCluster"
+          },
+          "mode": {
+            "description": "Indication of the mode of the EDA instance to which the request is made.\nIt is \"main\" if running in the main/production cluster, and \"branch\" if running in a branch cluster.",
+            "enum": [
+              "main",
+              "branch"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ChatResponseType": {
         "format": "uint32",
         "type": "integer"
@@ -1089,6 +1337,29 @@
           "$ref": "#/components/schemas/AccessResult"
         },
         "description": "Body of a access check response. Contains an AccessResult for each of the keys provided in the request",
+        "type": "object"
+      },
+      "CompletionsQuery": {
+        "properties": {
+          "autoCompleteField": {
+            "type": "string"
+          },
+          "eql": {
+            "type": "string"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "table": {
+            "type": "string"
+          },
+          "where": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "ConversationHistory": {
@@ -1206,40 +1477,19 @@
         "title": "Credentials (password) for a user. This can never be retrieved from the system.",
         "type": "object"
       },
-      "ErrorIndex": {
-        "properties": {
-          "index": {
-            "format": "int64",
-            "type": "integer"
-          }
-        },
-        "title": "Wrapper for index information inside an error.",
-        "type": "object"
-      },
-      "ErrorItem": {
-        "properties": {
-          "error": {
-            "type": "object"
-          },
-          "type": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "ErrorResponse": {
         "properties": {
           "causeCollection": {
             "description": "A lower-level set of structured errors.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
             "items": {
-              "$ref": "#/components/schemas/ErrorResponse"
+              "type": "object"
             },
             "type": "array"
           },
           "causeIndexedCollection": {
             "description": "A lower-level set of structured errors.\nEach of these errors MUST have index set.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
             "items": {
-              "$ref": "#/components/schemas/ErrorResponse"
+              "type": "object"
             },
             "type": "array"
           },
@@ -1252,43 +1502,14 @@
             "type": "string"
           },
           "causeWrapped": {
-            "$ref": "#/components/schemas/ErrorResponse"
-          },
-          "code": {
-            "deprecated": true,
-            "description": "the numeric HTTP error code for the response.\n\nDeprecated: Prefer to check the request's HTTP response code directly.",
-            "format": "int64",
-            "type": "integer"
-          },
-          "details": {
-            "deprecated": true,
-            "description": "The optional details of the error response.\nDeprecated: Replaced by `causeSimple`.",
-            "type": "string"
-          },
-          "dictionary": {
-            "additionalProperties": true,
-            "deprecated": true,
-            "description": "Dictionary/map of associated data/information relevant to the error.\nThe error \"message\" may contain {{name}} escapes that should be substituted\nwith information from this dictionary.\n\nDeprecated: Use \"values\" instead.",
             "type": "object"
           },
           "domain": {
             "description": "The \"domain\" for the error.  If empty, it is an EDA\ncore error.  Alternatively it can be an EDA application\n\"apiVersion\" value (e.g. interfaces.eda.nokia.com/v1alpha1)\nindicating that the error is specific to that application.\nThe domain gives the receiver information that they can use\nto help them interpret the \"type\" field.",
             "type": "string"
           },
-          "errors": {
-            "deprecated": true,
-            "description": "Collection of errors in cases where more than one exists.\nThis needs to be flexible so we can support multiple formats.\nDeprecated: Replaced by `causeCollection` or `causeIndexedCollection` instead.",
-            "items": {
-              "$ref": "#/components/schemas/ErrorItem"
-            },
-            "type": "array"
-          },
           "index": {
-            "$ref": "#/components/schemas/ErrorIndex"
-          },
-          "internal": {
-            "deprecated": true,
-            "description": "Internal error code number.\n\nDeprecated: \"type\" \u0026 \"domain\" should be used instead to uniquely identify this error.",
+            "description": "When processing an array, errors may be generated related to a particular array item.\nIf set, this index indicates to which array item the error applies.",
             "format": "int64",
             "type": "integer"
           },
@@ -1313,7 +1534,6 @@
           }
         },
         "required": [
-          "internal",
           "message",
           "type"
         ],
@@ -1558,6 +1778,18 @@
         },
         "type": "object"
       },
+      "MRMerge": {
+        "properties": {
+          "dryRun": {
+            "description": "If true the merge request will not be committed and will run in dry run mode.\nIf false the merge request will be committed.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "dryRun"
+        ],
+        "type": "object"
+      },
       "Metadata": {
         "properties": {
           "annotations": {
@@ -1618,6 +1850,18 @@
         ],
         "type": "object"
       },
+      "NameNamespace": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "title": "NameNamespace pairs a CR name with its namespace (used in GET result/changedcrs response).",
+        "type": "object"
+      },
       "NamespaceData": {
         "description": "Information about an individual namespace",
         "properties": {
@@ -1636,6 +1880,11 @@
         "description": "Body of the non streaming namespace get request",
         "properties": {
           "allNamesapces": {
+            "deprecated": true,
+            "description": "Deprecated: If true, the requestor is considered to have permission to access all namespaces. Use allNamespaces instead",
+            "type": "boolean"
+          },
+          "allNamespaces": {
             "description": "If true, the requestor is considered to have permission to access all namespaces",
             "type": "boolean"
           },
@@ -1885,6 +2134,147 @@
         },
         "type": "object"
       },
+      "QueryEqlParseRequest": {
+        "properties": {
+          "eqlParsed": {
+            "$ref": "#/components/schemas/QueryEqlParsed"
+          },
+          "eqlString": {
+            "type": "string"
+          },
+          "minimizeExpr": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "QueryEqlParseResponse": {
+        "properties": {
+          "eqlParsed": {
+            "$ref": "#/components/schemas/QueryEqlParsed"
+          },
+          "eqlString": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "QueryEqlParsed": {
+        "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/QueryField"
+            },
+            "type": "array"
+          },
+          "jsPath": {
+            "type": "string"
+          },
+          "limit": {
+            "format": "uint32",
+            "type": "integer"
+          },
+          "orderBy": {
+            "items": {
+              "$ref": "#/components/schemas/QueryOrderByField"
+            },
+            "type": "array"
+          },
+          "updateDeltaMs": {
+            "format": "uint32",
+            "type": "integer"
+          },
+          "updateSampleMs": {
+            "format": "uint32",
+            "type": "integer"
+          },
+          "whereExpr": {
+            "$ref": "#/components/schemas/QueryWhereParsed"
+          }
+        },
+        "type": "object"
+      },
+      "QueryField": {
+        "properties": {
+          "aggregate": {
+            "$ref": "#/components/schemas/QueryFieldAggregate"
+          },
+          "alias": {
+            "type": "string"
+          },
+          "concat": {
+            "$ref": "#/components/schemas/QueryFieldConcat"
+          },
+          "path": {
+            "$ref": "#/components/schemas/QueryFieldPath"
+          }
+        },
+        "type": "object"
+      },
+      "QueryFieldAggregate": {
+        "properties": {
+          "op": {
+            "type": "string"
+          },
+          "path": {
+            "$ref": "#/components/schemas/QueryFieldPath"
+          }
+        },
+        "type": "object"
+      },
+      "QueryFieldConcat": {
+        "properties": {
+          "operands": {
+            "items": {
+              "$ref": "#/components/schemas/QueryFieldConcatPathOrConst"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "QueryFieldConcatPathOrConst": {
+        "properties": {
+          "const": {
+            "type": "string"
+          },
+          "path": {
+            "$ref": "#/components/schemas/QueryFieldPath"
+          }
+        },
+        "type": "object"
+      },
+      "QueryFieldPath": {
+        "properties": {
+          "path": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "relative": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "QueryOrderByField": {
+        "properties": {
+          "aggregate": {
+            "$ref": "#/components/schemas/QueryFieldAggregate"
+          },
+          "concat": {
+            "$ref": "#/components/schemas/QueryFieldConcat"
+          },
+          "descending": {
+            "type": "boolean"
+          },
+          "path": {
+            "$ref": "#/components/schemas/QueryFieldPath"
+          }
+        },
+        "type": "object"
+      },
       "QueryResponse": {
         "description": "The response for a non-streaming query request",
         "properties": {
@@ -1901,10 +2291,97 @@
         },
         "type": "object"
       },
+      "QueryWhereExpression": {
+        "properties": {
+          "left": {
+            "$ref": "#/components/schemas/QueryWhereParsed"
+          },
+          "op": {
+            "type": "string"
+          },
+          "right": {
+            "$ref": "#/components/schemas/QueryWhereParsed"
+          }
+        },
+        "type": "object"
+      },
+      "QueryWhereParseRequest": {
+        "properties": {
+          "minimizeExpr": {
+            "type": "boolean"
+          },
+          "whereParsed": {
+            "$ref": "#/components/schemas/QueryWhereParsed"
+          },
+          "whereString": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "QueryWhereParseResponse": {
+        "properties": {
+          "whereParsed": {
+            "$ref": "#/components/schemas/QueryWhereParsed"
+          },
+          "whereString": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "QueryWhereParsed": {
+        "properties": {
+          "expr": {
+            "$ref": "#/components/schemas/QueryWhereExpression"
+          },
+          "path": {
+            "$ref": "#/components/schemas/QueryFieldPath"
+          },
+          "value": {
+            "$ref": "#/components/schemas/QueryWhereValueList"
+          }
+        },
+        "type": "object"
+      },
+      "QueryWhereValue": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "QueryWhereValueList": {
+        "properties": {
+          "values": {
+            "items": {
+              "$ref": "#/components/schemas/QueryWhereValue"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ResourceCr": {
+        "properties": {
+          "cr": {
+            "$ref": "#/components/schemas/TransactionContent"
+          },
+          "notPresent": {
+            "$ref": "#/components/schemas/NsCrGvkName"
+          }
+        },
+        "type": "object"
+      },
       "ResourceRule": {
         "properties": {
           "apiGroups": {
             "description": "The API groups for the resources controlled by the rule.\nAn API group consists of an apiGroup and a version, e.g. \"apigroup/version\".\nThe API group can be a wildcard (\"*\"), in which case it will match any API group.\nIn addition, the version can be a wildcard.",
+            "example": [
+              "interfaces.eda.nokia.com/v1alpha1",
+              "core.eda.nokia.com/v1"
+            ],
             "items": {
               "type": "string"
             },
@@ -1917,10 +2394,16 @@
               "read",
               "readWrite"
             ],
+            "example": "read",
             "type": "string"
           },
           "resources": {
             "description": "Names for the resources controlled by the rule.\nIt can be a wildcard (\"*\"), in which case it will match any resource\nin the matching API groups.",
+            "example": [
+              "interfaces",
+              "breakouts",
+              "links"
+            ],
             "items": {
               "type": "string"
             },
@@ -1968,6 +2451,17 @@
         },
         "type": "object"
       },
+      "StoreAppRequirementGraphRequires": {
+        "properties": {
+          "appId": {
+            "type": "string"
+          },
+          "constraint": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "StoreAppRequirementsGraph": {
         "properties": {
           "graphItems": {
@@ -1999,10 +2493,21 @@
           "installedAppVersion": {
             "$ref": "#/components/schemas/StoreAppRequirementsGraphItem_installedAppVersion"
           },
+          "relation": {
+            "description": "The relation of this app w.r.t. the requested root app",
+            "enum": [
+              "REL_UNKNOWN",
+              "REL_ROOT",
+              "REL_UPSTREAM",
+              "REL_DOWNSTREAM",
+              "REL_INDIRECT"
+            ],
+            "type": "string"
+          },
           "requires": {
-            "description": "The identifiers for the applications on which this application version depends.",
+            "description": "The applications that this app directly depends on, along with their version constraints.",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/StoreAppRequirementGraphRequires"
             },
             "type": "array"
           },
@@ -2144,6 +2649,10 @@
           "vendor": {
             "description": "Name of the vendor for this app",
             "type": "string"
+          },
+          "vendorTitle": {
+            "description": "The vendor title to display to the user (e.g. \"Nokia\" or \"VMware\").",
+            "type": "string"
           }
         },
         "type": "object"
@@ -2185,6 +2694,14 @@
       },
       "StoreAppVersionMetadata": {
         "properties": {
+          "compatible": {
+            "description": "\"true\" if the application version is compatible with the current core version",
+            "type": "boolean"
+          },
+          "incompatibilityReason": {
+            "description": "The reason why the application version is not compatible with the current core version",
+            "type": "string"
+          },
           "publishedTime": {
             "description": "The date and time when the application version was published.",
             "format": "date-time",
@@ -2216,6 +2733,7 @@
         "properties": {
           "path": {
             "description": "EDB path to which this rule applies. It can end in \".*\"\nin which case the final portion of the table path can be anything, if the\nprefix matches. It can end in \".**\" in which case the table path can be\nanything if the prefix matches.",
+            "example": ".namespace.node",
             "minLength": 1,
             "pattern": "^\\..*",
             "type": "string"
@@ -2226,6 +2744,7 @@
               "none",
               "read"
             ],
+            "example": "read",
             "type": "string"
           }
         },
@@ -2284,7 +2803,7 @@
             "$ref": "#/components/schemas/TopoLogicalExpression"
           },
           "not": {
-            "$ref": "#/components/schemas/TopoBoolExpression"
+            "type": "object"
           },
           "value_expression": {
             "$ref": "#/components/schemas/TopoValueExpression"
@@ -2424,6 +2943,9 @@
           "group_key": {
             "type": "string"
           },
+          "group_ui_name": {
+            "type": "string"
+          },
           "tier": {
             "format": "int64",
             "type": "integer"
@@ -2473,6 +2995,12 @@
           "color": {
             "type": "string"
           },
+          "nav_target": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "type": "object"
+          },
           "ui_description": {
             "type": "string"
           },
@@ -2486,6 +3014,10 @@
             "type": "string"
           },
           "value": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "weight": {
             "format": "int64",
             "type": "integer"
           }
@@ -2772,6 +3304,10 @@
           "value": {
             "format": "int64",
             "type": "integer"
+          },
+          "weight": {
+            "format": "int64",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -3037,7 +3573,11 @@
       "TopologyStateGroupSelector": {
         "properties": {
           "group": {
-            "description": "The group to assign to nodes that match the selector.\n+eda:ui:title=\"Group\"",
+            "description": "The group to assign to nodes that match the selector.  Primarily this is used as a unique\nkey to identify which nodes share the same group key and should be put together.\n+eda:ui:title=\"Group\"",
+            "type": "string"
+          },
+          "groupUIName": {
+            "description": "The name of the group to show in the UI.  If not set, then the UI will display the group\nstring above.\n+eda:ui:title=\"UI Name\"",
             "type": "string"
           },
           "nodeSelector": {
@@ -3106,14 +3646,14 @@
       "Transaction": {
         "properties": {
           "crs": {
-            "description": "List of CRs to include in the transaction",
+            "description": "List of CRs to include in the transaction.",
             "items": {
               "$ref": "#/components/schemas/TransactionCr"
             },
             "type": "array"
           },
           "description": {
-            "description": "Description/commit message for the transaction",
+            "description": "Description/commit message for the transaction.",
             "type": "string"
           },
           "detailLevel": {
@@ -3131,7 +3671,7 @@
             "type": "boolean"
           },
           "dryRun": {
-            "description": "If true the transaction will not be committed and will run in dry run mode.  If false the\ntransaction will be committed",
+            "description": "If true the transaction will not be committed and will run in dry run mode.  If false the\ntransaction will be committed.",
             "type": "boolean"
           },
           "resultType": {
@@ -3161,11 +3701,51 @@
       },
       "TransactionAppError": {
         "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          },
           "rawError": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TransactionChangedCrCategory": {
+        "properties": {
+          "gvk": {
+            "$ref": "#/components/schemas/GroupVersionKind"
           },
-          "structuredError": {
-            "$ref": "#/components/schemas/TransactionStructuredAppError"
+          "hasMore": {
+            "description": "When limit/search is used: true if more names exist for this category; use nextCursor with gvk to fetch the next page.",
+            "type": "boolean"
+          },
+          "names": {
+            "items": {
+              "$ref": "#/components/schemas/NameNamespace"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "description": "When limit/search is used: cursor for the next page for this category (send with gvk).",
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "title": "One entry per GVK with names as array of {name, namespace}.",
+        "type": "object"
+      },
+      "TransactionConflict": {
+        "properties": {
+          "head": {
+            "$ref": "#/components/schemas/ResourceCr"
+          },
+          "reason": {
+            "enum": [
+              "TargetDoesNotExist",
+              "TargetAlreadyExists",
+              "TargetModified"
+            ],
+            "type": "string"
           }
         },
         "type": "object"
@@ -3187,8 +3767,26 @@
         },
         "type": "object"
       },
+      "TransactionContents": {
+        "properties": {
+          "crs": {
+            "description": "List of CRs to rebase.",
+            "items": {
+              "$ref": "#/components/schemas/TransactionCr"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "crs"
+        ],
+        "type": "object"
+      },
       "TransactionCr": {
         "properties": {
+          "prior": {
+            "$ref": "#/components/schemas/TransactionPrior"
+          },
           "type": {
             "$ref": "#/components/schemas/TransactionType"
           }
@@ -3228,6 +3826,46 @@
               "$ref": "#/components/schemas/TransactionNodeResult"
             },
             "type": "array"
+          },
+          "topologySupported": {
+            "description": "Whether a topology representation of this transaction is supported",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TransactionExecutionResultWithCounts": {
+        "properties": {
+          "changedCrsCount": {
+            "description": "Count of changed CRs as part of the transaction",
+            "format": "int64",
+            "type": "integer"
+          },
+          "executionSummary": {
+            "description": "Information about time taken during processing",
+            "type": "string"
+          },
+          "generalErrors": {
+            "description": "List of general errors while running the transaction",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "intentsRunCount": {
+            "description": "Count of intents which ran as part of the transaction",
+            "format": "int64",
+            "type": "integer"
+          },
+          "nodesWithConfigChangesCount": {
+            "description": "List of nodes with configuration changes from the transaction",
+            "format": "int64",
+            "type": "integer"
+          },
+          "outputCrsCount": {
+            "description": "Count of output resoures as part of the transaction",
+            "format": "int64",
+            "type": "integer"
           },
           "topologySupported": {
             "description": "Whether a topology representation of this transaction is supported",
@@ -3310,6 +3948,27 @@
         },
         "type": "object"
       },
+      "TransactionNodesWithConfigChangesResult": {
+        "properties": {
+          "hasMore": {
+            "description": "When paginating: true if more nodes exist; use nextCursor to fetch the next page.",
+            "type": "boolean"
+          },
+          "nextCursor": {
+            "description": "When paginating: offset for the next page; present only when hasMore is true.",
+            "format": "uint64",
+            "type": "integer"
+          },
+          "nodesWithConfigChanges": {
+            "description": "List of nodes with configuration changes from the transaction",
+            "items": {
+              "$ref": "#/components/schemas/TransactionNodeResult"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "TransactionNsCrGvkNames": {
         "properties": {
           "gvk": {
@@ -3342,6 +4001,38 @@
         ],
         "type": "object"
       },
+      "TransactionPrior": {
+        "properties": {
+          "cr": {
+            "$ref": "#/components/schemas/TransactionContent"
+          },
+          "notPresent": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TransactionResultChangedCrs": {
+        "properties": {
+          "changedCrs": {
+            "description": "One entry per GVK category; each entry has names as array of {name, namespace}. When gvk query param is set, at most one entry with optional pagination (hasMore, nextCursor).",
+            "items": {
+              "$ref": "#/components/schemas/TransactionChangedCrCategory"
+            },
+            "type": "array"
+          },
+          "hasMore": {
+            "description": "When paginating a single Names[] for a GVK: true if more names exist; use nextCursor to fetch the next page.",
+            "type": "boolean"
+          },
+          "nextCursor": {
+            "description": "When paginating a single Names[] for a GVK: offset for the next page; present when hasMore is true.",
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "TransactionResultInputResources": {
         "properties": {
           "inputCrs": {
@@ -3354,6 +4045,27 @@
           "limitedAccess": {
             "description": "This field is true if the list returned here is not the complete list of input resources in the transaction because the user does not have read-access to some of them",
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TransactionResultIntentsRun": {
+        "properties": {
+          "hasMore": {
+            "description": "When paginating: true if more intents exist; use nextCursor to fetch the next page.",
+            "type": "boolean"
+          },
+          "intentsRun": {
+            "description": "List of intents which ran as part of the transaction",
+            "items": {
+              "$ref": "#/components/schemas/TransactionIntentResult"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "description": "When paginating: offset for the next page; present only when hasMore is true.",
+            "format": "uint64",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -3423,23 +4135,6 @@
               "complete"
             ],
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "TransactionStructuredAppError": {
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "messageKey": {
-            "type": "string"
-          },
-          "values": {
-            "additionalProperties": {
-              "type": "object"
-            },
-            "type": "object"
           }
         },
         "type": "object"
@@ -3565,6 +4260,7 @@
         "properties": {
           "path": {
             "description": "The API server URL path to which this rule applies. It can end in \"/*\"\nin which case the final portion of the URL path can be anything, if the\nprefix matches. It can end in \"/**\" in which case the URL path can be\nanything if the prefix matches.\",",
+            "example": "/core/admin/**",
             "minLength": 1,
             "pattern": "^/.*",
             "type": "string"
@@ -3576,6 +4272,7 @@
               "read",
               "readWrite"
             ],
+            "example": "readWrite",
             "type": "string"
           }
         },
@@ -3757,6 +4454,60 @@
         "title": "DB get endpoint result",
         "type": "object"
       },
+      "mergeRequest": {
+        "properties": {
+          "crs": {
+            "description": "List of CRs included in the merge request.",
+            "items": {
+              "$ref": "#/components/schemas/TransactionCr"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "Description/commit message for the merge request.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "crs",
+          "description"
+        ],
+        "type": "object"
+      },
+      "mergeRequestId": {
+        "properties": {
+          "id": {
+            "description": "Unique identifier for the merge request.",
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "rebaseResourcesResult": {
+        "properties": {
+          "rebasedResources": {
+            "$ref": "#/components/schemas/TransactionContents"
+          },
+          "transactionConflict": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionConflict"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "resourceCrs": {
+        "items": {
+          "$ref": "#/components/schemas/ResourceCr"
+        },
+        "title": "List of resources, each of which may be marked as not-present.",
+        "type": "array"
+      },
       "singleVersionInfo": {
         "properties": {
           "builtDate": {
@@ -3924,7 +4675,7 @@
         ]
       }
     },
-    "/core/access/v1/checkAccess": {
+    "/core/access/v1/checkaccess": {
       "post": {
         "description": "Checks the current user's access to the various resources, urls and tables provided in the\nrequest body.",
         "operationId": "accessCheckAccess",
@@ -4319,7 +5070,7 @@
           {
             "description": "If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.",
             "in": "query",
-            "name": "full-roles",
+            "name": "fullRoles",
             "schema": {
               "default": false,
               "type": "boolean"
@@ -4327,6 +5078,26 @@
           },
           {
             "description": "If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.",
+            "in": "query",
+            "name": "fullUsers",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present.",
+            "in": "query",
+            "name": "full-roles",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.  Use fullRoles instead. Ignored if fullRoles present.",
             "in": "query",
             "name": "full-users",
             "schema": {
@@ -4454,18 +5225,9 @@
         "operationId": "adminGetUserGroup",
         "parameters": [
           {
-            "description": "The UUID of the EDA user group whose definition should be retrieved.",
-            "in": "path",
-            "name": "uuid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "description": "If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.",
             "in": "query",
-            "name": "full-roles",
+            "name": "fullRoles",
             "schema": {
               "default": false,
               "type": "boolean"
@@ -4474,10 +5236,39 @@
           {
             "description": "If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.",
             "in": "query",
+            "name": "fullUsers",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present.",
+            "in": "query",
+            "name": "full-roles",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.  Use fullRoles instead. Ignored if fullRoles present.",
+            "in": "query",
             "name": "full-users",
             "schema": {
               "default": false,
               "type": "boolean"
+            }
+          },
+          {
+            "description": "The UUID of the EDA user group whose definition should be retrieved.",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -4769,15 +5560,6 @@
         "operationId": "adminGetRoles",
         "parameters": [
           {
-            "description": "namespace whose roles should be retrieved",
-            "in": "path",
-            "name": "namespace",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "description": "client information for streaming request",
             "in": "query",
             "name": "eventclient",
@@ -4789,6 +5571,15 @@
             "description": "stream information for streaming request",
             "in": "query",
             "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "namespace whose roles should be retrieved",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -4808,7 +5599,7 @@
                 }
               }
             },
-            "description": "The requested set of EDA users"
+            "description": "The EDA roles in the specified namespace."
           },
           "default": {
             "content": {
@@ -4865,7 +5656,7 @@
                 }
               }
             },
-            "description": "The resulting role definition."
+            "description": "The resulting namespaced role definition."
           },
           "default": {
             "content": {
@@ -4890,18 +5681,18 @@
         "operationId": "adminDeleteRole",
         "parameters": [
           {
-            "description": "The namespace from which to delete the role",
+            "description": "The name of the EDA role whose definition should be updated.",
             "in": "path",
-            "name": "namespace",
+            "name": "name",
             "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
-            "description": "The name of the EDA role whose definition should be updated.",
+            "description": "The namespace from which to delete the role",
             "in": "path",
-            "name": "name",
+            "name": "namespace",
             "required": true,
             "schema": {
               "type": "string"
@@ -4933,10 +5724,17 @@
         "operationId": "adminGetRole",
         "parameters": [
           {
-            "description": "The namespace from which to retrieve the role.",
-            "in": "path",
-            "name": "namespace",
-            "required": true,
+            "description": "client information for streaming request",
+            "in": "query",
+            "name": "eventclient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "stream information for streaming request",
+            "in": "query",
+            "name": "stream",
             "schema": {
               "type": "string"
             }
@@ -4951,17 +5749,10 @@
             }
           },
           {
-            "description": "client information for streaming request",
-            "in": "query",
-            "name": "eventclient",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "stream information for streaming request",
-            "in": "query",
-            "name": "stream",
+            "description": "The namespace from which to retrieve the role.",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -4981,7 +5772,7 @@
                 }
               }
             },
-            "description": "The role definition for the specified role."
+            "description": "The role definition for the specified namespaced role."
           },
           "default": {
             "content": {
@@ -5000,22 +5791,22 @@
         ]
       },
       "put": {
-        "description": "Replaces the definition of the specifed EDA role with the definition in the body.\nThe role name cannot be modified.",
+        "description": "Replaces the definition of the specifed EDA role with the definition in the body.\nThe role name and namespace cannot be modified.",
         "operationId": "adminUpdateRole",
         "parameters": [
           {
-            "description": "The namespace in which the role resides",
+            "description": "The name of the EDA role whose definition should be updated.",
             "in": "path",
-            "name": "namespace",
+            "name": "name",
             "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
-            "description": "The name of the EDA role whose definition should be updated.",
+            "description": "The namespace in which the role resides",
             "in": "path",
-            "name": "name",
+            "name": "namespace",
             "required": true,
             "schema": {
               "type": "string"
@@ -5047,7 +5838,7 @@
                 }
               }
             },
-            "description": "The updated role definition."
+            "description": "The updated namespaced role definition."
           },
           "default": {
             "content": {
@@ -5183,7 +5974,7 @@
                 }
               }
             },
-            "description": "The requested set of EDA users"
+            "description": "The EDA cluster roles."
           },
           "default": {
             "content": {
@@ -5229,7 +6020,7 @@
                 }
               }
             },
-            "description": "The resulting role definition."
+            "description": "The resulting cluster role definition."
           },
           "default": {
             "content": {
@@ -5288,15 +6079,6 @@
         "operationId": "adminGetClusterRole",
         "parameters": [
           {
-            "description": "The name of the EDA role whose definition should be retrieved/streamed.",
-            "in": "path",
-            "name": "name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "description": "client information for streaming request",
             "in": "query",
             "name": "eventclient",
@@ -5308,6 +6090,15 @@
             "description": "stream information for streaming request",
             "in": "query",
             "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The name of the EDA role whose definition should be retrieved/streamed.",
+            "in": "path",
+            "name": "name",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -5327,7 +6118,7 @@
                 }
               }
             },
-            "description": "The role definition for the specified role."
+            "description": "The role definition for the specified cluster role."
           },
           "default": {
             "content": {
@@ -5384,7 +6175,7 @@
                 }
               }
             },
-            "description": "The updated role definition."
+            "description": "The updated cluster role definition."
           },
           "default": {
             "content": {
@@ -5398,6 +6189,78 @@
           }
         },
         "summary": "Update an EDA cluster role with new content.",
+        "tags": [
+          "coreAdmin"
+        ]
+      }
+    },
+    "/core/admin/sessions": {
+      "get": {
+        "operationId": "adminGetSessions",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessions"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessions"
+                }
+              }
+            },
+            "description": "The user session information"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Returns all active EDA authentication sessions.",
+        "tags": [
+          "coreAdmin"
+        ]
+      }
+    },
+    "/core/admin/sessions/{uuid}": {
+      "delete": {
+        "description": "Request to refresh the access token will fail after this has been done.",
+        "operationId": "adminDeleteSession",
+        "parameters": [
+          {
+            "description": "The UUID of the session to delete.",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "no data is returned for this response type."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Deletes the spcified session.",
         "tags": [
           "coreAdmin"
         ]
@@ -5823,6 +6686,42 @@
         ]
       }
     },
+    "/core/admin/users/{uuid}/logout": {
+      "post": {
+        "description": "This endpoint logs out the specified user by deleting all of their active authentication sessions.",
+        "operationId": "adminLogoutUser",
+        "parameters": [
+          {
+            "description": "The UUID of the user that should be logged out.",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "no data is returned for this response type."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Logs out the specified user.",
+        "tags": [
+          "coreAdmin"
+        ]
+      }
+    },
     "/core/admin/users/{uuid}/resetpassword": {
       "put": {
         "operationId": "adminSetUserPassword",
@@ -5864,6 +6763,53 @@
           }
         },
         "summary": "Sets/updates/replaces the password of the specified user.",
+        "tags": [
+          "coreAdmin"
+        ]
+      }
+    },
+    "/core/admin/users/{uuid}/sessions": {
+      "get": {
+        "operationId": "adminGetUserSessions",
+        "parameters": [
+          {
+            "description": "The UUID of the user whose active sessions should be retrieved.",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessions"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessions"
+                }
+              }
+            },
+            "description": "The user session information"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Returns active EDA authentication sessions for the specified user.",
         "tags": [
           "coreAdmin"
         ]
@@ -6929,6 +7875,53 @@
         ]
       }
     },
+    "/core/autocomplete/v1/label": {
+      "post": {
+        "description": "Gets a list of auto-completions for labels identified by the \"group\", \"version\" and \"kind\" in the posted details, in the posted details whose names begin with the string sent in the 'value' property of the request body.",
+        "operationId": "autoCompleteLabelRequest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AutoCompleteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabelCompletionResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabelCompletionResponse"
+                }
+              }
+            },
+            "description": "The potential label completions from the request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Gets a list of suggested key/value for labels.",
+        "tags": [
+          "coreAutoComplete"
+        ]
+      }
+    },
     "/core/autocomplete/v1/labels": {
       "post": {
         "description": "Gets a list of auto-completions for labels identified by the \"gvk\" in the posted details whose names begin with the string sent in the 'value' property of the request body.",
@@ -7019,6 +8012,53 @@
           }
         },
         "summary": "Gets a list of text-completions to help the requestor construct a label-selector.",
+        "tags": [
+          "coreAutoComplete"
+        ]
+      }
+    },
+    "/core/autocomplete/v1/query": {
+      "post": {
+        "description": "Fetches a list of field values returned from the EQL query which is identified by the \"table\", \"field\" and \"where\" in the posted details of the request body.\nIn the completion results for this endpoint, the \"completion\" fields are replacements, not intended to be appended to the user input.",
+        "operationId": "autoCompleteQueryRequest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AutoCompleteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutoCompleteResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutoCompleteResponse"
+                }
+              }
+            },
+            "description": "The response for a successful POST label selector completion request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Gets a list of field values returned from the EQL query specified by the \"table\", \"field\" and \"where\".",
         "tags": [
           "coreAutoComplete"
         ]
@@ -7115,6 +8155,429 @@
         "summary": "Gets a list of auto-completions for a EQL where clause.",
         "tags": [
           "coreAutoComplete"
+        ]
+      }
+    },
+    "/core/branches/v1/crdiff/{hash}": {
+      "get": {
+        "description": "Get the before/after diff for a single resource between the current branch and the production branch baseline within this branch. The response is returned only if the path parameter `hash` matches the current branch head; otherwise the request fails.",
+        "operationId": "branchCrDiff",
+        "parameters": [
+          {
+            "description": "Branch head hash; response is only returned if this matches the current branch state.",
+            "in": "path",
+            "name": "hash",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Group for the resource diff.",
+            "in": "query",
+            "name": "group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Version for the resource diff.",
+            "in": "query",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Kind for the resource diff.",
+            "in": "query",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Name for the resource diff.",
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Namespace for the resource diff. Required if the resource is namespaced.",
+            "in": "query",
+            "name": "namespace",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchDiffResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchDiffResponse"
+                }
+              }
+            },
+            "description": "The response for a successful GET branch crdiff request (before/after YAML strings)."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Get the difference for a single CR between the production baseline and this branch.",
+        "tags": [
+          "coreBranch"
+        ]
+      }
+    },
+    "/core/branches/v1/diffsummary": {
+      "get": {
+        "description": "Returns changed CRs grouped by GVK. Each category has a single combined list for all namespaces; the response uses parallel arrays `names` and `namespaces` where namespaces[i] is the namespace of names[i].\nQuery parameters control whether the response is full or paginated:\n\n__gvk not specified__: Returns one category per GVK. Omit limit (or set to 0) to get every category with all names. When limit is set (and \u003e 0), per-category pagination applies: each category returns up to `limit` names (first page); use that category's nextCursor with the same gvk to fetch the next page for that category. Optional search filters by case-insensitive substring on name, namespace, or \"name (namespace)\" before applying the limit.\n\n__gvk specified__: Returns only the single category for the given GVK. Omit limit (or set to 0) to get all names in that category. To page through that category, set limit (max 1000); omit cursor for the first page, or set cursor to the nextCursor value from the previous response. Optional search filters the list the same way.\n\nThe gvk query parameter, when present, must be valid JSON for GroupVersionKind with non-empty group, version, and kind (URL-encoded in the request).",
+        "operationId": "branchDiffSummary",
+        "parameters": [
+          {
+            "description": "When set, returns only a single category for that GVK. Must be valid JSON for GroupVersionKind (URL-encoded). Omit to return all categories.",
+            "in": "query",
+            "name": "gvk",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Max names per category per page. Omit or 0: return all names (no pagination). Max 1000.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "When gvk is set with limit: offset into that category's names; omit for first page. Ignored when gvk is omitted.",
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filter names by case-insensitive substring match on name, namespace, or \"name (namespace)\" display.",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchDiffSummary"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchDiffSummary"
+                }
+              }
+            },
+            "description": "BranchDiffSummary"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Get the summary of diffs between this branch and the production branch baseline within this branch.",
+        "tags": [
+          "coreBranch"
+        ]
+      }
+    },
+    "/core/branches/v1/diffsummary/{hash}": {
+      "get": {
+        "description": "For this endpoint, the path parameter `hash` must match the current branch head. Otherwise the request fails.\nReturns changed CRs grouped by GVK. Each category has a single combined list for all namespaces; the response uses parallel arrays `names` and `namespaces` where namespaces[i] is the namespace of names[i].\n\nQuery parameters control whether the response is full or paginated:\n\n__gvk not specified__: Returns one category per GVK. Omit limit (or set to 0) to get every category with all names. When limit is set (and \u003e 0), per-category pagination applies: each category returns up to `limit` names (first page); use that category's nextCursor with the same gvk to fetch the next page for that category. Optional search filters by case-insensitive substring on name, namespace, or \"name (namespace)\" before applying the limit.\n\n__gvk specified__: Returns only the single category for the given GVK. Omit limit (or set to 0) to get all names in that category. To page through that category, set limit (max 1000); omit cursor for the first page, or set cursor to the nextCursor value from the previous response. Optional search filters the list the same way.\n\nThe gvk query parameter, when present, must be valid JSON for GroupVersionKind with non-empty group, version, and kind (URL-encoded in the request).",
+        "operationId": "branchDiffSummaryByHash",
+        "parameters": [
+          {
+            "description": "When set, returns only a single category for that GVK. Must be valid JSON for GroupVersionKind (URL-encoded). Omit to return all categories.",
+            "in": "query",
+            "name": "gvk",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Max names per category per page. Omit or 0: return all names (no pagination). Max 1000.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "When gvk is set with limit: offset into that category's names; omit for first page. Ignored when gvk is omitted.",
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filter names by case-insensitive substring match on name, namespace, or \"name (namespace)\" display.",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Branch head hash; response is only returned if this matches the current branch state.",
+            "in": "path",
+            "name": "hash",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchDiffSummary"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchDiffSummary"
+                }
+              }
+            },
+            "description": "BranchDiffSummary"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Get the summary of diffs between this branch and the production branch baseline within this branch.",
+        "tags": [
+          "coreBranch"
+        ]
+      }
+    },
+    "/core/branches/v1/merge": {
+      "post": {
+        "description": "This operation merges the current contents of this branch into the\nmain/production branch. Only valid when running in a branch.\nThe description supplied in the body is used as the commit message for\nthe merge request in the production branch.",
+        "operationId": "branchMerge",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BranchMergeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchMergeResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchMergeResponse"
+                }
+              }
+            },
+            "description": "The response for a successful branch merge operation."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Merge the current branch into the main cluster.",
+        "tags": [
+          "coreBranch"
+        ]
+      }
+    },
+    "/core/branches/v1/rebase": {
+      "post": {
+        "description": "This operation rebases the contents of the branch onto the current state of\nthe main/production branch. Only valid when running in a branch.",
+        "operationId": "branchRebase",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BranchRebaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchRebaseResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchRebaseResponse"
+                }
+              }
+            },
+            "description": "The response for a successful branch rebase operation."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Rebase the current branch from the main cluster.",
+        "tags": [
+          "coreBranch"
+        ]
+      }
+    },
+    "/core/branches/v1/restore": {
+      "post": {
+        "description": "This operation restores the contents of the branch from the current state of\nthe main/production branch. Only valid when running in a branch.",
+        "operationId": "branchRestore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BranchRestoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchRestoreResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchRestoreResponse"
+                }
+              }
+            },
+            "description": "The response for a successful branch restore operation."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Restore the current branch from the main cluster.",
+        "tags": [
+          "coreBranch"
+        ]
+      }
+    },
+    "/core/branches/v1/status": {
+      "get": {
+        "description": "Get the status of this EDA instance, indicating whether it is a branch or the main instance.",
+        "operationId": "branchStatus",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchStatusResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchStatusResponse"
+                }
+              }
+            },
+            "description": "The response for a successful branch status operation."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Get the current status of this EDA instance.",
+        "tags": [
+          "coreBranch"
         ]
       }
     },
@@ -7331,108 +8794,6 @@
         ]
       }
     },
-    "/core/db/v1/{path}": {
-      "get": {
-        "deprecated": true,
-        "description": "Fetch/stream the rows of the specified EDA database table.\nDeprecated: Use /core/db/v2/data instead.\n\nThe table path is specified via the \"path\" parameter in the URL path.\nThere is a way that keys can be specified for any subtables, allowing restriction\nof the returned rows to those having the specified keys.\nThe key specification is performed by providing query parameters where the parameter name\nis the path for the table key the requestor wishes to fix, and the parameter value is the\nvalue of the key.\n\nFor example, the user could request only the nodes in the 'my-namespace' EDA namespace by\nusing a path of \"namespace/nodes\" and a query parameter of \".namespace.name=my-namespace\"\n\nSimilarly, the user could request the row for a single node (named 'leaf-1') in the 'eda'\nnamespace by using a path of \"namespace/nodes\" and query parameters \".namespace.name=eda\u0026.namespace.node.name=leaf-1\"\n\nAccess to tables is controlled by the EDA table rules present in cluster roles only. Table rules\nin namespaced roles are not consulted for access.",
-        "operationId": "deprecatedGetDB",
-        "parameters": [
-          {
-            "description": "client information for streaming request",
-            "in": "query",
-            "name": "eventclient",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "stream information for streaming request",
-            "in": "query",
-            "name": "stream",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "a comma-separated list of table fields to fetch/return.  If unspecified, all fields are fetched.  If empty, no data for a row will be returned; only the JSON path for the table row.",
-            "in": "query",
-            "name": "fields",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "an EQL \"where\" expression that will be used to filter the set of table rows returned.",
-            "in": "query",
-            "name": "filter",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "if true/present, only send updates to the table rows, not the current rows.  Only applicable if streaming the results.",
-            "in": "query",
-            "name": "updates-only",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "if true/present, the keys of the table are included in the table data.",
-            "in": "query",
-            "name": "includeKeys",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "the path for the table to retrieve from the DB, specified as slash-separated table-name components",
-            "in": "path",
-            "name": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbGetResult"
-                }
-              },
-              "application/yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbGetResult"
-                }
-              },
-              "text/csv": {
-                "schema": {}
-              }
-            },
-            "description": "The response for a successful EDA database get operation."
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Details of an error in response to an API REST request."
-          }
-        },
-        "summary": "Deprecated version of fetching/streaming the rows of the specified EDA database table.",
-        "tags": [
-          "coreDB"
-        ]
-      }
-    },
     "/core/db/v2/data": {
       "get": {
         "description": "The table path is specified via the \"jsPath\" query parameter.\nKeys optionally can be included inside the specific jsPath.\n\nAccess to tables is controlled by the EDA table rules present in cluster roles only. Table rules\nin namespaced roles are not consulted for access.",
@@ -7536,7 +8897,7 @@
     },
     "/core/db/v2/schema": {
       "get": {
-        "description": "The table name is specified via the \"tableName\" query parameter.\n\nAccess to tables is controlled by the EDA table rules present in cluster roles only. Table rules\nin namespaced roles are not consulted for access.",
+        "description": "The table name is specified via the \"tableName\" query parameter.  Note that if a jspath\nwith keys is provided, the keys will be ignored and the schema for the associated table\nwill be returned.\n\nAccess to tables is controlled by EDA table rules present in cluster roles and namespaced roles.",
         "operationId": "getSchema",
         "parameters": [
           {
@@ -7546,6 +8907,14 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "whether to remove read only fields from the schema",
+            "in": "query",
+            "name": "removeReadOnly",
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -7579,6 +8948,311 @@
         "summary": "Fetch the schema of the specified EDA database table.",
         "tags": [
           "coreDB"
+        ]
+      }
+    },
+    "/core/mergerequest/v1": {
+      "post": {
+        "operationId": "mrCreate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mergeRequest"
+              }
+            }
+          },
+          "description": "Details of the merge request.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mergeRequestId"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/mergeRequestId"
+                }
+              }
+            },
+            "description": "ID of the newly created merge request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Creates a merge request.",
+        "tags": [
+          "coreMRs"
+        ]
+      }
+    },
+    "/core/mergerequest/v1/{mergeRequestId}": {
+      "delete": {
+        "operationId": "mrDelete",
+        "parameters": [
+          {
+            "description": "ID of the merge request to delete.",
+            "in": "path",
+            "name": "mergeRequestId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "no data is returned for this response type."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Permanently deletes a merge request.",
+        "tags": [
+          "coreMRs"
+        ]
+      },
+      "get": {
+        "operationId": "mrGet",
+        "parameters": [
+          {
+            "description": "ID of the merge request to get.",
+            "in": "path",
+            "name": "mergeRequestId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mergeRequest"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/mergeRequest"
+                }
+              }
+            },
+            "description": "Contents of the merge request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Reads the contents of a merge request.",
+        "tags": [
+          "coreMRs"
+        ]
+      },
+      "put": {
+        "operationId": "mrUpdate",
+        "parameters": [
+          {
+            "description": "ID of the merge request to update.",
+            "in": "path",
+            "name": "mergeRequestId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mergeRequest"
+              }
+            }
+          },
+          "description": "Details of the merge request.",
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "no data is returned for this response type."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Updates a merge request.",
+        "tags": [
+          "coreMRs"
+        ]
+      }
+    },
+    "/core/mergerequest/v1/{mergeRequestId}/close": {
+      "post": {
+        "operationId": "mrClose",
+        "parameters": [
+          {
+            "description": "ID of the merge request to close.",
+            "in": "path",
+            "name": "mergeRequestId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "no data is returned for this response type."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Closes a merge request.",
+        "tags": [
+          "coreMRs"
+        ]
+      }
+    },
+    "/core/mergerequest/v1/{mergeRequestId}/merge": {
+      "post": {
+        "operationId": "mrMerge",
+        "parameters": [
+          {
+            "description": "ID of the merge request to merge.",
+            "in": "path",
+            "name": "mergeRequestId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MRMerge"
+              }
+            }
+          },
+          "description": "Details of the merge request.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionId"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionId"
+                }
+              }
+            },
+            "description": "TransactionId"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Merges a merge request.",
+        "tags": [
+          "coreMRs"
+        ]
+      }
+    },
+    "/core/mergerequest/v1/{mergeRequestId}/reopen": {
+      "post": {
+        "operationId": "mrReopen",
+        "parameters": [
+          {
+            "description": "ID of the merge request to reopen.",
+            "in": "path",
+            "name": "mergeRequestId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "no data is returned for this response type."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Reopens a merge request.",
+        "tags": [
+          "coreMRs"
         ]
       }
     },
@@ -7725,7 +9399,6 @@
               }
             }
           },
-          "description": "the",
           "required": true
         },
         "responses": {
@@ -7962,6 +9635,98 @@
           }
         },
         "summary": "Query request using the 'natural' query language",
+        "tags": [
+          "coreQuery"
+        ]
+      }
+    },
+    "/core/query/v1/parse/eql": {
+      "post": {
+        "description": "Given a string representing an EQL query or a previously parsed EQL query, this\nrequest returns the parsed EQL query and a string representation of that query.\nOptionally, the request can ask that the query be \"minimized\" which will try to\ntransform the query into a canonical form.",
+        "operationId": "queryParseEqlRequest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryEqlParseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryEqlParseResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryEqlParseResponse"
+                }
+              }
+            },
+            "description": "The response for a successful EQL parse POST request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "tags": [
+          "coreQuery"
+        ]
+      }
+    },
+    "/core/query/v1/parse/where": {
+      "post": {
+        "description": "Given a string representing an EQL where clause or a previously parsed EQL where\nclause, this request returns the parsed where clause and a string representation\nof that where clause.  Optionally, the request can ask that the where clause be\n\"minimized\" which will try to transform the expression into a canonical form.",
+        "operationId": "queryParseWhereRequest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryWhereParseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryWhereParseResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryWhereParseResponse"
+                }
+              }
+            },
+            "description": "The response for a successful where parse POST request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
         "tags": [
           "coreQuery"
         ]
@@ -8548,6 +10313,122 @@
           }
         },
         "summary": "Initiates the calculation of (if necessary) and retrieves the requirements graph for the application version specified specified by the arguments to the request.",
+        "tags": [
+          "coreStore"
+        ]
+      }
+    },
+    "/core/store/v1/vendors/{vendor}/{catalog}/icon/dark": {
+      "get": {
+        "operationId": "storeGetVendorIconDark",
+        "parameters": [
+          {
+            "description": "Vendor identifier",
+            "in": "path",
+            "name": "vendor",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Catalog name",
+            "in": "path",
+            "name": "catalog",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "image/svg+xml": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The binary content of the dark vendor icon"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Returns the dark theme icon for the vendor in the specified catalog as binary octet stream.",
+        "tags": [
+          "coreStore"
+        ]
+      }
+    },
+    "/core/store/v1/vendors/{vendor}/{catalog}/icon/light": {
+      "get": {
+        "operationId": "storeGetVendorIconLight",
+        "parameters": [
+          {
+            "description": "Vendor identifier",
+            "in": "path",
+            "name": "vendor",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Catalog name",
+            "in": "path",
+            "name": "catalog",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "image/svg+xml": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The binary content of the light vendor icon"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Returns the light theme icon for the vendor in the specified catalog as binary octet stream.",
         "tags": [
           "coreStore"
         ]
@@ -9328,6 +11209,8 @@
     },
     "/core/transaction/v2/result/execution/{transactionId}": {
       "get": {
+        "deprecated": true,
+        "description": "Deprecated: use the GET /core/transaction/v3/result/execution/{transactionId} endpoint instead.\n\nv3 endpoint will return the counts of the changed CRs, intents run, output CRs and nodes with configuration changes.\n\nTo get the list of changed CRs, use the GET /core/transaction/v3/result/changedcrs/{transactionId} endpoint.\n\nTo get the list of intents run, use the GET /core/transaction/v3/result/intentsrun/{transactionId} endpoint.\n\nTo get the list of nodes with configuration changes, use the GET /core/transaction/v3/result/nodes/{transactionId} endpoint.",
         "operationId": "transGetResultExecution",
         "parameters": [
           {
@@ -9579,53 +11462,6 @@
       }
     },
     "/core/transaction/v2/result/topology/{transactionId}": {
-      "get": {
-        "deprecated": true,
-        "operationId": "transGetResultTopology",
-        "parameters": [
-          {
-            "description": "The identifier for the transaction whose topology is being requested",
-            "in": "path",
-            "name": "transactionId",
-            "required": true,
-            "schema": {
-              "format": "uint64",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TransactionTopologyResult"
-                }
-              },
-              "application/yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/TransactionTopologyResult"
-                }
-              }
-            },
-            "description": "The response for a successful GET transaction-result-topology request."
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Details of an error in response to an API REST request."
-          }
-        },
-        "summary": "Gets a topology of a transaction.  This API is deprecated.  Use the POST API instead.",
-        "tags": [
-          "coreTransaction"
-        ]
-      },
       "post": {
         "operationId": "transPostResultTopology",
         "parameters": [
@@ -9855,6 +11691,410 @@
           }
         },
         "summary": "Validates a list of CRs to check that they are properly formed before later adding them to a transaction.",
+        "tags": [
+          "coreTransaction"
+        ]
+      }
+    },
+    "/core/transaction/v3/rebase": {
+      "post": {
+        "description": "If they do not rebase cleanly, return latest to enable 3-way merge.\nThe prior state must be included in order for this endpoint to meaningfully detect conflicts.",
+        "operationId": "rebaseResources",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransactionContents"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rebaseResourcesResult"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/rebaseResourcesResult"
+                }
+              }
+            },
+            "description": "rebaseResourcesResult"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Attempt to rebase the given CRs onto the latest.",
+        "tags": [
+          "coreTransaction"
+        ]
+      }
+    },
+    "/core/transaction/v3/resources": {
+      "post": {
+        "operationId": "getResources",
+        "parameters": [
+          {
+            "description": "The commit hash at which to lookup the resource.",
+            "in": "query",
+            "name": "hash",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/NsCrGvkName"
+                },
+                "type": "array"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resourceCrs"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/resourceCrs"
+                }
+              }
+            },
+            "description": "resourceCrs"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Retrieves the current or historical state of a set of resources.",
+        "tags": [
+          "coreTransaction"
+        ]
+      }
+    },
+    "/core/transaction/v3/result/changedcrs/{transactionId}": {
+      "get": {
+        "description": "Query parameters control whether the response is full or paginated:\n\n__gvk not specified__: Returns one category per GVK. Omit limit (or set to 0) to get every category with all names. When limit is set (and \u003e 0), per-category pagination applies: each category returns up to `limit` names (first page); use that category's nextCursor with the same gvk to fetch the next page for that category. If the query matches category kind or the UI name of a CRD component from an app manifest, returns the full category (subject to limit); otherwise filters by name, namespace, or \"name (namespace)\" display.\n\n__gvk specified__: Returns only the single category for the given GVK. Omit limit (or set to 0) to get all names in that category. To page through that category, set limit (max 1000); omit cursor for the first page, or set cursor to the nextCursor value from the previous response. Optional search uses the same rules (kind/ui.name first, else per-item filter).\n\nThe gvk query parameter, when present, must be valid JSON for GroupVersionKind with non-empty group, version, and kind.",
+        "operationId": "transGetResultChangedCrs",
+        "parameters": [
+          {
+            "description": "The identifier for the transaction whose changed CRs are being requested.",
+            "in": "path",
+            "name": "transactionId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "When set, returns only a single category (combined list for all namespaces) for that GVK. Must be valid JSON for GroupVersionKind with non-empty group, version, and kind (URL-encoded in the request). Omit to return all categories. Ex: '{\"group\":\"core.eda.nokia.com\",\"version\":\"v1\",\"kind\":\"Node\"}'.",
+            "in": "query",
+            "name": "gvk",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Max names per category per page. When gvk is absent: each category returns up to this many names (first page); when gvk is set: page size for that category. Omit or 0: return all names (no pagination). Max 1000.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "When gvk is set: offset into that category's (filtered) names; omit for first page. Ignored when gvk is not set.",
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "If the query matches the category kind or the UI name of a CRD component from an app manifest, the full category is returned (subject to limit). Otherwise filters by case-insensitive substring on CR name, namespace, or \"name (namespace)\" display. When used with limit, pagination applies to the resulting list per category.",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResultChangedCrs"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResultChangedCrs"
+                }
+              }
+            },
+            "description": "The response for a successful GET transaction-result-changed-crs request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Gets the list of changed CRs for the transaction, grouped by GVK. Each category has a single combined list for all namespaces; the response uses parallel arrays `names` and `namespaces` where namespaces[i] is the namespace of names[i].",
+        "tags": [
+          "coreTransaction"
+        ]
+      }
+    },
+    "/core/transaction/v3/result/execution/{transactionId}": {
+      "get": {
+        "operationId": "transGetResultExecutionV3",
+        "parameters": [
+          {
+            "description": "The identifier for the transaction whose details are being requested",
+            "in": "path",
+            "name": "transactionId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Flag for the request to wait until the transaction is complete before returning.  By default it returns the current state.",
+            "in": "query",
+            "name": "waitForComplete",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Flag to tell the request to fail if the transaction has errors.  By default it will not fail.",
+            "in": "query",
+            "name": "failOnErrors",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionExecutionResultWithCounts"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionExecutionResultWithCounts"
+                }
+              }
+            },
+            "description": "The response for a successful GET transaction-result-execution request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Gets the details of a posted transaction. This does not include the input resources, which can be retrieved using the transGetResultInputResources operation.",
+        "tags": [
+          "coreTransaction"
+        ]
+      }
+    },
+    "/core/transaction/v3/result/intentsrun/{transactionId}": {
+      "get": {
+        "description": "When a request is made to this endpoint, a list of intents that ran as part of the specified\ntransaction will be returned. This list can be paginated by the `limit` query parameter: include\nlimit to request a page of at most that many intents; omit limit (or set to 0) to receive the full\nlist. When pagination is used, the response includes `hasMore` and, when true, `nextCursor` (an\nunsigned integer). To fetch the next page, send the same request with the `cursor` query parameter\nset to the value of `nextCursor` from the previous response. The `search` query parameter filters\nthe list by case-insensitive substring match on intent name; when used with limit, the filtered\nlist is paginated.",
+        "operationId": "transGetResultIntentsRun",
+        "parameters": [
+          {
+            "description": "The identifier for the transaction whose details are being requested",
+            "in": "path",
+            "name": "transactionId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Max items per page. Max allowed value is 1000. Omit or value of 0 will return full list (no pagination).",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Offset into the (optionally search-filtered) list; omit for first page.",
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Case-insensitive substring match on intent name.",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResultIntentsRun"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResultIntentsRun"
+                }
+              }
+            },
+            "description": "The response for a successful GET transaction-result-intents-run request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Gets an optionally paginated list of intents which ran as part of a completed transaction.",
+        "tags": [
+          "coreTransaction"
+        ]
+      }
+    },
+    "/core/transaction/v3/result/nodes/{transactionId}": {
+      "get": {
+        "description": "When a request is made to this endpoint, a list of nodes whose configuration was changed by the\nspecified transaction will be returned. This list can be paginated by the `limit` query parameter:\ninclude limit to request a page of at most that many nodes; omit limit (or set to 0) to receive the\nfull list. When pagination is used, the response includes `hasMore` and, when true, `nextCursor` (an\nunsigned integer). To fetch the next page, send the same request with the `cursor` query parameter\nset to the value of `nextCursor` from the previous response. The `search` query parameter filters\nthe list by case-insensitive substring match on node name, namespace, or \"name (namespace)\" display;\nwhen used with limit, the filtered list is paginated.",
+        "operationId": "transGetResultNodesWithConfigChanges",
+        "parameters": [
+          {
+            "description": "The identifier for the transaction whose details are being requested",
+            "in": "path",
+            "name": "transactionId",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Max items per page. Max allowed value is 1000. Omit or value of 0 will return full list (no pagination).",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Offset into the (optionally search-filtered) list; omit for first page.",
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filter nodes by case-insensitive substring match on node name, namespace, or \"name (namespace)\" display. When used with limit, the filtered list is paginated.",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionNodesWithConfigChangesResult"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionNodesWithConfigChangesResult"
+                }
+              }
+            },
+            "description": "The response for a successful GET transaction-result-nodes-with-config-changes request."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Gets an optionally paginated list of nodes with configuration changes from a completed transaction. The list is sorted by namespace (lexicographic) then by node name.",
         "tags": [
           "coreTransaction"
         ]
@@ -10607,7 +12847,7 @@
             }
           },
           {
-            "description": "a label selector string to filter the results based on CR labels",
+            "description": "A label selector string to filter the results based on resource labels. If specified multiple times, the union of resources which satisfy a label-selector will be returned.",
             "in": "query",
             "name": "labelSelector",
             "schema": {

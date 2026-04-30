@@ -94,6 +94,16 @@ func StoreAppSummaryListDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"info_version_metadata": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
+								"compatible": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "\"true\" if the application version is compatible with the current core version",
+									MarkdownDescription: "\"true\" if the application version is compatible with the current core version",
+								},
+								"incompatibility_reason": schema.StringAttribute{
+									Computed:            true,
+									Description:         "The reason why the application version is not compatible with the current core version",
+									MarkdownDescription: "The reason why the application version is not compatible with the current core version",
+								},
 								"published_time": schema.StringAttribute{
 									Computed:            true,
 									Description:         "The date and time when the application version was published.",
@@ -146,6 +156,16 @@ func StoreAppSummaryListDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"installed_version_metadata": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
+								"compatible": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "\"true\" if the application version is compatible with the current core version",
+									MarkdownDescription: "\"true\" if the application version is compatible with the current core version",
+								},
+								"incompatibility_reason": schema.StringAttribute{
+									Computed:            true,
+									Description:         "The reason why the application version is not compatible with the current core version",
+									MarkdownDescription: "The reason why the application version is not compatible with the current core version",
+								},
 								"published_time": schema.StringAttribute{
 									Computed:            true,
 									Description:         "The date and time when the application version was published.",
@@ -193,6 +213,16 @@ func StoreAppSummaryListDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"latest_version_metadata": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
+								"compatible": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "\"true\" if the application version is compatible with the current core version",
+									MarkdownDescription: "\"true\" if the application version is compatible with the current core version",
+								},
+								"incompatibility_reason": schema.StringAttribute{
+									Computed:            true,
+									Description:         "The reason why the application version is not compatible with the current core version",
+									MarkdownDescription: "The reason why the application version is not compatible with the current core version",
+								},
 								"published_time": schema.StringAttribute{
 									Computed:            true,
 									Description:         "The date and time when the application version was published.",
@@ -226,6 +256,11 @@ func StoreAppSummaryListDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Name of the vendor for this app",
 							MarkdownDescription: "Name of the vendor for this app",
+						},
+						"vendor_title": schema.StringAttribute{
+							Computed:            true,
+							Description:         "The vendor title to display to the user (e.g. \"Nokia\" or \"VMware\").",
+							MarkdownDescription: "The vendor title to display to the user (e.g. \"Nokia\" or \"VMware\").",
 						},
 					},
 					CustomType: StoreAppSummaryListType{
@@ -566,6 +601,24 @@ func (t StoreAppSummaryListType) ValueFromObject(ctx context.Context, in basetyp
 			fmt.Sprintf(`vendor expected to be basetypes.StringValue, was: %T`, vendorAttribute))
 	}
 
+	vendorTitleAttribute, ok := attributes["vendor_title"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vendor_title is missing from object`)
+
+		return nil, diags
+	}
+
+	vendorTitleVal, ok := vendorTitleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vendor_title expected to be basetypes.StringValue, was: %T`, vendorTitleAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -587,6 +640,7 @@ func (t StoreAppSummaryListType) ValueFromObject(ctx context.Context, in basetyp
 		Title:                    titleVal,
 		Upgradable:               upgradableVal,
 		Vendor:                   vendorVal,
+		VendorTitle:              vendorTitleVal,
 		state:                    attr.ValueStateKnown,
 	}, diags
 }
@@ -942,6 +996,24 @@ func NewStoreAppSummaryListValue(attributeTypes map[string]attr.Type, attributes
 			fmt.Sprintf(`vendor expected to be basetypes.StringValue, was: %T`, vendorAttribute))
 	}
 
+	vendorTitleAttribute, ok := attributes["vendor_title"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vendor_title is missing from object`)
+
+		return NewStoreAppSummaryListValueUnknown(), diags
+	}
+
+	vendorTitleVal, ok := vendorTitleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vendor_title expected to be basetypes.StringValue, was: %T`, vendorTitleAttribute))
+	}
+
 	if diags.HasError() {
 		return NewStoreAppSummaryListValueUnknown(), diags
 	}
@@ -963,6 +1035,7 @@ func NewStoreAppSummaryListValue(attributeTypes map[string]attr.Type, attributes
 		Title:                    titleVal,
 		Upgradable:               upgradableVal,
 		Vendor:                   vendorVal,
+		VendorTitle:              vendorTitleVal,
 		state:                    attr.ValueStateKnown,
 	}, diags
 }
@@ -1051,11 +1124,12 @@ type StoreAppSummaryListValue struct {
 	Title                    basetypes.StringValue `tfsdk:"title"`
 	Upgradable               basetypes.BoolValue   `tfsdk:"upgradable"`
 	Vendor                   basetypes.StringValue `tfsdk:"vendor"`
+	VendorTitle              basetypes.StringValue `tfsdk:"vendor_title"`
 	state                    attr.ValueState
 }
 
 func (v StoreAppSummaryListValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 16)
+	attrTypes := make(map[string]tftypes.Type, 17)
 
 	var val tftypes.Value
 	var err error
@@ -1094,12 +1168,13 @@ func (v StoreAppSummaryListValue) ToTerraformValue(ctx context.Context) (tftypes
 	attrTypes["title"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["upgradable"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["vendor"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["vendor_title"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 16)
+		vals := make(map[string]tftypes.Value, 17)
 
 		val, err = v.AppId.ToTerraformValue(ctx)
 
@@ -1228,6 +1303,14 @@ func (v StoreAppSummaryListValue) ToTerraformValue(ctx context.Context) (tftypes
 		}
 
 		vals["vendor"] = val
+
+		val, err = v.VendorTitle.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vendor_title"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -1429,9 +1512,10 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			"supported_endpoints": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"title":      basetypes.StringType{},
-			"upgradable": basetypes.BoolType{},
-			"vendor":     basetypes.StringType{},
+			"title":        basetypes.StringType{},
+			"upgradable":   basetypes.BoolType{},
+			"vendor":       basetypes.StringType{},
+			"vendor_title": basetypes.StringType{},
 		}), diags
 	}
 
@@ -1480,9 +1564,10 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			"supported_endpoints": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"title":      basetypes.StringType{},
-			"upgradable": basetypes.BoolType{},
-			"vendor":     basetypes.StringType{},
+			"title":        basetypes.StringType{},
+			"upgradable":   basetypes.BoolType{},
+			"vendor":       basetypes.StringType{},
+			"vendor_title": basetypes.StringType{},
 		}), diags
 	}
 
@@ -1531,9 +1616,10 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			"supported_endpoints": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"title":      basetypes.StringType{},
-			"upgradable": basetypes.BoolType{},
-			"vendor":     basetypes.StringType{},
+			"title":        basetypes.StringType{},
+			"upgradable":   basetypes.BoolType{},
+			"vendor":       basetypes.StringType{},
+			"vendor_title": basetypes.StringType{},
 		}), diags
 	}
 
@@ -1569,9 +1655,10 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 		"supported_endpoints": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"title":      basetypes.StringType{},
-		"upgradable": basetypes.BoolType{},
-		"vendor":     basetypes.StringType{},
+		"title":        basetypes.StringType{},
+		"upgradable":   basetypes.BoolType{},
+		"vendor":       basetypes.StringType{},
+		"vendor_title": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -1601,6 +1688,7 @@ func (v StoreAppSummaryListValue) ToObjectValue(ctx context.Context) (basetypes.
 			"title":                      v.Title,
 			"upgradable":                 v.Upgradable,
 			"vendor":                     v.Vendor,
+			"vendor_title":               v.VendorTitle,
 		})
 
 	return objVal, diags
@@ -1685,6 +1773,10 @@ func (v StoreAppSummaryListValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.VendorTitle.Equal(other.VendorTitle) {
+		return false
+	}
+
 	return true
 }
 
@@ -1729,9 +1821,10 @@ func (v StoreAppSummaryListValue) AttributeTypes(ctx context.Context) map[string
 		"supported_endpoints": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"title":      basetypes.StringType{},
-		"upgradable": basetypes.BoolType{},
-		"vendor":     basetypes.StringType{},
+		"title":        basetypes.StringType{},
+		"upgradable":   basetypes.BoolType{},
+		"vendor":       basetypes.StringType{},
+		"vendor_title": basetypes.StringType{},
 	}
 }
 
@@ -2249,6 +2342,42 @@ func (t InfoVersionMetadataType) ValueFromObject(ctx context.Context, in basetyp
 
 	attributes := in.Attributes()
 
+	compatibleAttribute, ok := attributes["compatible"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`compatible is missing from object`)
+
+		return nil, diags
+	}
+
+	compatibleVal, ok := compatibleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`compatible expected to be basetypes.BoolValue, was: %T`, compatibleAttribute))
+	}
+
+	incompatibilityReasonAttribute, ok := attributes["incompatibility_reason"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`incompatibility_reason is missing from object`)
+
+		return nil, diags
+	}
+
+	incompatibilityReasonVal, ok := incompatibilityReasonAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`incompatibility_reason expected to be basetypes.StringValue, was: %T`, incompatibilityReasonAttribute))
+	}
+
 	publishedTimeAttribute, ok := attributes["published_time"]
 
 	if !ok {
@@ -2272,8 +2401,10 @@ func (t InfoVersionMetadataType) ValueFromObject(ctx context.Context, in basetyp
 	}
 
 	return InfoVersionMetadataValue{
-		PublishedTime: publishedTimeVal,
-		state:         attr.ValueStateKnown,
+		Compatible:            compatibleVal,
+		IncompatibilityReason: incompatibilityReasonVal,
+		PublishedTime:         publishedTimeVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -2340,6 +2471,42 @@ func NewInfoVersionMetadataValue(attributeTypes map[string]attr.Type, attributes
 		return NewInfoVersionMetadataValueUnknown(), diags
 	}
 
+	compatibleAttribute, ok := attributes["compatible"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`compatible is missing from object`)
+
+		return NewInfoVersionMetadataValueUnknown(), diags
+	}
+
+	compatibleVal, ok := compatibleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`compatible expected to be basetypes.BoolValue, was: %T`, compatibleAttribute))
+	}
+
+	incompatibilityReasonAttribute, ok := attributes["incompatibility_reason"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`incompatibility_reason is missing from object`)
+
+		return NewInfoVersionMetadataValueUnknown(), diags
+	}
+
+	incompatibilityReasonVal, ok := incompatibilityReasonAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`incompatibility_reason expected to be basetypes.StringValue, was: %T`, incompatibilityReasonAttribute))
+	}
+
 	publishedTimeAttribute, ok := attributes["published_time"]
 
 	if !ok {
@@ -2363,8 +2530,10 @@ func NewInfoVersionMetadataValue(attributeTypes map[string]attr.Type, attributes
 	}
 
 	return InfoVersionMetadataValue{
-		PublishedTime: publishedTimeVal,
-		state:         attr.ValueStateKnown,
+		Compatible:            compatibleVal,
+		IncompatibilityReason: incompatibilityReasonVal,
+		PublishedTime:         publishedTimeVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -2436,23 +2605,43 @@ func (t InfoVersionMetadataType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = InfoVersionMetadataValue{}
 
 type InfoVersionMetadataValue struct {
-	PublishedTime basetypes.StringValue `tfsdk:"published_time"`
-	state         attr.ValueState
+	Compatible            basetypes.BoolValue   `tfsdk:"compatible"`
+	IncompatibilityReason basetypes.StringValue `tfsdk:"incompatibility_reason"`
+	PublishedTime         basetypes.StringValue `tfsdk:"published_time"`
+	state                 attr.ValueState
 }
 
 func (v InfoVersionMetadataValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["compatible"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["incompatibility_reason"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["published_time"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Compatible.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["compatible"] = val
+
+		val, err = v.IncompatibilityReason.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["incompatibility_reason"] = val
 
 		val, err = v.PublishedTime.ToTerraformValue(ctx)
 
@@ -2492,7 +2681,9 @@ func (v InfoVersionMetadataValue) ToObjectValue(ctx context.Context) (basetypes.
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"published_time": basetypes.StringType{},
+		"compatible":             basetypes.BoolType{},
+		"incompatibility_reason": basetypes.StringType{},
+		"published_time":         basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -2506,7 +2697,9 @@ func (v InfoVersionMetadataValue) ToObjectValue(ctx context.Context) (basetypes.
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"published_time": v.PublishedTime,
+			"compatible":             v.Compatible,
+			"incompatibility_reason": v.IncompatibilityReason,
+			"published_time":         v.PublishedTime,
 		})
 
 	return objVal, diags
@@ -2527,6 +2720,14 @@ func (v InfoVersionMetadataValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.Compatible.Equal(other.Compatible) {
+		return false
+	}
+
+	if !v.IncompatibilityReason.Equal(other.IncompatibilityReason) {
+		return false
+	}
+
 	if !v.PublishedTime.Equal(other.PublishedTime) {
 		return false
 	}
@@ -2544,7 +2745,9 @@ func (v InfoVersionMetadataValue) Type(ctx context.Context) attr.Type {
 
 func (v InfoVersionMetadataValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"published_time": basetypes.StringType{},
+		"compatible":             basetypes.BoolType{},
+		"incompatibility_reason": basetypes.StringType{},
+		"published_time":         basetypes.StringType{},
 	}
 }
 
@@ -3062,6 +3265,42 @@ func (t InstalledVersionMetadataType) ValueFromObject(ctx context.Context, in ba
 
 	attributes := in.Attributes()
 
+	compatibleAttribute, ok := attributes["compatible"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`compatible is missing from object`)
+
+		return nil, diags
+	}
+
+	compatibleVal, ok := compatibleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`compatible expected to be basetypes.BoolValue, was: %T`, compatibleAttribute))
+	}
+
+	incompatibilityReasonAttribute, ok := attributes["incompatibility_reason"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`incompatibility_reason is missing from object`)
+
+		return nil, diags
+	}
+
+	incompatibilityReasonVal, ok := incompatibilityReasonAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`incompatibility_reason expected to be basetypes.StringValue, was: %T`, incompatibilityReasonAttribute))
+	}
+
 	publishedTimeAttribute, ok := attributes["published_time"]
 
 	if !ok {
@@ -3085,8 +3324,10 @@ func (t InstalledVersionMetadataType) ValueFromObject(ctx context.Context, in ba
 	}
 
 	return InstalledVersionMetadataValue{
-		PublishedTime: publishedTimeVal,
-		state:         attr.ValueStateKnown,
+		Compatible:            compatibleVal,
+		IncompatibilityReason: incompatibilityReasonVal,
+		PublishedTime:         publishedTimeVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -3153,6 +3394,42 @@ func NewInstalledVersionMetadataValue(attributeTypes map[string]attr.Type, attri
 		return NewInstalledVersionMetadataValueUnknown(), diags
 	}
 
+	compatibleAttribute, ok := attributes["compatible"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`compatible is missing from object`)
+
+		return NewInstalledVersionMetadataValueUnknown(), diags
+	}
+
+	compatibleVal, ok := compatibleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`compatible expected to be basetypes.BoolValue, was: %T`, compatibleAttribute))
+	}
+
+	incompatibilityReasonAttribute, ok := attributes["incompatibility_reason"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`incompatibility_reason is missing from object`)
+
+		return NewInstalledVersionMetadataValueUnknown(), diags
+	}
+
+	incompatibilityReasonVal, ok := incompatibilityReasonAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`incompatibility_reason expected to be basetypes.StringValue, was: %T`, incompatibilityReasonAttribute))
+	}
+
 	publishedTimeAttribute, ok := attributes["published_time"]
 
 	if !ok {
@@ -3176,8 +3453,10 @@ func NewInstalledVersionMetadataValue(attributeTypes map[string]attr.Type, attri
 	}
 
 	return InstalledVersionMetadataValue{
-		PublishedTime: publishedTimeVal,
-		state:         attr.ValueStateKnown,
+		Compatible:            compatibleVal,
+		IncompatibilityReason: incompatibilityReasonVal,
+		PublishedTime:         publishedTimeVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -3249,23 +3528,43 @@ func (t InstalledVersionMetadataType) ValueType(ctx context.Context) attr.Value 
 var _ basetypes.ObjectValuable = InstalledVersionMetadataValue{}
 
 type InstalledVersionMetadataValue struct {
-	PublishedTime basetypes.StringValue `tfsdk:"published_time"`
-	state         attr.ValueState
+	Compatible            basetypes.BoolValue   `tfsdk:"compatible"`
+	IncompatibilityReason basetypes.StringValue `tfsdk:"incompatibility_reason"`
+	PublishedTime         basetypes.StringValue `tfsdk:"published_time"`
+	state                 attr.ValueState
 }
 
 func (v InstalledVersionMetadataValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["compatible"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["incompatibility_reason"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["published_time"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Compatible.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["compatible"] = val
+
+		val, err = v.IncompatibilityReason.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["incompatibility_reason"] = val
 
 		val, err = v.PublishedTime.ToTerraformValue(ctx)
 
@@ -3305,7 +3604,9 @@ func (v InstalledVersionMetadataValue) ToObjectValue(ctx context.Context) (baset
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"published_time": basetypes.StringType{},
+		"compatible":             basetypes.BoolType{},
+		"incompatibility_reason": basetypes.StringType{},
+		"published_time":         basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -3319,7 +3620,9 @@ func (v InstalledVersionMetadataValue) ToObjectValue(ctx context.Context) (baset
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"published_time": v.PublishedTime,
+			"compatible":             v.Compatible,
+			"incompatibility_reason": v.IncompatibilityReason,
+			"published_time":         v.PublishedTime,
 		})
 
 	return objVal, diags
@@ -3340,6 +3643,14 @@ func (v InstalledVersionMetadataValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.Compatible.Equal(other.Compatible) {
+		return false
+	}
+
+	if !v.IncompatibilityReason.Equal(other.IncompatibilityReason) {
+		return false
+	}
+
 	if !v.PublishedTime.Equal(other.PublishedTime) {
 		return false
 	}
@@ -3357,7 +3668,9 @@ func (v InstalledVersionMetadataValue) Type(ctx context.Context) attr.Type {
 
 func (v InstalledVersionMetadataValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"published_time": basetypes.StringType{},
+		"compatible":             basetypes.BoolType{},
+		"incompatibility_reason": basetypes.StringType{},
+		"published_time":         basetypes.StringType{},
 	}
 }
 
@@ -3875,6 +4188,42 @@ func (t LatestVersionMetadataType) ValueFromObject(ctx context.Context, in baset
 
 	attributes := in.Attributes()
 
+	compatibleAttribute, ok := attributes["compatible"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`compatible is missing from object`)
+
+		return nil, diags
+	}
+
+	compatibleVal, ok := compatibleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`compatible expected to be basetypes.BoolValue, was: %T`, compatibleAttribute))
+	}
+
+	incompatibilityReasonAttribute, ok := attributes["incompatibility_reason"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`incompatibility_reason is missing from object`)
+
+		return nil, diags
+	}
+
+	incompatibilityReasonVal, ok := incompatibilityReasonAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`incompatibility_reason expected to be basetypes.StringValue, was: %T`, incompatibilityReasonAttribute))
+	}
+
 	publishedTimeAttribute, ok := attributes["published_time"]
 
 	if !ok {
@@ -3898,8 +4247,10 @@ func (t LatestVersionMetadataType) ValueFromObject(ctx context.Context, in baset
 	}
 
 	return LatestVersionMetadataValue{
-		PublishedTime: publishedTimeVal,
-		state:         attr.ValueStateKnown,
+		Compatible:            compatibleVal,
+		IncompatibilityReason: incompatibilityReasonVal,
+		PublishedTime:         publishedTimeVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -3966,6 +4317,42 @@ func NewLatestVersionMetadataValue(attributeTypes map[string]attr.Type, attribut
 		return NewLatestVersionMetadataValueUnknown(), diags
 	}
 
+	compatibleAttribute, ok := attributes["compatible"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`compatible is missing from object`)
+
+		return NewLatestVersionMetadataValueUnknown(), diags
+	}
+
+	compatibleVal, ok := compatibleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`compatible expected to be basetypes.BoolValue, was: %T`, compatibleAttribute))
+	}
+
+	incompatibilityReasonAttribute, ok := attributes["incompatibility_reason"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`incompatibility_reason is missing from object`)
+
+		return NewLatestVersionMetadataValueUnknown(), diags
+	}
+
+	incompatibilityReasonVal, ok := incompatibilityReasonAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`incompatibility_reason expected to be basetypes.StringValue, was: %T`, incompatibilityReasonAttribute))
+	}
+
 	publishedTimeAttribute, ok := attributes["published_time"]
 
 	if !ok {
@@ -3989,8 +4376,10 @@ func NewLatestVersionMetadataValue(attributeTypes map[string]attr.Type, attribut
 	}
 
 	return LatestVersionMetadataValue{
-		PublishedTime: publishedTimeVal,
-		state:         attr.ValueStateKnown,
+		Compatible:            compatibleVal,
+		IncompatibilityReason: incompatibilityReasonVal,
+		PublishedTime:         publishedTimeVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -4062,23 +4451,43 @@ func (t LatestVersionMetadataType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = LatestVersionMetadataValue{}
 
 type LatestVersionMetadataValue struct {
-	PublishedTime basetypes.StringValue `tfsdk:"published_time"`
-	state         attr.ValueState
+	Compatible            basetypes.BoolValue   `tfsdk:"compatible"`
+	IncompatibilityReason basetypes.StringValue `tfsdk:"incompatibility_reason"`
+	PublishedTime         basetypes.StringValue `tfsdk:"published_time"`
+	state                 attr.ValueState
 }
 
 func (v LatestVersionMetadataValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["compatible"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["incompatibility_reason"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["published_time"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Compatible.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["compatible"] = val
+
+		val, err = v.IncompatibilityReason.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["incompatibility_reason"] = val
 
 		val, err = v.PublishedTime.ToTerraformValue(ctx)
 
@@ -4118,7 +4527,9 @@ func (v LatestVersionMetadataValue) ToObjectValue(ctx context.Context) (basetype
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"published_time": basetypes.StringType{},
+		"compatible":             basetypes.BoolType{},
+		"incompatibility_reason": basetypes.StringType{},
+		"published_time":         basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -4132,7 +4543,9 @@ func (v LatestVersionMetadataValue) ToObjectValue(ctx context.Context) (basetype
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"published_time": v.PublishedTime,
+			"compatible":             v.Compatible,
+			"incompatibility_reason": v.IncompatibilityReason,
+			"published_time":         v.PublishedTime,
 		})
 
 	return objVal, diags
@@ -4153,6 +4566,14 @@ func (v LatestVersionMetadataValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.Compatible.Equal(other.Compatible) {
+		return false
+	}
+
+	if !v.IncompatibilityReason.Equal(other.IncompatibilityReason) {
+		return false
+	}
+
 	if !v.PublishedTime.Equal(other.PublishedTime) {
 		return false
 	}
@@ -4170,6 +4591,8 @@ func (v LatestVersionMetadataValue) Type(ctx context.Context) attr.Type {
 
 func (v LatestVersionMetadataValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"published_time": basetypes.StringType{},
+		"compatible":             basetypes.BoolType{},
+		"incompatibility_reason": basetypes.StringType{},
+		"published_time":         basetypes.StringType{},
 	}
 }

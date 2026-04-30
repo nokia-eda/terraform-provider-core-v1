@@ -17,10 +17,14 @@ description: |-
 
 ### Optional
 
-- `fullroles` (Boolean) If true, the full definitions of the roles associated with the group
+- `full_roles` (Boolean) If true, the full definitions of the roles associated with the group
 are returned, rather than just the role names.
-- `fullusers` (Boolean) If true, the full definitions of the users which are members of the group
+- `full_users` (Boolean) If true, the full definitions of the users which are members of the group
 are returned, rather than just the user names.
+- `fullroles` (Boolean) Deprecated: If true, the full definitions of the roles associated with the group
+are returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present.
+- `fullusers` (Boolean) Deprecated: If true, the full definitions of the users which are members of the group
+are returned, rather than just the user names.  Use fullRoles instead. Ignored if fullRoles present.
 
 ### Read-Only
 
@@ -33,7 +37,8 @@ Read-Only:
 
 - `description` (String)
 - `full_roles` (Attributes List) contains the full role definitions of the Roles and ClusterRoles associated with the group, if requested (see [below for nested schema](#nestedatt--auth_user_groups--full_roles))
-- `fullusers` (Attributes List) contains the full user definitions of the users who are members of the group, if requested (see [below for nested schema](#nestedatt--auth_user_groups--fullusers))
+- `full_users` (Attributes List) contains the full user definitions of the users who are members of the group, if requested (see [below for nested schema](#nestedatt--auth_user_groups--full_users))
+- `fullusers` (Attributes List, Deprecated) Deprecated: Contains the full user definitions of the users who are members of the group, if requested.  Use fullUsers instead. (see [below for nested schema](#nestedatt--auth_user_groups--fullusers))
 - `is_federated` (Boolean) if true, indicates that the group was imported from a federated LDAP server
 - `name` (String)
 - `roles` (List of String) Contains the names of the ClusterRoles and Roles roles associated with the group.
@@ -91,6 +96,37 @@ in which case the final portion of the URL path can be anything, if the
 prefix matches. It can end in "/**" in which case the URL path can be
 anything if the prefix matches.",
 - `permissions` (String) The permissions for the API server URL for the rule.
+
+
+
+<a id="nestedatt--auth_user_groups--full_users"></a>
+### Nested Schema for `auth_user_groups.full_users`
+
+Read-Only:
+
+- `email` (String)
+- `enabled` (Boolean)
+- `first_name` (String)
+- `groups` (List of String) contains the UUIDs of the groups of which the user is a member.
+- `last_name` (String)
+- `max_sessions` (Number)
+- `password` (String)
+- `status` (Attributes) (see [below for nested schema](#nestedatt--auth_user_groups--full_users--status))
+- `username` (String)
+- `uuid` (String)
+
+<a id="nestedatt--auth_user_groups--full_users--status"></a>
+### Nested Schema for `auth_user_groups.full_users.status`
+
+Read-Only:
+
+- `failed_login_since_successful_login` (Number)
+- `federation_provider_name` (String) The name of the federation provider for this user. Absent if the user is not federated
+- `federation_provider_uuid` (String) The UUID of the federation provider for this user. Absent if the user is not federated
+- `is_federated_user` (Boolean) True if the user comes from a federated LDAP server
+- `last_failed_login` (String)
+- `last_successful_login` (String)
+- `temporarily_disabled` (Boolean)
 
 
 

@@ -17,7 +17,8 @@ description: |-
 
 ### Read-Only
 
-- `all_namesapces` (Boolean) If true, the requestor is considered to have permission to access all namespaces
+- `all_namesapces` (Boolean, Deprecated) Deprecated: If true, the requestor is considered to have permission to access all namespaces. Use allNamespaces instead
+- `all_namespaces` (Boolean) If true, the requestor is considered to have permission to access all namespaces
 - `namespaces` (Attributes List) The list of namespaces (see [below for nested schema](#nestedatt--namespaces))
 
 <a id="nestedatt--namespaces"></a>

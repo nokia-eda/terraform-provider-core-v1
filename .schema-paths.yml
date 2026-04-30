@@ -94,6 +94,14 @@ auth_roles:
       path: /core/admin/roles
       method: GET
 
+auth_sessions:
+  - read:
+      path: /core/admin/sessions
+      method: GET
+  - read:
+      path: /core/admin/users/{uuid}/sessions
+      method: GET
+
 auth_user:
   - create:
       path: /core/admin/users
@@ -137,7 +145,13 @@ auto_complete_request:
       path: /core/autocomplete/v1/gvr
       method: POST
   - create:
+      path: /core/autocomplete/v1/label
+      method: POST
+  - create:
       path: /core/autocomplete/v1/labelselector
+      method: POST
+  - create:
+      path: /core/autocomplete/v1/query
       method: POST
   - create:
       path: /core/autocomplete/v1/table
@@ -146,9 +160,42 @@ auto_complete_request:
       path: /core/autocomplete/v1/where
       method: POST
 
+branch_diff_response:
+  - read:
+      path: /core/branches/v1/crdiff/{hash}
+      method: GET
+
+branch_diff_summary:
+  - read:
+      path: /core/branches/v1/diffsummary
+      method: GET
+  - read:
+      path: /core/branches/v1/diffsummary/{hash}
+      method: GET
+
+branch_merge_request:
+  - create:
+      path: /core/branches/v1/merge
+      method: POST
+
+branch_rebase_request:
+  - create:
+      path: /core/branches/v1/rebase
+      method: POST
+
+branch_restore_request:
+  - create:
+      path: /core/branches/v1/restore
+      method: POST
+
+branch_status_response:
+  - read:
+      path: /core/branches/v1/status
+      method: GET
+
 check_access_request:
   - create:
-      path: /core/access/v1/checkAccess
+      path: /core/access/v1/checkaccess
       method: POST
 
 conversation_history:
@@ -192,6 +239,11 @@ health:
       path: /core/about/health
       method: GET
 
+mr_merge:
+  - create:
+      path: /core/mergerequest/v1/{mergeRequestId}/merge
+      method: POST
+
 namespace_get_response:
   - read:
       path: /core/access/v1/namespaces
@@ -201,6 +253,11 @@ node_config_response:
   - read:
       path: /core/nodeconfig/v2/namespaces/{nsName}/nodes/{nodeName}
       method: GET
+
+ns_cr_gvk_name:
+  - create:
+      path: /core/transaction/v3/resources
+      method: POST
 
 overlay:
   - read:
@@ -222,6 +279,11 @@ query_convert_request:
       path: /core/query/v1/convert
       method: POST
 
+query_eql_parse_request:
+  - create:
+      path: /core/query/v1/parse/eql
+      method: POST
+
 query_response:
   - read:
       path: /core/query/v1
@@ -232,6 +294,11 @@ query_response:
   - read:
       path: /core/query/v1/nql
       method: GET
+
+query_where_parse_request:
+  - create:
+      path: /core/query/v1/parse/where
+      method: POST
 
 store_app_installed_settings:
   - read:
@@ -303,6 +370,11 @@ transaction:
       path: /core/transaction/v2
       method: POST
 
+transaction_contents:
+  - create:
+      path: /core/transaction/v3/rebase
+      method: POST
+
 transaction_cr:
   - create:
       path: /core/transaction/v2/validate
@@ -313,9 +385,29 @@ transaction_execution_result:
       path: /core/transaction/v2/result/execution/{transactionId}
       method: GET
 
+transaction_execution_result_with_counts:
+  - read:
+      path: /core/transaction/v3/result/execution/{transactionId}
+      method: GET
+
+transaction_nodes_with_config_changes_result:
+  - read:
+      path: /core/transaction/v3/result/nodes/{transactionId}
+      method: GET
+
+transaction_result_changed_crs:
+  - read:
+      path: /core/transaction/v3/result/changedcrs/{transactionId}
+      method: GET
+
 transaction_result_input_resources:
   - read:
       path: /core/transaction/v2/result/inputresources/{transactionId}
+      method: GET
+
+transaction_result_intents_run:
+  - read:
+      path: /core/transaction/v3/result/intentsrun/{transactionId}
       method: GET
 
 transaction_result_object:
@@ -347,11 +439,6 @@ transaction_summary_result:
 transaction_summary_results:
   - read:
       path: /core/transaction/v2/result/summary
-      method: GET
-
-transaction_topology_result:
-  - read:
-      path: /core/transaction/v2/result/topology/{transactionId}
       method: GET
 
 user_storage_in_file_content:
@@ -391,14 +478,22 @@ workflow_status_summary:
 
 db_get_result:
   - read:
-      path: /core/db/v1/{path}
-      method: GET
-  - read:
       path: /core/db/v2/data
       method: GET
   - read:
       path: /core/db/v2/schema
       method: GET
+
+merge_request:
+  - create:
+      path: /core/mergerequest/v1
+      method: POST
+  - read:
+      path: /core/mergerequest/v1/{mergeRequestId}
+      method: GET
+  - update:
+      path: /core/mergerequest/v1/{mergeRequestId}
+      method: PUT
 
 transaction_topology_request:
   - create:
@@ -410,10 +505,10 @@ version_info:
       path: /core/about/version
       method: GET
 
-totalPaths: 81
-totalSchemas: 154
-usedSchemas: 59
-unusedSchemas: 95
+totalPaths: 108
+totalSchemas: 196
+usedSchemas: 75
+unusedSchemas: 121
 unusedSchemaList:
   - AccessQuery
   - AccessResult
@@ -421,16 +516,21 @@ unusedSchemaList:
   - AlarmTarget
   - AuthProvider_auth
   - AuthProvider_groupSupport
+  - AuthSession
+  - AuthSessionClient
   - AutoCompleteDetails
   - AutoCompleteResponse
   - AutoCompletion
+  - BranchMainCluster
+  - BranchMergeResponse
+  - BranchRebaseResponse
+  - BranchRestoreResponse
   - ChatResponseType
   - CheckAccessResponse
+  - CompletionsQuery
   - ConversationHistoryMessage
   - ConversationHistoryRole
   - CrAnnotation
-  - ErrorIndex
-  - ErrorItem
   - ErrorResponse
   - GroupID
   - GroupVersionKind
@@ -441,15 +541,30 @@ unusedSchemaList:
   - LabelCompletionResponse
   - LineSegment
   - Metadata
+  - NameNamespace
   - NamespaceData
-  - NsCrGvkName
   - OperationType
   - OverlayState
   - Patch
   - ProviderAuth
   - QueryCompletion
   - QueryConvertResponse
+  - QueryEqlParseResponse
+  - QueryEqlParsed
+  - QueryField
+  - QueryFieldAggregate
+  - QueryFieldConcat
+  - QueryFieldConcatPathOrConst
+  - QueryFieldPath
+  - QueryOrderByField
+  - QueryWhereExpression
+  - QueryWhereParseResponse
+  - QueryWhereParsed
+  - QueryWhereValue
+  - QueryWhereValueList
+  - ResourceCr
   - ResourceRule
+  - StoreAppRequirementGraphRequires
   - StoreAppRequirementsGraphItem
   - StoreAppRequirementsGraphItem_installedAppVersion
   - StoreAppRequirementsGraphItem_targetAppVersion
@@ -494,6 +609,8 @@ unusedSchemaList:
   - TopologyStateGroupingBase
   - TopologyStateTierSelector
   - TransactionAppError
+  - TransactionChangedCrCategory
+  - TransactionConflict
   - TransactionContent
   - TransactionId
   - TransactionInputResource
@@ -501,12 +618,16 @@ unusedSchemaList:
   - TransactionNodeResult
   - TransactionNsCrGvkNames
   - TransactionPatch
+  - TransactionPrior
   - TransactionResultObjectString
   - TransactionScriptResults
-  - TransactionStructuredAppError
+  - TransactionTopologyResult
   - TransactionType
   - TransactionValue
   - UrlRule
   - UserStatus
   - UserStorageOutDirEntry
+  - mergeRequestId
+  - rebaseResourcesResult
+  - resourceCrs
   - singleVersionInfo

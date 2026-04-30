@@ -87,16 +87,77 @@ func TransactionExecutionResultDataSourceSchema(ctx context.Context) schema.Sche
 						"errors": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
-									"raw_error": schema.StringAttribute{
-										Computed: true,
-									},
-									"structured_error": schema.SingleNestedAttribute{
+									"error": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
-											"message": schema.StringAttribute{
+											"cause_collection": schema.ListNestedAttribute{
+												NestedObject: schema.NestedAttributeObject{
+													Attributes: map[string]schema.Attribute{},
+													CustomType: CauseCollectionType{
+														ObjectType: types.ObjectType{
+															AttrTypes: CauseCollectionValue{}.AttributeTypes(ctx),
+														},
+													},
+												},
+												Computed:            true,
+												Description:         "A lower-level set of structured errors.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
+												MarkdownDescription: "A lower-level set of structured errors.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
+											},
+											"cause_indexed_collection": schema.ListNestedAttribute{
+												NestedObject: schema.NestedAttributeObject{
+													Attributes: map[string]schema.Attribute{},
+													CustomType: CauseIndexedCollectionType{
+														ObjectType: types.ObjectType{
+															AttrTypes: CauseIndexedCollectionValue{}.AttributeTypes(ctx),
+														},
+													},
+												},
+												Computed:            true,
+												Description:         "A lower-level set of structured errors.\nEach of these errors MUST have index set.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
+												MarkdownDescription: "A lower-level set of structured errors.\nEach of these errors MUST have index set.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
+											},
+											"cause_is_internal": schema.BoolAttribute{
+												Computed:            true,
+												Description:         "If true, then the cause (`causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection`) should be hidden from the user.",
+												MarkdownDescription: "If true, then the cause (`causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection`) should be hidden from the user.",
+											},
+											"cause_simple": schema.StringAttribute{
+												Computed:            true,
+												Description:         "Simple string error type.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
+												MarkdownDescription: "Simple string error type.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
+											},
+											"cause_wrapped": schema.SingleNestedAttribute{
+												Attributes: map[string]schema.Attribute{},
+												CustomType: CauseWrappedType{
+													ObjectType: types.ObjectType{
+														AttrTypes: CauseWrappedValue{}.AttributeTypes(ctx),
+													},
+												},
 												Computed: true,
 											},
-											"message_key": schema.StringAttribute{
-												Computed: true,
+											"domain": schema.StringAttribute{
+												Computed:            true,
+												Description:         "The \"domain\" for the error.  If empty, it is an EDA\ncore error.  Alternatively it can be an EDA application\n\"apiVersion\" value (e.g. interfaces.eda.nokia.com/v1alpha1)\nindicating that the error is specific to that application.\nThe domain gives the receiver information that they can use\nto help them interpret the \"type\" field.",
+												MarkdownDescription: "The \"domain\" for the error.  If empty, it is an EDA\ncore error.  Alternatively it can be an EDA application\n\"apiVersion\" value (e.g. interfaces.eda.nokia.com/v1alpha1)\nindicating that the error is specific to that application.\nThe domain gives the receiver information that they can use\nto help them interpret the \"type\" field.",
+											},
+											"index": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "When processing an array, errors may be generated related to a particular array item.\nIf set, this index indicates to which array item the error applies.",
+												MarkdownDescription: "When processing an array, errors may be generated related to a particular array item.\nIf set, this index indicates to which array item the error applies.",
+											},
+											"message": schema.StringAttribute{
+												Computed:            true,
+												Description:         "The basic text error message for the error response.",
+												MarkdownDescription: "The basic text error message for the error response.",
+											},
+											"ref": schema.StringAttribute{
+												Computed:            true,
+												Description:         "Reference to the error source. Should typically be the URI of the request.",
+												MarkdownDescription: "Reference to the error source. Should typically be the URI of the request.",
+											},
+											"type": schema.StringAttribute{
+												Computed:            true,
+												Description:         "Type defines a unique identifier for the error, within the domain.\nThis may be used (along with the domain) to find an internationalization translation for the message.\n\nSHOULD be a valid golang identifier, and SHOULD be in UpperCamelCase.",
+												MarkdownDescription: "Type defines a unique identifier for the error, within the domain.\nThis may be used (along with the domain) to find an internationalization translation for the message.\n\nSHOULD be a valid golang identifier, and SHOULD be in UpperCamelCase.",
 											},
 											"values": schema.MapNestedAttribute{
 												NestedObject: schema.NestedAttributeObject{
@@ -107,14 +168,19 @@ func TransactionExecutionResultDataSourceSchema(ctx context.Context) schema.Sche
 														},
 													},
 												},
-												Computed: true,
+												Computed:            true,
+												Description:         "Associated data/information.\nThe error \"message\" may contain {{name}} escapes that should be substituted with information from this dictionary.\n\nNote that this map MUST NOT contain JSON objects (`{...}`) or arrays (`[...]`), only simple JSON types are permitted.",
+												MarkdownDescription: "Associated data/information.\nThe error \"message\" may contain {{name}} escapes that should be substituted with information from this dictionary.\n\nNote that this map MUST NOT contain JSON objects (`{...}`) or arrays (`[...]`), only simple JSON types are permitted.",
 											},
 										},
-										CustomType: StructuredErrorType{
+										CustomType: ErrorType{
 											ObjectType: types.ObjectType{
-												AttrTypes: StructuredErrorValue{}.AttributeTypes(ctx),
+												AttrTypes: ErrorValue{}.AttributeTypes(ctx),
 											},
 										},
+										Computed: true,
+									},
+									"raw_error": schema.StringAttribute{
 										Computed: true,
 									},
 								},
@@ -1859,6 +1925,24 @@ func (t ErrorsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 
 	attributes := in.Attributes()
 
+	errorAttribute, ok := attributes["error"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`error is missing from object`)
+
+		return nil, diags
+	}
+
+	errorVal, ok := errorAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`error expected to be basetypes.ObjectValue, was: %T`, errorAttribute))
+	}
+
 	rawErrorAttribute, ok := attributes["raw_error"]
 
 	if !ok {
@@ -1877,32 +1961,14 @@ func (t ErrorsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`raw_error expected to be basetypes.StringValue, was: %T`, rawErrorAttribute))
 	}
 
-	structuredErrorAttribute, ok := attributes["structured_error"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`structured_error is missing from object`)
-
-		return nil, diags
-	}
-
-	structuredErrorVal, ok := structuredErrorAttribute.(basetypes.ObjectValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`structured_error expected to be basetypes.ObjectValue, was: %T`, structuredErrorAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return ErrorsValue{
-		RawError:        rawErrorVal,
-		StructuredError: structuredErrorVal,
-		state:           attr.ValueStateKnown,
+		Error:    errorVal,
+		RawError: rawErrorVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1969,6 +2035,24 @@ func NewErrorsValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewErrorsValueUnknown(), diags
 	}
 
+	errorAttribute, ok := attributes["error"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`error is missing from object`)
+
+		return NewErrorsValueUnknown(), diags
+	}
+
+	errorVal, ok := errorAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`error expected to be basetypes.ObjectValue, was: %T`, errorAttribute))
+	}
+
 	rawErrorAttribute, ok := attributes["raw_error"]
 
 	if !ok {
@@ -1987,32 +2071,14 @@ func NewErrorsValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`raw_error expected to be basetypes.StringValue, was: %T`, rawErrorAttribute))
 	}
 
-	structuredErrorAttribute, ok := attributes["structured_error"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`structured_error is missing from object`)
-
-		return NewErrorsValueUnknown(), diags
-	}
-
-	structuredErrorVal, ok := structuredErrorAttribute.(basetypes.ObjectValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`structured_error expected to be basetypes.ObjectValue, was: %T`, structuredErrorAttribute))
-	}
-
 	if diags.HasError() {
 		return NewErrorsValueUnknown(), diags
 	}
 
 	return ErrorsValue{
-		RawError:        rawErrorVal,
-		StructuredError: structuredErrorVal,
-		state:           attr.ValueStateKnown,
+		Error:    errorVal,
+		RawError: rawErrorVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -2084,9 +2150,9 @@ func (t ErrorsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ErrorsValue{}
 
 type ErrorsValue struct {
-	RawError        basetypes.StringValue `tfsdk:"raw_error"`
-	StructuredError basetypes.ObjectValue `tfsdk:"structured_error"`
-	state           attr.ValueState
+	Error    basetypes.ObjectValue `tfsdk:"error"`
+	RawError basetypes.StringValue `tfsdk:"raw_error"`
+	state    attr.ValueState
 }
 
 func (v ErrorsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -2095,16 +2161,24 @@ func (v ErrorsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	var val tftypes.Value
 	var err error
 
-	attrTypes["raw_error"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["structured_error"] = basetypes.ObjectType{
-		AttrTypes: StructuredErrorValue{}.AttributeTypes(ctx),
+	attrTypes["error"] = basetypes.ObjectType{
+		AttrTypes: ErrorValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["raw_error"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Error.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["error"] = val
 
 		val, err = v.RawError.ToTerraformValue(ctx)
 
@@ -2113,14 +2187,6 @@ func (v ErrorsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		}
 
 		vals["raw_error"] = val
-
-		val, err = v.StructuredError.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["structured_error"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -2151,32 +2217,32 @@ func (v ErrorsValue) String() string {
 func (v ErrorsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	var structuredError basetypes.ObjectValue
+	var error basetypes.ObjectValue
 
-	if v.StructuredError.IsNull() {
-		structuredError = types.ObjectNull(
-			StructuredErrorValue{}.AttributeTypes(ctx),
+	if v.Error.IsNull() {
+		error = types.ObjectNull(
+			ErrorValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if v.StructuredError.IsUnknown() {
-		structuredError = types.ObjectUnknown(
-			StructuredErrorValue{}.AttributeTypes(ctx),
+	if v.Error.IsUnknown() {
+		error = types.ObjectUnknown(
+			ErrorValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if !v.StructuredError.IsNull() && !v.StructuredError.IsUnknown() {
-		structuredError = types.ObjectValueMust(
-			StructuredErrorValue{}.AttributeTypes(ctx),
-			v.StructuredError.Attributes(),
+	if !v.Error.IsNull() && !v.Error.IsUnknown() {
+		error = types.ObjectValueMust(
+			ErrorValue{}.AttributeTypes(ctx),
+			v.Error.Attributes(),
 		)
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"raw_error": basetypes.StringType{},
-		"structured_error": basetypes.ObjectType{
-			AttrTypes: StructuredErrorValue{}.AttributeTypes(ctx),
+		"error": basetypes.ObjectType{
+			AttrTypes: ErrorValue{}.AttributeTypes(ctx),
 		},
+		"raw_error": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -2190,8 +2256,8 @@ func (v ErrorsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"raw_error":        v.RawError,
-			"structured_error": structuredError,
+			"error":     error,
+			"raw_error": v.RawError,
 		})
 
 	return objVal, diags
@@ -2212,11 +2278,11 @@ func (v ErrorsValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.RawError.Equal(other.RawError) {
+	if !v.Error.Equal(other.Error) {
 		return false
 	}
 
-	if !v.StructuredError.Equal(other.StructuredError) {
+	if !v.RawError.Equal(other.RawError) {
 		return false
 	}
 
@@ -2233,21 +2299,21 @@ func (v ErrorsValue) Type(ctx context.Context) attr.Type {
 
 func (v ErrorsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"raw_error": basetypes.StringType{},
-		"structured_error": basetypes.ObjectType{
-			AttrTypes: StructuredErrorValue{}.AttributeTypes(ctx),
+		"error": basetypes.ObjectType{
+			AttrTypes: ErrorValue{}.AttributeTypes(ctx),
 		},
+		"raw_error": basetypes.StringType{},
 	}
 }
 
-var _ basetypes.ObjectTypable = StructuredErrorType{}
+var _ basetypes.ObjectTypable = ErrorType{}
 
-type StructuredErrorType struct {
+type ErrorType struct {
 	basetypes.ObjectType
 }
 
-func (t StructuredErrorType) Equal(o attr.Type) bool {
-	other, ok := o.(StructuredErrorType)
+func (t ErrorType) Equal(o attr.Type) bool {
+	other, ok := o.(ErrorType)
 
 	if !ok {
 		return false
@@ -2256,14 +2322,140 @@ func (t StructuredErrorType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t StructuredErrorType) String() string {
-	return "StructuredErrorType"
+func (t ErrorType) String() string {
+	return "ErrorType"
 }
 
-func (t StructuredErrorType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t ErrorType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
+
+	causeCollectionAttribute, ok := attributes["cause_collection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_collection is missing from object`)
+
+		return nil, diags
+	}
+
+	causeCollectionVal, ok := causeCollectionAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_collection expected to be basetypes.ListValue, was: %T`, causeCollectionAttribute))
+	}
+
+	causeIndexedCollectionAttribute, ok := attributes["cause_indexed_collection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_indexed_collection is missing from object`)
+
+		return nil, diags
+	}
+
+	causeIndexedCollectionVal, ok := causeIndexedCollectionAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_indexed_collection expected to be basetypes.ListValue, was: %T`, causeIndexedCollectionAttribute))
+	}
+
+	causeIsInternalAttribute, ok := attributes["cause_is_internal"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_is_internal is missing from object`)
+
+		return nil, diags
+	}
+
+	causeIsInternalVal, ok := causeIsInternalAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_is_internal expected to be basetypes.BoolValue, was: %T`, causeIsInternalAttribute))
+	}
+
+	causeSimpleAttribute, ok := attributes["cause_simple"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_simple is missing from object`)
+
+		return nil, diags
+	}
+
+	causeSimpleVal, ok := causeSimpleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_simple expected to be basetypes.StringValue, was: %T`, causeSimpleAttribute))
+	}
+
+	causeWrappedAttribute, ok := attributes["cause_wrapped"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_wrapped is missing from object`)
+
+		return nil, diags
+	}
+
+	causeWrappedVal, ok := causeWrappedAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_wrapped expected to be basetypes.ObjectValue, was: %T`, causeWrappedAttribute))
+	}
+
+	domainAttribute, ok := attributes["domain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`domain is missing from object`)
+
+		return nil, diags
+	}
+
+	domainVal, ok := domainAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`domain expected to be basetypes.StringValue, was: %T`, domainAttribute))
+	}
+
+	indexAttribute, ok := attributes["index"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`index is missing from object`)
+
+		return nil, diags
+	}
+
+	indexVal, ok := indexAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`index expected to be basetypes.Int64Value, was: %T`, indexAttribute))
+	}
 
 	messageAttribute, ok := attributes["message"]
 
@@ -2283,22 +2475,40 @@ func (t StructuredErrorType) ValueFromObject(ctx context.Context, in basetypes.O
 			fmt.Sprintf(`message expected to be basetypes.StringValue, was: %T`, messageAttribute))
 	}
 
-	messageKeyAttribute, ok := attributes["message_key"]
+	refAttribute, ok := attributes["ref"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`message_key is missing from object`)
+			`ref is missing from object`)
 
 		return nil, diags
 	}
 
-	messageKeyVal, ok := messageKeyAttribute.(basetypes.StringValue)
+	refVal, ok := refAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`message_key expected to be basetypes.StringValue, was: %T`, messageKeyAttribute))
+			fmt.Sprintf(`ref expected to be basetypes.StringValue, was: %T`, refAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
 	valuesAttribute, ok := attributes["values"]
@@ -2323,27 +2533,35 @@ func (t StructuredErrorType) ValueFromObject(ctx context.Context, in basetypes.O
 		return nil, diags
 	}
 
-	return StructuredErrorValue{
-		Message:    messageVal,
-		MessageKey: messageKeyVal,
-		Values:     valuesVal,
-		state:      attr.ValueStateKnown,
+	return ErrorValue{
+		CauseCollection:        causeCollectionVal,
+		CauseIndexedCollection: causeIndexedCollectionVal,
+		CauseIsInternal:        causeIsInternalVal,
+		CauseSimple:            causeSimpleVal,
+		CauseWrapped:           causeWrappedVal,
+		Domain:                 domainVal,
+		Index:                  indexVal,
+		Message:                messageVal,
+		Ref:                    refVal,
+		ErrorType:              typeVal,
+		Values:                 valuesVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
-func NewStructuredErrorValueNull() StructuredErrorValue {
-	return StructuredErrorValue{
+func NewErrorValueNull() ErrorValue {
+	return ErrorValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewStructuredErrorValueUnknown() StructuredErrorValue {
-	return StructuredErrorValue{
+func NewErrorValueUnknown() ErrorValue {
+	return ErrorValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewStructuredErrorValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (StructuredErrorValue, diag.Diagnostics) {
+func NewErrorValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (ErrorValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -2354,11 +2572,11 @@ func NewStructuredErrorValue(attributeTypes map[string]attr.Type, attributes map
 
 		if !ok {
 			diags.AddError(
-				"Missing StructuredErrorValue Attribute Value",
-				"While creating a StructuredErrorValue value, a missing attribute value was detected. "+
-					"A StructuredErrorValue must contain values for all attributes, even if null or unknown. "+
+				"Missing ErrorValue Attribute Value",
+				"While creating a ErrorValue value, a missing attribute value was detected. "+
+					"A ErrorValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("StructuredErrorValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("ErrorValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -2366,12 +2584,12 @@ func NewStructuredErrorValue(attributeTypes map[string]attr.Type, attributes map
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid StructuredErrorValue Attribute Type",
-				"While creating a StructuredErrorValue value, an invalid attribute value was detected. "+
-					"A StructuredErrorValue must use a matching attribute type for the value. "+
+				"Invalid ErrorValue Attribute Type",
+				"While creating a ErrorValue value, an invalid attribute value was detected. "+
+					"A ErrorValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("StructuredErrorValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("StructuredErrorValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("ErrorValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("ErrorValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -2381,17 +2599,143 @@ func NewStructuredErrorValue(attributeTypes map[string]attr.Type, attributes map
 
 		if !ok {
 			diags.AddError(
-				"Extra StructuredErrorValue Attribute Value",
-				"While creating a StructuredErrorValue value, an extra attribute value was detected. "+
-					"A StructuredErrorValue must not contain values beyond the expected attribute types. "+
+				"Extra ErrorValue Attribute Value",
+				"While creating a ErrorValue value, an extra attribute value was detected. "+
+					"A ErrorValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra StructuredErrorValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra ErrorValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewStructuredErrorValueUnknown(), diags
+		return NewErrorValueUnknown(), diags
+	}
+
+	causeCollectionAttribute, ok := attributes["cause_collection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_collection is missing from object`)
+
+		return NewErrorValueUnknown(), diags
+	}
+
+	causeCollectionVal, ok := causeCollectionAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_collection expected to be basetypes.ListValue, was: %T`, causeCollectionAttribute))
+	}
+
+	causeIndexedCollectionAttribute, ok := attributes["cause_indexed_collection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_indexed_collection is missing from object`)
+
+		return NewErrorValueUnknown(), diags
+	}
+
+	causeIndexedCollectionVal, ok := causeIndexedCollectionAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_indexed_collection expected to be basetypes.ListValue, was: %T`, causeIndexedCollectionAttribute))
+	}
+
+	causeIsInternalAttribute, ok := attributes["cause_is_internal"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_is_internal is missing from object`)
+
+		return NewErrorValueUnknown(), diags
+	}
+
+	causeIsInternalVal, ok := causeIsInternalAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_is_internal expected to be basetypes.BoolValue, was: %T`, causeIsInternalAttribute))
+	}
+
+	causeSimpleAttribute, ok := attributes["cause_simple"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_simple is missing from object`)
+
+		return NewErrorValueUnknown(), diags
+	}
+
+	causeSimpleVal, ok := causeSimpleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_simple expected to be basetypes.StringValue, was: %T`, causeSimpleAttribute))
+	}
+
+	causeWrappedAttribute, ok := attributes["cause_wrapped"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cause_wrapped is missing from object`)
+
+		return NewErrorValueUnknown(), diags
+	}
+
+	causeWrappedVal, ok := causeWrappedAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cause_wrapped expected to be basetypes.ObjectValue, was: %T`, causeWrappedAttribute))
+	}
+
+	domainAttribute, ok := attributes["domain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`domain is missing from object`)
+
+		return NewErrorValueUnknown(), diags
+	}
+
+	domainVal, ok := domainAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`domain expected to be basetypes.StringValue, was: %T`, domainAttribute))
+	}
+
+	indexAttribute, ok := attributes["index"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`index is missing from object`)
+
+		return NewErrorValueUnknown(), diags
+	}
+
+	indexVal, ok := indexAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`index expected to be basetypes.Int64Value, was: %T`, indexAttribute))
 	}
 
 	messageAttribute, ok := attributes["message"]
@@ -2401,7 +2745,7 @@ func NewStructuredErrorValue(attributeTypes map[string]attr.Type, attributes map
 			"Attribute Missing",
 			`message is missing from object`)
 
-		return NewStructuredErrorValueUnknown(), diags
+		return NewErrorValueUnknown(), diags
 	}
 
 	messageVal, ok := messageAttribute.(basetypes.StringValue)
@@ -2412,22 +2756,40 @@ func NewStructuredErrorValue(attributeTypes map[string]attr.Type, attributes map
 			fmt.Sprintf(`message expected to be basetypes.StringValue, was: %T`, messageAttribute))
 	}
 
-	messageKeyAttribute, ok := attributes["message_key"]
+	refAttribute, ok := attributes["ref"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`message_key is missing from object`)
+			`ref is missing from object`)
 
-		return NewStructuredErrorValueUnknown(), diags
+		return NewErrorValueUnknown(), diags
 	}
 
-	messageKeyVal, ok := messageKeyAttribute.(basetypes.StringValue)
+	refVal, ok := refAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`message_key expected to be basetypes.StringValue, was: %T`, messageKeyAttribute))
+			fmt.Sprintf(`ref expected to be basetypes.StringValue, was: %T`, refAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewErrorValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
 	valuesAttribute, ok := attributes["values"]
@@ -2437,7 +2799,7 @@ func NewStructuredErrorValue(attributeTypes map[string]attr.Type, attributes map
 			"Attribute Missing",
 			`values is missing from object`)
 
-		return NewStructuredErrorValueUnknown(), diags
+		return NewErrorValueUnknown(), diags
 	}
 
 	valuesVal, ok := valuesAttribute.(basetypes.MapValue)
@@ -2449,19 +2811,27 @@ func NewStructuredErrorValue(attributeTypes map[string]attr.Type, attributes map
 	}
 
 	if diags.HasError() {
-		return NewStructuredErrorValueUnknown(), diags
+		return NewErrorValueUnknown(), diags
 	}
 
-	return StructuredErrorValue{
-		Message:    messageVal,
-		MessageKey: messageKeyVal,
-		Values:     valuesVal,
-		state:      attr.ValueStateKnown,
+	return ErrorValue{
+		CauseCollection:        causeCollectionVal,
+		CauseIndexedCollection: causeIndexedCollectionVal,
+		CauseIsInternal:        causeIsInternalVal,
+		CauseSimple:            causeSimpleVal,
+		CauseWrapped:           causeWrappedVal,
+		Domain:                 domainVal,
+		Index:                  indexVal,
+		Message:                messageVal,
+		Ref:                    refVal,
+		ErrorType:              typeVal,
+		Values:                 valuesVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
-func NewStructuredErrorValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) StructuredErrorValue {
-	object, diags := NewStructuredErrorValue(attributeTypes, attributes)
+func NewErrorValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) ErrorValue {
+	object, diags := NewErrorValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -2475,15 +2845,15 @@ func NewStructuredErrorValueMust(attributeTypes map[string]attr.Type, attributes
 				diagnostic.Detail()))
 		}
 
-		panic("NewStructuredErrorValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewErrorValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t StructuredErrorType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t ErrorType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewStructuredErrorValueNull(), nil
+		return NewErrorValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -2491,11 +2861,11 @@ func (t StructuredErrorType) ValueFromTerraform(ctx context.Context, in tftypes.
 	}
 
 	if !in.IsKnown() {
-		return NewStructuredErrorValueUnknown(), nil
+		return NewErrorValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewStructuredErrorValueNull(), nil
+		return NewErrorValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -2518,30 +2888,52 @@ func (t StructuredErrorType) ValueFromTerraform(ctx context.Context, in tftypes.
 		attributes[k] = a
 	}
 
-	return NewStructuredErrorValueMust(StructuredErrorValue{}.AttributeTypes(ctx), attributes), nil
+	return NewErrorValueMust(ErrorValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t StructuredErrorType) ValueType(ctx context.Context) attr.Value {
-	return StructuredErrorValue{}
+func (t ErrorType) ValueType(ctx context.Context) attr.Value {
+	return ErrorValue{}
 }
 
-var _ basetypes.ObjectValuable = StructuredErrorValue{}
+var _ basetypes.ObjectValuable = ErrorValue{}
 
-type StructuredErrorValue struct {
-	Message    basetypes.StringValue `tfsdk:"message"`
-	MessageKey basetypes.StringValue `tfsdk:"message_key"`
-	Values     basetypes.MapValue    `tfsdk:"values"`
-	state      attr.ValueState
+type ErrorValue struct {
+	CauseCollection        basetypes.ListValue   `tfsdk:"cause_collection"`
+	CauseIndexedCollection basetypes.ListValue   `tfsdk:"cause_indexed_collection"`
+	CauseIsInternal        basetypes.BoolValue   `tfsdk:"cause_is_internal"`
+	CauseSimple            basetypes.StringValue `tfsdk:"cause_simple"`
+	CauseWrapped           basetypes.ObjectValue `tfsdk:"cause_wrapped"`
+	Domain                 basetypes.StringValue `tfsdk:"domain"`
+	Index                  basetypes.Int64Value  `tfsdk:"index"`
+	Message                basetypes.StringValue `tfsdk:"message"`
+	Ref                    basetypes.StringValue `tfsdk:"ref"`
+	ErrorType              basetypes.StringValue `tfsdk:"type"`
+	Values                 basetypes.MapValue    `tfsdk:"values"`
+	state                  attr.ValueState
 }
 
-func (v StructuredErrorValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+func (v ErrorValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 11)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["cause_collection"] = basetypes.ListType{
+		ElemType: CauseCollectionValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["cause_indexed_collection"] = basetypes.ListType{
+		ElemType: CauseIndexedCollectionValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["cause_is_internal"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["cause_simple"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["cause_wrapped"] = basetypes.ObjectType{
+		AttrTypes: CauseWrappedValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["domain"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["index"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["message"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["message_key"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["ref"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["values"] = basetypes.MapType{
 		ElemType: ValuesValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -2550,7 +2942,63 @@ func (v StructuredErrorValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 11)
+
+		val, err = v.CauseCollection.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["cause_collection"] = val
+
+		val, err = v.CauseIndexedCollection.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["cause_indexed_collection"] = val
+
+		val, err = v.CauseIsInternal.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["cause_is_internal"] = val
+
+		val, err = v.CauseSimple.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["cause_simple"] = val
+
+		val, err = v.CauseWrapped.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["cause_wrapped"] = val
+
+		val, err = v.Domain.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["domain"] = val
+
+		val, err = v.Index.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["index"] = val
 
 		val, err = v.Message.ToTerraformValue(ctx)
 
@@ -2560,13 +3008,21 @@ func (v StructuredErrorValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 
 		vals["message"] = val
 
-		val, err = v.MessageKey.ToTerraformValue(ctx)
+		val, err = v.Ref.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["message_key"] = val
+		vals["ref"] = val
+
+		val, err = v.ErrorType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
 
 		val, err = v.Values.ToTerraformValue(ctx)
 
@@ -2590,20 +3046,99 @@ func (v StructuredErrorValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 	}
 }
 
-func (v StructuredErrorValue) IsNull() bool {
+func (v ErrorValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v StructuredErrorValue) IsUnknown() bool {
+func (v ErrorValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v StructuredErrorValue) String() string {
-	return "StructuredErrorValue"
+func (v ErrorValue) String() string {
+	return "ErrorValue"
 }
 
-func (v StructuredErrorValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v ErrorValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	causeCollection := types.ListValueMust(
+		CauseCollectionType{
+			basetypes.ObjectType{
+				AttrTypes: CauseCollectionValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.CauseCollection.Elements(),
+	)
+
+	if v.CauseCollection.IsNull() {
+		causeCollection = types.ListNull(
+			CauseCollectionType{
+				basetypes.ObjectType{
+					AttrTypes: CauseCollectionValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.CauseCollection.IsUnknown() {
+		causeCollection = types.ListUnknown(
+			CauseCollectionType{
+				basetypes.ObjectType{
+					AttrTypes: CauseCollectionValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	causeIndexedCollection := types.ListValueMust(
+		CauseIndexedCollectionType{
+			basetypes.ObjectType{
+				AttrTypes: CauseIndexedCollectionValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.CauseIndexedCollection.Elements(),
+	)
+
+	if v.CauseIndexedCollection.IsNull() {
+		causeIndexedCollection = types.ListNull(
+			CauseIndexedCollectionType{
+				basetypes.ObjectType{
+					AttrTypes: CauseIndexedCollectionValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.CauseIndexedCollection.IsUnknown() {
+		causeIndexedCollection = types.ListUnknown(
+			CauseIndexedCollectionType{
+				basetypes.ObjectType{
+					AttrTypes: CauseIndexedCollectionValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	var causeWrapped basetypes.ObjectValue
+
+	if v.CauseWrapped.IsNull() {
+		causeWrapped = types.ObjectNull(
+			CauseWrappedValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.CauseWrapped.IsUnknown() {
+		causeWrapped = types.ObjectUnknown(
+			CauseWrappedValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.CauseWrapped.IsNull() && !v.CauseWrapped.IsUnknown() {
+		causeWrapped = types.ObjectValueMust(
+			CauseWrappedValue{}.AttributeTypes(ctx),
+			v.CauseWrapped.Attributes(),
+		)
+	}
 
 	values := types.MapValueMust(
 		ValuesType{
@@ -2635,8 +3170,22 @@ func (v StructuredErrorValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"message":     basetypes.StringType{},
-		"message_key": basetypes.StringType{},
+		"cause_collection": basetypes.ListType{
+			ElemType: CauseCollectionValue{}.Type(ctx),
+		},
+		"cause_indexed_collection": basetypes.ListType{
+			ElemType: CauseIndexedCollectionValue{}.Type(ctx),
+		},
+		"cause_is_internal": basetypes.BoolType{},
+		"cause_simple":      basetypes.StringType{},
+		"cause_wrapped": basetypes.ObjectType{
+			AttrTypes: CauseWrappedValue{}.AttributeTypes(ctx),
+		},
+		"domain":  basetypes.StringType{},
+		"index":   basetypes.Int64Type{},
+		"message": basetypes.StringType{},
+		"ref":     basetypes.StringType{},
+		"type":    basetypes.StringType{},
 		"values": basetypes.MapType{
 			ElemType: ValuesValue{}.Type(ctx),
 		},
@@ -2653,16 +3202,24 @@ func (v StructuredErrorValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"message":     v.Message,
-			"message_key": v.MessageKey,
-			"values":      values,
+			"cause_collection":         causeCollection,
+			"cause_indexed_collection": causeIndexedCollection,
+			"cause_is_internal":        v.CauseIsInternal,
+			"cause_simple":             v.CauseSimple,
+			"cause_wrapped":            causeWrapped,
+			"domain":                   v.Domain,
+			"index":                    v.Index,
+			"message":                  v.Message,
+			"ref":                      v.Ref,
+			"type":                     v.ErrorType,
+			"values":                   values,
 		})
 
 	return objVal, diags
 }
 
-func (v StructuredErrorValue) Equal(o attr.Value) bool {
-	other, ok := o.(StructuredErrorValue)
+func (v ErrorValue) Equal(o attr.Value) bool {
+	other, ok := o.(ErrorValue)
 
 	if !ok {
 		return false
@@ -2676,11 +3233,43 @@ func (v StructuredErrorValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.CauseCollection.Equal(other.CauseCollection) {
+		return false
+	}
+
+	if !v.CauseIndexedCollection.Equal(other.CauseIndexedCollection) {
+		return false
+	}
+
+	if !v.CauseIsInternal.Equal(other.CauseIsInternal) {
+		return false
+	}
+
+	if !v.CauseSimple.Equal(other.CauseSimple) {
+		return false
+	}
+
+	if !v.CauseWrapped.Equal(other.CauseWrapped) {
+		return false
+	}
+
+	if !v.Domain.Equal(other.Domain) {
+		return false
+	}
+
+	if !v.Index.Equal(other.Index) {
+		return false
+	}
+
 	if !v.Message.Equal(other.Message) {
 		return false
 	}
 
-	if !v.MessageKey.Equal(other.MessageKey) {
+	if !v.Ref.Equal(other.Ref) {
+		return false
+	}
+
+	if !v.ErrorType.Equal(other.ErrorType) {
 		return false
 	}
 
@@ -2691,22 +3280,816 @@ func (v StructuredErrorValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v StructuredErrorValue) Type(ctx context.Context) attr.Type {
-	return StructuredErrorType{
+func (v ErrorValue) Type(ctx context.Context) attr.Type {
+	return ErrorType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v StructuredErrorValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v ErrorValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"message":     basetypes.StringType{},
-		"message_key": basetypes.StringType{},
+		"cause_collection": basetypes.ListType{
+			ElemType: CauseCollectionValue{}.Type(ctx),
+		},
+		"cause_indexed_collection": basetypes.ListType{
+			ElemType: CauseIndexedCollectionValue{}.Type(ctx),
+		},
+		"cause_is_internal": basetypes.BoolType{},
+		"cause_simple":      basetypes.StringType{},
+		"cause_wrapped": basetypes.ObjectType{
+			AttrTypes: CauseWrappedValue{}.AttributeTypes(ctx),
+		},
+		"domain":  basetypes.StringType{},
+		"index":   basetypes.Int64Type{},
+		"message": basetypes.StringType{},
+		"ref":     basetypes.StringType{},
+		"type":    basetypes.StringType{},
 		"values": basetypes.MapType{
 			ElemType: ValuesValue{}.Type(ctx),
 		},
 	}
+}
+
+var _ basetypes.ObjectTypable = CauseCollectionType{}
+
+type CauseCollectionType struct {
+	basetypes.ObjectType
+}
+
+func (t CauseCollectionType) Equal(o attr.Type) bool {
+	other, ok := o.(CauseCollectionType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t CauseCollectionType) String() string {
+	return "CauseCollectionType"
+}
+
+func (t CauseCollectionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return CauseCollectionValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCauseCollectionValueNull() CauseCollectionValue {
+	return CauseCollectionValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewCauseCollectionValueUnknown() CauseCollectionValue {
+	return CauseCollectionValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewCauseCollectionValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (CauseCollectionValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing CauseCollectionValue Attribute Value",
+				"While creating a CauseCollectionValue value, a missing attribute value was detected. "+
+					"A CauseCollectionValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CauseCollectionValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid CauseCollectionValue Attribute Type",
+				"While creating a CauseCollectionValue value, an invalid attribute value was detected. "+
+					"A CauseCollectionValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CauseCollectionValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("CauseCollectionValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra CauseCollectionValue Attribute Value",
+				"While creating a CauseCollectionValue value, an extra attribute value was detected. "+
+					"A CauseCollectionValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra CauseCollectionValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewCauseCollectionValueUnknown(), diags
+	}
+
+	if diags.HasError() {
+		return NewCauseCollectionValueUnknown(), diags
+	}
+
+	return CauseCollectionValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCauseCollectionValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) CauseCollectionValue {
+	object, diags := NewCauseCollectionValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewCauseCollectionValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t CauseCollectionType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewCauseCollectionValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewCauseCollectionValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewCauseCollectionValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewCauseCollectionValueMust(CauseCollectionValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t CauseCollectionType) ValueType(ctx context.Context) attr.Value {
+	return CauseCollectionValue{}
+}
+
+var _ basetypes.ObjectValuable = CauseCollectionValue{}
+
+type CauseCollectionValue struct {
+	state attr.ValueState
+}
+
+func (v CauseCollectionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 0)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 0)
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v CauseCollectionValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v CauseCollectionValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v CauseCollectionValue) String() string {
+	return "CauseCollectionValue"
+}
+
+func (v CauseCollectionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{})
+
+	return objVal, diags
+}
+
+func (v CauseCollectionValue) Equal(o attr.Value) bool {
+	other, ok := o.(CauseCollectionValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	return true
+}
+
+func (v CauseCollectionValue) Type(ctx context.Context) attr.Type {
+	return CauseCollectionType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v CauseCollectionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{}
+}
+
+var _ basetypes.ObjectTypable = CauseIndexedCollectionType{}
+
+type CauseIndexedCollectionType struct {
+	basetypes.ObjectType
+}
+
+func (t CauseIndexedCollectionType) Equal(o attr.Type) bool {
+	other, ok := o.(CauseIndexedCollectionType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t CauseIndexedCollectionType) String() string {
+	return "CauseIndexedCollectionType"
+}
+
+func (t CauseIndexedCollectionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return CauseIndexedCollectionValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCauseIndexedCollectionValueNull() CauseIndexedCollectionValue {
+	return CauseIndexedCollectionValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewCauseIndexedCollectionValueUnknown() CauseIndexedCollectionValue {
+	return CauseIndexedCollectionValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewCauseIndexedCollectionValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (CauseIndexedCollectionValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing CauseIndexedCollectionValue Attribute Value",
+				"While creating a CauseIndexedCollectionValue value, a missing attribute value was detected. "+
+					"A CauseIndexedCollectionValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CauseIndexedCollectionValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid CauseIndexedCollectionValue Attribute Type",
+				"While creating a CauseIndexedCollectionValue value, an invalid attribute value was detected. "+
+					"A CauseIndexedCollectionValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CauseIndexedCollectionValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("CauseIndexedCollectionValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra CauseIndexedCollectionValue Attribute Value",
+				"While creating a CauseIndexedCollectionValue value, an extra attribute value was detected. "+
+					"A CauseIndexedCollectionValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra CauseIndexedCollectionValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewCauseIndexedCollectionValueUnknown(), diags
+	}
+
+	if diags.HasError() {
+		return NewCauseIndexedCollectionValueUnknown(), diags
+	}
+
+	return CauseIndexedCollectionValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCauseIndexedCollectionValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) CauseIndexedCollectionValue {
+	object, diags := NewCauseIndexedCollectionValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewCauseIndexedCollectionValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t CauseIndexedCollectionType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewCauseIndexedCollectionValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewCauseIndexedCollectionValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewCauseIndexedCollectionValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewCauseIndexedCollectionValueMust(CauseIndexedCollectionValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t CauseIndexedCollectionType) ValueType(ctx context.Context) attr.Value {
+	return CauseIndexedCollectionValue{}
+}
+
+var _ basetypes.ObjectValuable = CauseIndexedCollectionValue{}
+
+type CauseIndexedCollectionValue struct {
+	state attr.ValueState
+}
+
+func (v CauseIndexedCollectionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 0)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 0)
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v CauseIndexedCollectionValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v CauseIndexedCollectionValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v CauseIndexedCollectionValue) String() string {
+	return "CauseIndexedCollectionValue"
+}
+
+func (v CauseIndexedCollectionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{})
+
+	return objVal, diags
+}
+
+func (v CauseIndexedCollectionValue) Equal(o attr.Value) bool {
+	other, ok := o.(CauseIndexedCollectionValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	return true
+}
+
+func (v CauseIndexedCollectionValue) Type(ctx context.Context) attr.Type {
+	return CauseIndexedCollectionType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v CauseIndexedCollectionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{}
+}
+
+var _ basetypes.ObjectTypable = CauseWrappedType{}
+
+type CauseWrappedType struct {
+	basetypes.ObjectType
+}
+
+func (t CauseWrappedType) Equal(o attr.Type) bool {
+	other, ok := o.(CauseWrappedType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t CauseWrappedType) String() string {
+	return "CauseWrappedType"
+}
+
+func (t CauseWrappedType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return CauseWrappedValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCauseWrappedValueNull() CauseWrappedValue {
+	return CauseWrappedValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewCauseWrappedValueUnknown() CauseWrappedValue {
+	return CauseWrappedValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewCauseWrappedValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (CauseWrappedValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing CauseWrappedValue Attribute Value",
+				"While creating a CauseWrappedValue value, a missing attribute value was detected. "+
+					"A CauseWrappedValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CauseWrappedValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid CauseWrappedValue Attribute Type",
+				"While creating a CauseWrappedValue value, an invalid attribute value was detected. "+
+					"A CauseWrappedValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CauseWrappedValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("CauseWrappedValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra CauseWrappedValue Attribute Value",
+				"While creating a CauseWrappedValue value, an extra attribute value was detected. "+
+					"A CauseWrappedValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra CauseWrappedValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewCauseWrappedValueUnknown(), diags
+	}
+
+	if diags.HasError() {
+		return NewCauseWrappedValueUnknown(), diags
+	}
+
+	return CauseWrappedValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCauseWrappedValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) CauseWrappedValue {
+	object, diags := NewCauseWrappedValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewCauseWrappedValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t CauseWrappedType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewCauseWrappedValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewCauseWrappedValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewCauseWrappedValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewCauseWrappedValueMust(CauseWrappedValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t CauseWrappedType) ValueType(ctx context.Context) attr.Value {
+	return CauseWrappedValue{}
+}
+
+var _ basetypes.ObjectValuable = CauseWrappedValue{}
+
+type CauseWrappedValue struct {
+	state attr.ValueState
+}
+
+func (v CauseWrappedValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 0)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 0)
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v CauseWrappedValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v CauseWrappedValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v CauseWrappedValue) String() string {
+	return "CauseWrappedValue"
+}
+
+func (v CauseWrappedValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{})
+
+	return objVal, diags
+}
+
+func (v CauseWrappedValue) Equal(o attr.Value) bool {
+	other, ok := o.(CauseWrappedValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	return true
+}
+
+func (v CauseWrappedValue) Type(ctx context.Context) attr.Type {
+	return CauseWrappedType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v CauseWrappedValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{}
 }
 
 var _ basetypes.ObjectTypable = ValuesType{}

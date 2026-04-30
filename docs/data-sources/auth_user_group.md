@@ -21,68 +21,21 @@ description: |-
 
 ### Optional
 
-- `fullroles` (Boolean) If true, the full definitions of the roles associated with the group
+- `full_roles` (Boolean) If true, the full definitions of the roles associated with the group
 are returned, rather than just the role names.
-- `fullusers` (Boolean) If true, the full definitions of the users which are members of the group
+- `full_users` (Boolean) If true, the full definitions of the users which are members of the group
 are returned, rather than just the user names.
+- `fullroles` (Boolean) Deprecated: If true, the full definitions of the roles associated with the group
+are returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present.
+- `fullusers` (Boolean) Deprecated: If true, the full definitions of the users which are members of the group
+are returned, rather than just the user names.  Use fullRoles instead. Ignored if fullRoles present.
 
 ### Read-Only
 
 - `description` (String)
-- `full_roles` (Attributes List) contains the full role definitions of the Roles and ClusterRoles associated with the group, if requested (see [below for nested schema](#nestedatt--full_roles))
 - `is_federated` (Boolean) if true, indicates that the group was imported from a federated LDAP server
 - `name` (String)
 - `roles` (List of String) Contains the names of the ClusterRoles and Roles roles associated with the group.
 A Role name has the form "namesspace:rolename", whereas a ClusteRole name is a
 simple "rolename", without a colon or a namespace.
 - `users` (List of String) contains the usernames of the users who are members of the group
-
-<a id="nestedatt--full_roles"></a>
-### Nested Schema for `full_roles`
-
-Read-Only:
-
-- `description` (String)
-- `name` (String)
-- `namespace` (String)
-- `resource_rules` (Attributes List) Rules for access to resources. (see [below for nested schema](#nestedatt--full_roles--resource_rules))
-- `table_rules` (Attributes List) Rules for access to EDB tables, including via EQL. (see [below for nested schema](#nestedatt--full_roles--table_rules))
-- `url_rules` (Attributes List) Rules for access to APIServer routes. (see [below for nested schema](#nestedatt--full_roles--url_rules))
-
-<a id="nestedatt--full_roles--resource_rules"></a>
-### Nested Schema for `full_roles.resource_rules`
-
-Read-Only:
-
-- `api_groups` (List of String) The API groups for the resources controlled by the rule.
-An API group consists of an apiGroup and a version, e.g. "apigroup/version".
-The API group can be a wildcard ("*"), in which case it will match any API group.
-In addition, the version can be a wildcard.
-- `permissions` (String) Permissions for resources specified by the rule.
-- `resources` (List of String) Names for the resources controlled by the rule.
-It can be a wildcard ("*"), in which case it will match any resource
-in the matching API groups.
-
-
-<a id="nestedatt--full_roles--table_rules"></a>
-### Nested Schema for `full_roles.table_rules`
-
-Read-Only:
-
-- `path` (String) EDB path to which this rule applies. It can end in ".*"
-in which case the final portion of the table path can be anything, if the
-prefix matches. It can end in ".**" in which case the table path can be
-anything if the prefix matches.
-- `permissions` (String) Permissions for the given EDB path.
-
-
-<a id="nestedatt--full_roles--url_rules"></a>
-### Nested Schema for `full_roles.url_rules`
-
-Read-Only:
-
-- `path` (String) The API server URL path to which this rule applies. It can end in "/*"
-in which case the final portion of the URL path can be anything, if the
-prefix matches. It can end in "/**" in which case the URL path can be
-anything if the prefix matches.",
-- `permissions` (String) The permissions for the API server URL for the rule.

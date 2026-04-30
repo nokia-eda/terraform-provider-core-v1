@@ -126,6 +126,87 @@ func AuthUserGroupsDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "contains the full role definitions of the Roles and ClusterRoles associated with the group, if requested",
 							MarkdownDescription: "contains the full role definitions of the Roles and ClusterRoles associated with the group, if requested",
 						},
+						"full_users": schema.ListNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"email": schema.StringAttribute{
+										Computed: true,
+									},
+									"enabled": schema.BoolAttribute{
+										Computed: true,
+									},
+									"first_name": schema.StringAttribute{
+										Computed: true,
+									},
+									"groups": schema.ListAttribute{
+										ElementType:         types.StringType,
+										Computed:            true,
+										Description:         "contains the UUIDs of the groups of which the user is a member.",
+										MarkdownDescription: "contains the UUIDs of the groups of which the user is a member.",
+									},
+									"last_name": schema.StringAttribute{
+										Computed: true,
+									},
+									"max_sessions": schema.Int64Attribute{
+										Computed: true,
+									},
+									"password": schema.StringAttribute{
+										Computed: true,
+									},
+									"status": schema.SingleNestedAttribute{
+										Attributes: map[string]schema.Attribute{
+											"failed_login_since_successful_login": schema.Int64Attribute{
+												Computed: true,
+											},
+											"federation_provider_name": schema.StringAttribute{
+												Computed:            true,
+												Description:         "The name of the federation provider for this user. Absent if the user is not federated",
+												MarkdownDescription: "The name of the federation provider for this user. Absent if the user is not federated",
+											},
+											"federation_provider_uuid": schema.StringAttribute{
+												Computed:            true,
+												Description:         "The UUID of the federation provider for this user. Absent if the user is not federated",
+												MarkdownDescription: "The UUID of the federation provider for this user. Absent if the user is not federated",
+											},
+											"is_federated_user": schema.BoolAttribute{
+												Computed:            true,
+												Description:         "True if the user comes from a federated LDAP server",
+												MarkdownDescription: "True if the user comes from a federated LDAP server",
+											},
+											"last_failed_login": schema.StringAttribute{
+												Computed: true,
+											},
+											"last_successful_login": schema.StringAttribute{
+												Computed: true,
+											},
+											"temporarily_disabled": schema.BoolAttribute{
+												Computed: true,
+											},
+										},
+										CustomType: Status1Type{
+											ObjectType: types.ObjectType{
+												AttrTypes: Status1Value{}.AttributeTypes(ctx),
+											},
+										},
+										Computed: true,
+									},
+									"username": schema.StringAttribute{
+										Computed: true,
+									},
+									"uuid": schema.StringAttribute{
+										Computed: true,
+									},
+								},
+								CustomType: FullUsersType{
+									ObjectType: types.ObjectType{
+										AttrTypes: FullUsersValue{}.AttributeTypes(ctx),
+									},
+								},
+							},
+							Computed:            true,
+							Description:         "contains the full user definitions of the users who are members of the group, if requested",
+							MarkdownDescription: "contains the full user definitions of the users who are members of the group, if requested",
+						},
 						"fullusers": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -204,8 +285,9 @@ func AuthUserGroupsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "contains the full user definitions of the users who are members of the group, if requested",
-							MarkdownDescription: "contains the full user definitions of the users who are members of the group, if requested",
+							Description:         "Deprecated: Contains the full user definitions of the users who are members of the group, if requested.  Use fullUsers instead.",
+							MarkdownDescription: "Deprecated: Contains the full user definitions of the users who are members of the group, if requested.  Use fullUsers instead.",
+							DeprecationMessage:  "This attribute is deprecated.",
 						},
 						"is_federated": schema.BoolAttribute{
 							Computed:            true,
@@ -239,17 +321,29 @@ func AuthUserGroupsDataSourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed: true,
 			},
-			"fullroles": schema.BoolAttribute{
+			"full_roles": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
 				Description:         "If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.",
 				MarkdownDescription: "If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.",
 			},
-			"fullusers": schema.BoolAttribute{
+			"full_users": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
 				Description:         "If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.",
 				MarkdownDescription: "If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.",
+			},
+			"fullroles": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Deprecated: If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present.",
+				MarkdownDescription: "Deprecated: If true, the full definitions of the roles associated with the group\nare returned, rather than just the role names.  Use fullUsers instead.  Ignored if fullUsers present.",
+			},
+			"fullusers": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Deprecated: If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.  Use fullRoles instead. Ignored if fullRoles present.",
+				MarkdownDescription: "Deprecated: If true, the full definitions of the users which are members of the group\nare returned, rather than just the user names.  Use fullRoles instead. Ignored if fullRoles present.",
 			},
 		},
 	}
@@ -257,6 +351,8 @@ func AuthUserGroupsDataSourceSchema(ctx context.Context) schema.Schema {
 
 type AuthUserGroupsModel struct {
 	AuthUserGroups types.Set  `tfsdk:"auth_user_groups"`
+	FullRoles      types.Bool `tfsdk:"full_roles"`
+	FullUsers      types.Bool `tfsdk:"full_users"`
 	Fullroles      types.Bool `tfsdk:"fullroles"`
 	Fullusers      types.Bool `tfsdk:"fullusers"`
 }
@@ -320,6 +416,24 @@ func (t AuthUserGroupsType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`full_roles expected to be basetypes.ListValue, was: %T`, fullRolesAttribute))
+	}
+
+	fullUsersAttribute, ok := attributes["full_users"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`full_users is missing from object`)
+
+		return nil, diags
+	}
+
+	fullUsersVal, ok := fullUsersAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`full_users expected to be basetypes.ListValue, was: %T`, fullUsersAttribute))
 	}
 
 	fullusersAttribute, ok := attributes["fullusers"]
@@ -437,6 +551,7 @@ func (t AuthUserGroupsType) ValueFromObject(ctx context.Context, in basetypes.Ob
 	return AuthUserGroupsValue{
 		Description: descriptionVal,
 		FullRoles:   fullRolesVal,
+		FullUsers:   fullUsersVal,
 		Fullusers:   fullusersVal,
 		IsFederated: isFederatedVal,
 		Name:        nameVal,
@@ -546,6 +661,24 @@ func NewAuthUserGroupsValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`full_roles expected to be basetypes.ListValue, was: %T`, fullRolesAttribute))
 	}
 
+	fullUsersAttribute, ok := attributes["full_users"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`full_users is missing from object`)
+
+		return NewAuthUserGroupsValueUnknown(), diags
+	}
+
+	fullUsersVal, ok := fullUsersAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`full_users expected to be basetypes.ListValue, was: %T`, fullUsersAttribute))
+	}
+
 	fullusersAttribute, ok := attributes["fullusers"]
 
 	if !ok {
@@ -661,6 +794,7 @@ func NewAuthUserGroupsValue(attributeTypes map[string]attr.Type, attributes map[
 	return AuthUserGroupsValue{
 		Description: descriptionVal,
 		FullRoles:   fullRolesVal,
+		FullUsers:   fullUsersVal,
 		Fullusers:   fullusersVal,
 		IsFederated: isFederatedVal,
 		Name:        nameVal,
@@ -741,6 +875,7 @@ var _ basetypes.ObjectValuable = AuthUserGroupsValue{}
 type AuthUserGroupsValue struct {
 	Description basetypes.StringValue `tfsdk:"description"`
 	FullRoles   basetypes.ListValue   `tfsdk:"full_roles"`
+	FullUsers   basetypes.ListValue   `tfsdk:"full_users"`
 	Fullusers   basetypes.ListValue   `tfsdk:"fullusers"`
 	IsFederated basetypes.BoolValue   `tfsdk:"is_federated"`
 	Name        basetypes.StringValue `tfsdk:"name"`
@@ -751,7 +886,7 @@ type AuthUserGroupsValue struct {
 }
 
 func (v AuthUserGroupsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 8)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
@@ -759,6 +894,9 @@ func (v AuthUserGroupsValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["full_roles"] = basetypes.ListType{
 		ElemType: FullRolesValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["full_users"] = basetypes.ListType{
+		ElemType: FullUsersValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["fullusers"] = basetypes.ListType{
 		ElemType: FullusersValue{}.Type(ctx),
@@ -777,7 +915,7 @@ func (v AuthUserGroupsValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 8)
+		vals := make(map[string]tftypes.Value, 9)
 
 		val, err = v.Description.ToTerraformValue(ctx)
 
@@ -794,6 +932,14 @@ func (v AuthUserGroupsValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["full_roles"] = val
+
+		val, err = v.FullUsers.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["full_users"] = val
 
 		val, err = v.Fullusers.ToTerraformValue(ctx)
 
@@ -901,6 +1047,35 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		)
 	}
 
+	fullUsers := types.ListValueMust(
+		FullUsersType{
+			basetypes.ObjectType{
+				AttrTypes: FullUsersValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.FullUsers.Elements(),
+	)
+
+	if v.FullUsers.IsNull() {
+		fullUsers = types.ListNull(
+			FullUsersType{
+				basetypes.ObjectType{
+					AttrTypes: FullUsersValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.FullUsers.IsUnknown() {
+		fullUsers = types.ListUnknown(
+			FullUsersType{
+				basetypes.ObjectType{
+					AttrTypes: FullUsersValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
 	fullusers := types.ListValueMust(
 		FullusersType{
 			basetypes.ObjectType{
@@ -948,6 +1123,9 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			"full_roles": basetypes.ListType{
 				ElemType: FullRolesValue{}.Type(ctx),
 			},
+			"full_users": basetypes.ListType{
+				ElemType: FullUsersValue{}.Type(ctx),
+			},
 			"fullusers": basetypes.ListType{
 				ElemType: FullusersValue{}.Type(ctx),
 			},
@@ -981,6 +1159,9 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			"full_roles": basetypes.ListType{
 				ElemType: FullRolesValue{}.Type(ctx),
 			},
+			"full_users": basetypes.ListType{
+				ElemType: FullUsersValue{}.Type(ctx),
+			},
 			"fullusers": basetypes.ListType{
 				ElemType: FullusersValue{}.Type(ctx),
 			},
@@ -1000,6 +1181,9 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		"description": basetypes.StringType{},
 		"full_roles": basetypes.ListType{
 			ElemType: FullRolesValue{}.Type(ctx),
+		},
+		"full_users": basetypes.ListType{
+			ElemType: FullUsersValue{}.Type(ctx),
 		},
 		"fullusers": basetypes.ListType{
 			ElemType: FullusersValue{}.Type(ctx),
@@ -1028,6 +1212,7 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		map[string]attr.Value{
 			"description":  v.Description,
 			"full_roles":   fullRoles,
+			"full_users":   fullUsers,
 			"fullusers":    fullusers,
 			"is_federated": v.IsFederated,
 			"name":         v.Name,
@@ -1059,6 +1244,10 @@ func (v AuthUserGroupsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.FullRoles.Equal(other.FullRoles) {
+		return false
+	}
+
+	if !v.FullUsers.Equal(other.FullUsers) {
 		return false
 	}
 
@@ -1102,6 +1291,9 @@ func (v AuthUserGroupsValue) AttributeTypes(ctx context.Context) map[string]attr
 		"description": basetypes.StringType{},
 		"full_roles": basetypes.ListType{
 			ElemType: FullRolesValue{}.Type(ctx),
+		},
+		"full_users": basetypes.ListType{
+			ElemType: FullUsersValue{}.Type(ctx),
 		},
 		"fullusers": basetypes.ListType{
 			ElemType: FullusersValue{}.Type(ctx),
@@ -3071,6 +3263,1543 @@ func (v UrlRulesValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	return map[string]attr.Type{
 		"path":        basetypes.StringType{},
 		"permissions": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = FullUsersType{}
+
+type FullUsersType struct {
+	basetypes.ObjectType
+}
+
+func (t FullUsersType) Equal(o attr.Type) bool {
+	other, ok := o.(FullUsersType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t FullUsersType) String() string {
+	return "FullUsersType"
+}
+
+func (t FullUsersType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	emailAttribute, ok := attributes["email"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`email is missing from object`)
+
+		return nil, diags
+	}
+
+	emailVal, ok := emailAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`email expected to be basetypes.StringValue, was: %T`, emailAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	firstNameAttribute, ok := attributes["first_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`first_name is missing from object`)
+
+		return nil, diags
+	}
+
+	firstNameVal, ok := firstNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`first_name expected to be basetypes.StringValue, was: %T`, firstNameAttribute))
+	}
+
+	groupsAttribute, ok := attributes["groups"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`groups is missing from object`)
+
+		return nil, diags
+	}
+
+	groupsVal, ok := groupsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`groups expected to be basetypes.ListValue, was: %T`, groupsAttribute))
+	}
+
+	lastNameAttribute, ok := attributes["last_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_name is missing from object`)
+
+		return nil, diags
+	}
+
+	lastNameVal, ok := lastNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_name expected to be basetypes.StringValue, was: %T`, lastNameAttribute))
+	}
+
+	maxSessionsAttribute, ok := attributes["max_sessions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_sessions is missing from object`)
+
+		return nil, diags
+	}
+
+	maxSessionsVal, ok := maxSessionsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_sessions expected to be basetypes.Int64Value, was: %T`, maxSessionsAttribute))
+	}
+
+	passwordAttribute, ok := attributes["password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`password is missing from object`)
+
+		return nil, diags
+	}
+
+	passwordVal, ok := passwordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`password expected to be basetypes.StringValue, was: %T`, passwordAttribute))
+	}
+
+	status1Attribute, ok := attributes["status"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`status_1 is missing from object`)
+
+		return nil, diags
+	}
+
+	status1Val, ok := status1Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`status_1 expected to be basetypes.ObjectValue, was: %T`, status1Attribute))
+	}
+
+	usernameAttribute, ok := attributes["username"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`username is missing from object`)
+
+		return nil, diags
+	}
+
+	usernameVal, ok := usernameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`username expected to be basetypes.StringValue, was: %T`, usernameAttribute))
+	}
+
+	uuidAttribute, ok := attributes["uuid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`uuid is missing from object`)
+
+		return nil, diags
+	}
+
+	uuidVal, ok := uuidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`uuid expected to be basetypes.StringValue, was: %T`, uuidAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return FullUsersValue{
+		Email:       emailVal,
+		Enabled:     enabledVal,
+		FirstName:   firstNameVal,
+		Groups:      groupsVal,
+		LastName:    lastNameVal,
+		MaxSessions: maxSessionsVal,
+		Password:    passwordVal,
+		Status1:     status1Val,
+		Username:    usernameVal,
+		Uuid:        uuidVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewFullUsersValueNull() FullUsersValue {
+	return FullUsersValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewFullUsersValueUnknown() FullUsersValue {
+	return FullUsersValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewFullUsersValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (FullUsersValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing FullUsersValue Attribute Value",
+				"While creating a FullUsersValue value, a missing attribute value was detected. "+
+					"A FullUsersValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("FullUsersValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid FullUsersValue Attribute Type",
+				"While creating a FullUsersValue value, an invalid attribute value was detected. "+
+					"A FullUsersValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("FullUsersValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("FullUsersValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra FullUsersValue Attribute Value",
+				"While creating a FullUsersValue value, an extra attribute value was detected. "+
+					"A FullUsersValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra FullUsersValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	emailAttribute, ok := attributes["email"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`email is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	emailVal, ok := emailAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`email expected to be basetypes.StringValue, was: %T`, emailAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	firstNameAttribute, ok := attributes["first_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`first_name is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	firstNameVal, ok := firstNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`first_name expected to be basetypes.StringValue, was: %T`, firstNameAttribute))
+	}
+
+	groupsAttribute, ok := attributes["groups"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`groups is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	groupsVal, ok := groupsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`groups expected to be basetypes.ListValue, was: %T`, groupsAttribute))
+	}
+
+	lastNameAttribute, ok := attributes["last_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_name is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	lastNameVal, ok := lastNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_name expected to be basetypes.StringValue, was: %T`, lastNameAttribute))
+	}
+
+	maxSessionsAttribute, ok := attributes["max_sessions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_sessions is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	maxSessionsVal, ok := maxSessionsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_sessions expected to be basetypes.Int64Value, was: %T`, maxSessionsAttribute))
+	}
+
+	passwordAttribute, ok := attributes["password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`password is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	passwordVal, ok := passwordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`password expected to be basetypes.StringValue, was: %T`, passwordAttribute))
+	}
+
+	status1Attribute, ok := attributes["status"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`status_1 is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	status1Val, ok := status1Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`status_1 expected to be basetypes.ObjectValue, was: %T`, status1Attribute))
+	}
+
+	usernameAttribute, ok := attributes["username"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`username is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	usernameVal, ok := usernameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`username expected to be basetypes.StringValue, was: %T`, usernameAttribute))
+	}
+
+	uuidAttribute, ok := attributes["uuid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`uuid is missing from object`)
+
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	uuidVal, ok := uuidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`uuid expected to be basetypes.StringValue, was: %T`, uuidAttribute))
+	}
+
+	if diags.HasError() {
+		return NewFullUsersValueUnknown(), diags
+	}
+
+	return FullUsersValue{
+		Email:       emailVal,
+		Enabled:     enabledVal,
+		FirstName:   firstNameVal,
+		Groups:      groupsVal,
+		LastName:    lastNameVal,
+		MaxSessions: maxSessionsVal,
+		Password:    passwordVal,
+		Status1:     status1Val,
+		Username:    usernameVal,
+		Uuid:        uuidVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewFullUsersValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) FullUsersValue {
+	object, diags := NewFullUsersValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewFullUsersValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t FullUsersType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewFullUsersValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewFullUsersValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewFullUsersValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewFullUsersValueMust(FullUsersValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t FullUsersType) ValueType(ctx context.Context) attr.Value {
+	return FullUsersValue{}
+}
+
+var _ basetypes.ObjectValuable = FullUsersValue{}
+
+type FullUsersValue struct {
+	Email       basetypes.StringValue `tfsdk:"email"`
+	Enabled     basetypes.BoolValue   `tfsdk:"enabled"`
+	FirstName   basetypes.StringValue `tfsdk:"first_name"`
+	Groups      basetypes.ListValue   `tfsdk:"groups"`
+	LastName    basetypes.StringValue `tfsdk:"last_name"`
+	MaxSessions basetypes.Int64Value  `tfsdk:"max_sessions"`
+	Password    basetypes.StringValue `tfsdk:"password"`
+	Status1     basetypes.ObjectValue `tfsdk:"status"`
+	Username    basetypes.StringValue `tfsdk:"username"`
+	Uuid        basetypes.StringValue `tfsdk:"uuid"`
+	state       attr.ValueState
+}
+
+func (v FullUsersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 10)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["email"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["first_name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["groups"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["last_name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["max_sessions"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["password"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["status"] = basetypes.ObjectType{
+		AttrTypes: Status1Value{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["username"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["uuid"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 10)
+
+		val, err = v.Email.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["email"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.FirstName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["first_name"] = val
+
+		val, err = v.Groups.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["groups"] = val
+
+		val, err = v.LastName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["last_name"] = val
+
+		val, err = v.MaxSessions.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["max_sessions"] = val
+
+		val, err = v.Password.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["password"] = val
+
+		val, err = v.Status1.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["status"] = val
+
+		val, err = v.Username.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["username"] = val
+
+		val, err = v.Uuid.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["uuid"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v FullUsersValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v FullUsersValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v FullUsersValue) String() string {
+	return "FullUsersValue"
+}
+
+func (v FullUsersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var status1 basetypes.ObjectValue
+
+	if v.Status1.IsNull() {
+		status1 = types.ObjectNull(
+			Status1Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Status1.IsUnknown() {
+		status1 = types.ObjectUnknown(
+			Status1Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Status1.IsNull() && !v.Status1.IsUnknown() {
+		status1 = types.ObjectValueMust(
+			Status1Value{}.AttributeTypes(ctx),
+			v.Status1.Attributes(),
+		)
+	}
+
+	var groupsVal basetypes.ListValue
+	switch {
+	case v.Groups.IsUnknown():
+		groupsVal = types.ListUnknown(types.StringType)
+	case v.Groups.IsNull():
+		groupsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		groupsVal, d = types.ListValue(types.StringType, v.Groups.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"email":      basetypes.StringType{},
+			"enabled":    basetypes.BoolType{},
+			"first_name": basetypes.StringType{},
+			"groups": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"last_name":    basetypes.StringType{},
+			"max_sessions": basetypes.Int64Type{},
+			"password":     basetypes.StringType{},
+			"status": basetypes.ObjectType{
+				AttrTypes: Status1Value{}.AttributeTypes(ctx),
+			},
+			"username": basetypes.StringType{},
+			"uuid":     basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"email":      basetypes.StringType{},
+		"enabled":    basetypes.BoolType{},
+		"first_name": basetypes.StringType{},
+		"groups": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"last_name":    basetypes.StringType{},
+		"max_sessions": basetypes.Int64Type{},
+		"password":     basetypes.StringType{},
+		"status": basetypes.ObjectType{
+			AttrTypes: Status1Value{}.AttributeTypes(ctx),
+		},
+		"username": basetypes.StringType{},
+		"uuid":     basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"email":        v.Email,
+			"enabled":      v.Enabled,
+			"first_name":   v.FirstName,
+			"groups":       groupsVal,
+			"last_name":    v.LastName,
+			"max_sessions": v.MaxSessions,
+			"password":     v.Password,
+			"status":       status1,
+			"username":     v.Username,
+			"uuid":         v.Uuid,
+		})
+
+	return objVal, diags
+}
+
+func (v FullUsersValue) Equal(o attr.Value) bool {
+	other, ok := o.(FullUsersValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Email.Equal(other.Email) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.FirstName.Equal(other.FirstName) {
+		return false
+	}
+
+	if !v.Groups.Equal(other.Groups) {
+		return false
+	}
+
+	if !v.LastName.Equal(other.LastName) {
+		return false
+	}
+
+	if !v.MaxSessions.Equal(other.MaxSessions) {
+		return false
+	}
+
+	if !v.Password.Equal(other.Password) {
+		return false
+	}
+
+	if !v.Status1.Equal(other.Status1) {
+		return false
+	}
+
+	if !v.Username.Equal(other.Username) {
+		return false
+	}
+
+	if !v.Uuid.Equal(other.Uuid) {
+		return false
+	}
+
+	return true
+}
+
+func (v FullUsersValue) Type(ctx context.Context) attr.Type {
+	return FullUsersType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v FullUsersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"email":      basetypes.StringType{},
+		"enabled":    basetypes.BoolType{},
+		"first_name": basetypes.StringType{},
+		"groups": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"last_name":    basetypes.StringType{},
+		"max_sessions": basetypes.Int64Type{},
+		"password":     basetypes.StringType{},
+		"status": basetypes.ObjectType{
+			AttrTypes: Status1Value{}.AttributeTypes(ctx),
+		},
+		"username": basetypes.StringType{},
+		"uuid":     basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = Status1Type{}
+
+type Status1Type struct {
+	basetypes.ObjectType
+}
+
+func (t Status1Type) Equal(o attr.Type) bool {
+	other, ok := o.(Status1Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Status1Type) String() string {
+	return "Status1Type"
+}
+
+func (t Status1Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	failedLoginSinceSuccessfulLoginAttribute, ok := attributes["failed_login_since_successful_login"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`failed_login_since_successful_login is missing from object`)
+
+		return nil, diags
+	}
+
+	failedLoginSinceSuccessfulLoginVal, ok := failedLoginSinceSuccessfulLoginAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`failed_login_since_successful_login expected to be basetypes.Int64Value, was: %T`, failedLoginSinceSuccessfulLoginAttribute))
+	}
+
+	federationProviderNameAttribute, ok := attributes["federation_provider_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_provider_name is missing from object`)
+
+		return nil, diags
+	}
+
+	federationProviderNameVal, ok := federationProviderNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_provider_name expected to be basetypes.StringValue, was: %T`, federationProviderNameAttribute))
+	}
+
+	federationProviderUuidAttribute, ok := attributes["federation_provider_uuid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_provider_uuid is missing from object`)
+
+		return nil, diags
+	}
+
+	federationProviderUuidVal, ok := federationProviderUuidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_provider_uuid expected to be basetypes.StringValue, was: %T`, federationProviderUuidAttribute))
+	}
+
+	isFederatedUserAttribute, ok := attributes["is_federated_user"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`is_federated_user is missing from object`)
+
+		return nil, diags
+	}
+
+	isFederatedUserVal, ok := isFederatedUserAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`is_federated_user expected to be basetypes.BoolValue, was: %T`, isFederatedUserAttribute))
+	}
+
+	lastFailedLoginAttribute, ok := attributes["last_failed_login"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_failed_login is missing from object`)
+
+		return nil, diags
+	}
+
+	lastFailedLoginVal, ok := lastFailedLoginAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_failed_login expected to be basetypes.StringValue, was: %T`, lastFailedLoginAttribute))
+	}
+
+	lastSuccessfulLoginAttribute, ok := attributes["last_successful_login"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_successful_login is missing from object`)
+
+		return nil, diags
+	}
+
+	lastSuccessfulLoginVal, ok := lastSuccessfulLoginAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_successful_login expected to be basetypes.StringValue, was: %T`, lastSuccessfulLoginAttribute))
+	}
+
+	temporarilyDisabledAttribute, ok := attributes["temporarily_disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`temporarily_disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	temporarilyDisabledVal, ok := temporarilyDisabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`temporarily_disabled expected to be basetypes.BoolValue, was: %T`, temporarilyDisabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Status1Value{
+		FailedLoginSinceSuccessfulLogin: failedLoginSinceSuccessfulLoginVal,
+		FederationProviderName:          federationProviderNameVal,
+		FederationProviderUuid:          federationProviderUuidVal,
+		IsFederatedUser:                 isFederatedUserVal,
+		LastFailedLogin:                 lastFailedLoginVal,
+		LastSuccessfulLogin:             lastSuccessfulLoginVal,
+		TemporarilyDisabled:             temporarilyDisabledVal,
+		state:                           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewStatus1ValueNull() Status1Value {
+	return Status1Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewStatus1ValueUnknown() Status1Value {
+	return Status1Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewStatus1Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Status1Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Status1Value Attribute Value",
+				"While creating a Status1Value value, a missing attribute value was detected. "+
+					"A Status1Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Status1Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Status1Value Attribute Type",
+				"While creating a Status1Value value, an invalid attribute value was detected. "+
+					"A Status1Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Status1Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Status1Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Status1Value Attribute Value",
+				"While creating a Status1Value value, an extra attribute value was detected. "+
+					"A Status1Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Status1Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewStatus1ValueUnknown(), diags
+	}
+
+	failedLoginSinceSuccessfulLoginAttribute, ok := attributes["failed_login_since_successful_login"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`failed_login_since_successful_login is missing from object`)
+
+		return NewStatus1ValueUnknown(), diags
+	}
+
+	failedLoginSinceSuccessfulLoginVal, ok := failedLoginSinceSuccessfulLoginAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`failed_login_since_successful_login expected to be basetypes.Int64Value, was: %T`, failedLoginSinceSuccessfulLoginAttribute))
+	}
+
+	federationProviderNameAttribute, ok := attributes["federation_provider_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_provider_name is missing from object`)
+
+		return NewStatus1ValueUnknown(), diags
+	}
+
+	federationProviderNameVal, ok := federationProviderNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_provider_name expected to be basetypes.StringValue, was: %T`, federationProviderNameAttribute))
+	}
+
+	federationProviderUuidAttribute, ok := attributes["federation_provider_uuid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_provider_uuid is missing from object`)
+
+		return NewStatus1ValueUnknown(), diags
+	}
+
+	federationProviderUuidVal, ok := federationProviderUuidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_provider_uuid expected to be basetypes.StringValue, was: %T`, federationProviderUuidAttribute))
+	}
+
+	isFederatedUserAttribute, ok := attributes["is_federated_user"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`is_federated_user is missing from object`)
+
+		return NewStatus1ValueUnknown(), diags
+	}
+
+	isFederatedUserVal, ok := isFederatedUserAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`is_federated_user expected to be basetypes.BoolValue, was: %T`, isFederatedUserAttribute))
+	}
+
+	lastFailedLoginAttribute, ok := attributes["last_failed_login"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_failed_login is missing from object`)
+
+		return NewStatus1ValueUnknown(), diags
+	}
+
+	lastFailedLoginVal, ok := lastFailedLoginAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_failed_login expected to be basetypes.StringValue, was: %T`, lastFailedLoginAttribute))
+	}
+
+	lastSuccessfulLoginAttribute, ok := attributes["last_successful_login"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_successful_login is missing from object`)
+
+		return NewStatus1ValueUnknown(), diags
+	}
+
+	lastSuccessfulLoginVal, ok := lastSuccessfulLoginAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_successful_login expected to be basetypes.StringValue, was: %T`, lastSuccessfulLoginAttribute))
+	}
+
+	temporarilyDisabledAttribute, ok := attributes["temporarily_disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`temporarily_disabled is missing from object`)
+
+		return NewStatus1ValueUnknown(), diags
+	}
+
+	temporarilyDisabledVal, ok := temporarilyDisabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`temporarily_disabled expected to be basetypes.BoolValue, was: %T`, temporarilyDisabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewStatus1ValueUnknown(), diags
+	}
+
+	return Status1Value{
+		FailedLoginSinceSuccessfulLogin: failedLoginSinceSuccessfulLoginVal,
+		FederationProviderName:          federationProviderNameVal,
+		FederationProviderUuid:          federationProviderUuidVal,
+		IsFederatedUser:                 isFederatedUserVal,
+		LastFailedLogin:                 lastFailedLoginVal,
+		LastSuccessfulLogin:             lastSuccessfulLoginVal,
+		TemporarilyDisabled:             temporarilyDisabledVal,
+		state:                           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewStatus1ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Status1Value {
+	object, diags := NewStatus1Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewStatus1ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Status1Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewStatus1ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewStatus1ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewStatus1ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewStatus1ValueMust(Status1Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Status1Type) ValueType(ctx context.Context) attr.Value {
+	return Status1Value{}
+}
+
+var _ basetypes.ObjectValuable = Status1Value{}
+
+type Status1Value struct {
+	FailedLoginSinceSuccessfulLogin basetypes.Int64Value  `tfsdk:"failed_login_since_successful_login"`
+	FederationProviderName          basetypes.StringValue `tfsdk:"federation_provider_name"`
+	FederationProviderUuid          basetypes.StringValue `tfsdk:"federation_provider_uuid"`
+	IsFederatedUser                 basetypes.BoolValue   `tfsdk:"is_federated_user"`
+	LastFailedLogin                 basetypes.StringValue `tfsdk:"last_failed_login"`
+	LastSuccessfulLogin             basetypes.StringValue `tfsdk:"last_successful_login"`
+	TemporarilyDisabled             basetypes.BoolValue   `tfsdk:"temporarily_disabled"`
+	state                           attr.ValueState
+}
+
+func (v Status1Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 7)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["failed_login_since_successful_login"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["federation_provider_name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["federation_provider_uuid"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["is_federated_user"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["last_failed_login"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["last_successful_login"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["temporarily_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 7)
+
+		val, err = v.FailedLoginSinceSuccessfulLogin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["failed_login_since_successful_login"] = val
+
+		val, err = v.FederationProviderName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["federation_provider_name"] = val
+
+		val, err = v.FederationProviderUuid.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["federation_provider_uuid"] = val
+
+		val, err = v.IsFederatedUser.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["is_federated_user"] = val
+
+		val, err = v.LastFailedLogin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["last_failed_login"] = val
+
+		val, err = v.LastSuccessfulLogin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["last_successful_login"] = val
+
+		val, err = v.TemporarilyDisabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["temporarily_disabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Status1Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Status1Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Status1Value) String() string {
+	return "Status1Value"
+}
+
+func (v Status1Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"failed_login_since_successful_login": basetypes.Int64Type{},
+		"federation_provider_name":            basetypes.StringType{},
+		"federation_provider_uuid":            basetypes.StringType{},
+		"is_federated_user":                   basetypes.BoolType{},
+		"last_failed_login":                   basetypes.StringType{},
+		"last_successful_login":               basetypes.StringType{},
+		"temporarily_disabled":                basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"failed_login_since_successful_login": v.FailedLoginSinceSuccessfulLogin,
+			"federation_provider_name":            v.FederationProviderName,
+			"federation_provider_uuid":            v.FederationProviderUuid,
+			"is_federated_user":                   v.IsFederatedUser,
+			"last_failed_login":                   v.LastFailedLogin,
+			"last_successful_login":               v.LastSuccessfulLogin,
+			"temporarily_disabled":                v.TemporarilyDisabled,
+		})
+
+	return objVal, diags
+}
+
+func (v Status1Value) Equal(o attr.Value) bool {
+	other, ok := o.(Status1Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.FailedLoginSinceSuccessfulLogin.Equal(other.FailedLoginSinceSuccessfulLogin) {
+		return false
+	}
+
+	if !v.FederationProviderName.Equal(other.FederationProviderName) {
+		return false
+	}
+
+	if !v.FederationProviderUuid.Equal(other.FederationProviderUuid) {
+		return false
+	}
+
+	if !v.IsFederatedUser.Equal(other.IsFederatedUser) {
+		return false
+	}
+
+	if !v.LastFailedLogin.Equal(other.LastFailedLogin) {
+		return false
+	}
+
+	if !v.LastSuccessfulLogin.Equal(other.LastSuccessfulLogin) {
+		return false
+	}
+
+	if !v.TemporarilyDisabled.Equal(other.TemporarilyDisabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v Status1Value) Type(ctx context.Context) attr.Type {
+	return Status1Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Status1Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"failed_login_since_successful_login": basetypes.Int64Type{},
+		"federation_provider_name":            basetypes.StringType{},
+		"federation_provider_uuid":            basetypes.StringType{},
+		"is_federated_user":                   basetypes.BoolType{},
+		"last_failed_login":                   basetypes.StringType{},
+		"last_successful_login":               basetypes.StringType{},
+		"temporarily_disabled":                basetypes.BoolType{},
 	}
 }
 
