@@ -24,6 +24,12 @@ func AuthUserGroupsDataSourceSchema(ctx context.Context) schema.Schema {
 						"description": schema.StringAttribute{
 							Computed: true,
 						},
+						"federation_ids": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "when the group is federated, the LDAP federation component UUIDs associated with this group.",
+							MarkdownDescription: "when the group is federated, the LDAP federation component UUIDs associated with this group.",
+						},
 						"full_roles": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -291,8 +297,8 @@ func AuthUserGroupsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"is_federated": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if true, indicates that the group was imported from a federated LDAP server",
-							MarkdownDescription: "if true, indicates that the group was imported from a federated LDAP server",
+							Description:         "if true, indicates that the group was imported from a federated LDAP server.",
+							MarkdownDescription: "if true, indicates that the group was imported from a federated LDAP server.",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -400,6 +406,24 @@ func (t AuthUserGroupsType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
 	}
 
+	federationIdsAttribute, ok := attributes["federation_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	federationIdsVal, ok := federationIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_ids expected to be basetypes.ListValue, was: %T`, federationIdsAttribute))
+	}
+
 	fullRolesAttribute, ok := attributes["full_roles"]
 
 	if !ok {
@@ -549,16 +573,17 @@ func (t AuthUserGroupsType) ValueFromObject(ctx context.Context, in basetypes.Ob
 	}
 
 	return AuthUserGroupsValue{
-		Description: descriptionVal,
-		FullRoles:   fullRolesVal,
-		FullUsers:   fullUsersVal,
-		Fullusers:   fullusersVal,
-		IsFederated: isFederatedVal,
-		Name:        nameVal,
-		Roles:       rolesVal,
-		Users:       usersVal,
-		Uuid:        uuidVal,
-		state:       attr.ValueStateKnown,
+		Description:   descriptionVal,
+		FederationIds: federationIdsVal,
+		FullRoles:     fullRolesVal,
+		FullUsers:     fullUsersVal,
+		Fullusers:     fullusersVal,
+		IsFederated:   isFederatedVal,
+		Name:          nameVal,
+		Roles:         rolesVal,
+		Users:         usersVal,
+		Uuid:          uuidVal,
+		state:         attr.ValueStateKnown,
 	}, diags
 }
 
@@ -643,6 +668,24 @@ func NewAuthUserGroupsValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
 	}
 
+	federationIdsAttribute, ok := attributes["federation_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`federation_ids is missing from object`)
+
+		return NewAuthUserGroupsValueUnknown(), diags
+	}
+
+	federationIdsVal, ok := federationIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`federation_ids expected to be basetypes.ListValue, was: %T`, federationIdsAttribute))
+	}
+
 	fullRolesAttribute, ok := attributes["full_roles"]
 
 	if !ok {
@@ -792,16 +835,17 @@ func NewAuthUserGroupsValue(attributeTypes map[string]attr.Type, attributes map[
 	}
 
 	return AuthUserGroupsValue{
-		Description: descriptionVal,
-		FullRoles:   fullRolesVal,
-		FullUsers:   fullUsersVal,
-		Fullusers:   fullusersVal,
-		IsFederated: isFederatedVal,
-		Name:        nameVal,
-		Roles:       rolesVal,
-		Users:       usersVal,
-		Uuid:        uuidVal,
-		state:       attr.ValueStateKnown,
+		Description:   descriptionVal,
+		FederationIds: federationIdsVal,
+		FullRoles:     fullRolesVal,
+		FullUsers:     fullUsersVal,
+		Fullusers:     fullusersVal,
+		IsFederated:   isFederatedVal,
+		Name:          nameVal,
+		Roles:         rolesVal,
+		Users:         usersVal,
+		Uuid:          uuidVal,
+		state:         attr.ValueStateKnown,
 	}, diags
 }
 
@@ -873,25 +917,29 @@ func (t AuthUserGroupsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AuthUserGroupsValue{}
 
 type AuthUserGroupsValue struct {
-	Description basetypes.StringValue `tfsdk:"description"`
-	FullRoles   basetypes.ListValue   `tfsdk:"full_roles"`
-	FullUsers   basetypes.ListValue   `tfsdk:"full_users"`
-	Fullusers   basetypes.ListValue   `tfsdk:"fullusers"`
-	IsFederated basetypes.BoolValue   `tfsdk:"is_federated"`
-	Name        basetypes.StringValue `tfsdk:"name"`
-	Roles       basetypes.ListValue   `tfsdk:"roles"`
-	Users       basetypes.ListValue   `tfsdk:"users"`
-	Uuid        basetypes.StringValue `tfsdk:"uuid"`
-	state       attr.ValueState
+	Description   basetypes.StringValue `tfsdk:"description"`
+	FederationIds basetypes.ListValue   `tfsdk:"federation_ids"`
+	FullRoles     basetypes.ListValue   `tfsdk:"full_roles"`
+	FullUsers     basetypes.ListValue   `tfsdk:"full_users"`
+	Fullusers     basetypes.ListValue   `tfsdk:"fullusers"`
+	IsFederated   basetypes.BoolValue   `tfsdk:"is_federated"`
+	Name          basetypes.StringValue `tfsdk:"name"`
+	Roles         basetypes.ListValue   `tfsdk:"roles"`
+	Users         basetypes.ListValue   `tfsdk:"users"`
+	Uuid          basetypes.StringValue `tfsdk:"uuid"`
+	state         attr.ValueState
 }
 
 func (v AuthUserGroupsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 10)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["federation_ids"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["full_roles"] = basetypes.ListType{
 		ElemType: FullRolesValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -915,7 +963,7 @@ func (v AuthUserGroupsValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 10)
 
 		val, err = v.Description.ToTerraformValue(ctx)
 
@@ -924,6 +972,14 @@ func (v AuthUserGroupsValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["description"] = val
+
+		val, err = v.FederationIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["federation_ids"] = val
 
 		val, err = v.FullRoles.ToTerraformValue(ctx)
 
@@ -1105,6 +1161,45 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		)
 	}
 
+	var federationIdsVal basetypes.ListValue
+	switch {
+	case v.FederationIds.IsUnknown():
+		federationIdsVal = types.ListUnknown(types.StringType)
+	case v.FederationIds.IsNull():
+		federationIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		federationIdsVal, d = types.ListValue(types.StringType, v.FederationIds.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"description": basetypes.StringType{},
+			"federation_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"full_roles": basetypes.ListType{
+				ElemType: FullRolesValue{}.Type(ctx),
+			},
+			"full_users": basetypes.ListType{
+				ElemType: FullUsersValue{}.Type(ctx),
+			},
+			"fullusers": basetypes.ListType{
+				ElemType: FullusersValue{}.Type(ctx),
+			},
+			"is_federated": basetypes.BoolType{},
+			"name":         basetypes.StringType{},
+			"roles": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"users": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"uuid": basetypes.StringType{},
+		}), diags
+	}
+
 	var rolesVal basetypes.ListValue
 	switch {
 	case v.Roles.IsUnknown():
@@ -1120,6 +1215,9 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"description": basetypes.StringType{},
+			"federation_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"full_roles": basetypes.ListType{
 				ElemType: FullRolesValue{}.Type(ctx),
 			},
@@ -1156,6 +1254,9 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"description": basetypes.StringType{},
+			"federation_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"full_roles": basetypes.ListType{
 				ElemType: FullRolesValue{}.Type(ctx),
 			},
@@ -1179,6 +1280,9 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 
 	attributeTypes := map[string]attr.Type{
 		"description": basetypes.StringType{},
+		"federation_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"full_roles": basetypes.ListType{
 			ElemType: FullRolesValue{}.Type(ctx),
 		},
@@ -1210,15 +1314,16 @@ func (v AuthUserGroupsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"description":  v.Description,
-			"full_roles":   fullRoles,
-			"full_users":   fullUsers,
-			"fullusers":    fullusers,
-			"is_federated": v.IsFederated,
-			"name":         v.Name,
-			"roles":        rolesVal,
-			"users":        usersVal,
-			"uuid":         v.Uuid,
+			"description":    v.Description,
+			"federation_ids": federationIdsVal,
+			"full_roles":     fullRoles,
+			"full_users":     fullUsers,
+			"fullusers":      fullusers,
+			"is_federated":   v.IsFederated,
+			"name":           v.Name,
+			"roles":          rolesVal,
+			"users":          usersVal,
+			"uuid":           v.Uuid,
 		})
 
 	return objVal, diags
@@ -1240,6 +1345,10 @@ func (v AuthUserGroupsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Description.Equal(other.Description) {
+		return false
+	}
+
+	if !v.FederationIds.Equal(other.FederationIds) {
 		return false
 	}
 
@@ -1289,6 +1398,9 @@ func (v AuthUserGroupsValue) Type(ctx context.Context) attr.Type {
 func (v AuthUserGroupsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"description": basetypes.StringType{},
+		"federation_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"full_roles": basetypes.ListType{
 			ElemType: FullRolesValue{}.Type(ctx),
 		},

@@ -67,6 +67,11 @@ data_sources:
       path: /core/admin/roles
       method: GET
 
+  auth_sessions:
+    read:
+      path: "/core/admin/sessions"
+      method: GET
+
   auth_user:
     read:
       path: "/core/admin/users/{uuid}"
@@ -92,6 +97,21 @@ data_sources:
       path: /core/chat/v1/chats/{chatId}
       method: GET
 
+  branch_diff_response:
+    read:
+      path: /core/branches/v1/crdiff/{hash}
+      method: GET
+
+  branch_diff_summary:
+    read:
+      path: /core/branches/v1/diffsummary
+      method: GET
+
+  branch_status_response:
+    read:
+      path: /core/branches/v1/status
+      method: GET
+
   conversation_list:
     read:
       path: /core/chat/v1/chats
@@ -112,9 +132,19 @@ data_sources:
       path: /core/admin/groups/{uuid}/roles
       method: GET
 
+  group_member_user_ids:
+    read:
+      path: /core/admin/groups/{uuid}/users
+      method: GET
+
   health:
     read:
       path: /core/about/health
+      method: GET
+  
+  merge_request:
+    read:
+      path: /core/mergerequest/v1/{mergeRequestId}
       method: GET
 
   namespaces:
@@ -368,3 +398,16 @@ resources:
       path: /core/admin/groups/{uuid}
       method: DELETE
 
+  merge_request:
+    create:
+      path: /core/mergerequest/v1
+      method: POST
+    read:
+      path: /core/mergerequest/v1/{mergeRequestId}
+      method: GET
+    update:
+      path: /core/mergerequest/v1/{mergeRequestId}
+      method: PUT
+    delete:
+      path: /core/mergerequest/v1/{mergeRequestId}
+      method: DELETE

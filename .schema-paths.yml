@@ -1,3 +1,8 @@
+add_user_to_group_post_body:
+  - create:
+      path: /core/admin/groups/{uuid}/users
+      method: POST
+
 alarm_data:
   - read:
       path: /core/alarm/v2/alarms
@@ -233,6 +238,11 @@ group_i_ds:
   - delete:
       path: /core/admin/users/{uuid}/groups
       method: DELETE
+
+group_member_user_i_ds:
+  - read:
+      path: /core/admin/groups/{uuid}/users
+      method: GET
 
 health:
   - read:
@@ -505,9 +515,9 @@ version_info:
       path: /core/about/version
       method: GET
 
-totalPaths: 108
-totalSchemas: 196
-usedSchemas: 75
+totalPaths: 110
+totalSchemas: 198
+usedSchemas: 77
 unusedSchemas: 121
 unusedSchemaList:
   - AccessQuery

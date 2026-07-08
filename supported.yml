@@ -1,0 +1,222 @@
+datasources:
+  - model_name: health
+    oas_endpoint: /core/about/health
+    oas_schema: Health
+  - model_name: namespaces
+    oas_endpoint: /core/access/v1/namespaces
+    oas_schema: NamespaceGetResponse
+  - model_name: auth_providers
+    oas_endpoint: /core/admin/federationproviders
+    oas_schema: AuthProviders
+  - model_name: auth_provider
+    oas_endpoint: /core/admin/federationproviders/{uuid}
+    oas_schema: AuthProvider
+  - model_name: auth_user_groups
+    oas_endpoint: /core/admin/groups
+    oas_schema: AuthUserGroups
+  - model_name: auth_user_group
+    oas_endpoint: /core/admin/groups/{uuid}
+    oas_schema: AuthUserGroup
+  - model_name: group_roles
+    oas_endpoint: /core/admin/groups/{uuid}/roles
+    oas_schema: AuthRoles
+  - model_name: group_member_user_ids
+    oas_endpoint: /core/admin/groups/{uuid}/users
+    oas_schema: GroupMemberUserIDs
+  - model_name: auth_roles
+    oas_endpoint: /core/admin/namespaces/{namespace}/roles
+    oas_schema: AuthRoles
+  - model_name: auth_role
+    oas_endpoint: /core/admin/namespaces/{namespace}/roles/{name}
+    oas_schema: AuthRole
+  - model_name: auth_password_policy
+    oas_endpoint: /core/admin/passwordpolicy
+    oas_schema: AuthPasswordPolicy
+  - model_name: cluster_auth_roles
+    oas_endpoint: /core/admin/roles
+    oas_schema: AuthRoles
+  - model_name: cluster_auth_role
+    oas_endpoint: /core/admin/roles/{name}
+    oas_schema: AuthRole
+  - model_name: auth_sessions
+    oas_endpoint: /core/admin/sessions
+    oas_schema: AuthSessions
+  - model_name: auth_users
+    oas_endpoint: /core/admin/users
+    oas_schema: AuthUsers
+  - model_name: auth_user
+    oas_endpoint: /core/admin/users/{uuid}
+    oas_schema: AuthUser
+  - model_name: cluster_alarms
+    oas_endpoint: /core/alarm/v2/alarms
+    oas_schema: AlarmData
+  - model_name: cluster_alarm
+    oas_endpoint: /core/alarm/v2/alarms/{alarm-name}
+    oas_schema: AlarmData
+  - model_name: cluster_alarm_history
+    oas_endpoint: /core/alarm/v2/alarms/{alarm-name}/history
+    oas_schema: AlarmHistoryEntry
+  - model_name: alarms
+    oas_endpoint: /core/alarm/v2/namespaces/{nsName}/alarms
+    oas_schema: AlarmData
+  - model_name: alarm
+    oas_endpoint: /core/alarm/v2/namespaces/{nsName}/alarms/{alarm-name}
+    oas_schema: AlarmData
+  - model_name: alarm_history
+    oas_endpoint: /core/alarm/v2/namespaces/{nsName}/alarms/{alarm-name}/history
+    oas_schema: AlarmHistoryEntry
+  - model_name: branch_diff_response
+    oas_endpoint: /core/branches/v1/crdiff/{hash}
+    oas_schema: BranchDiffResponse
+  - model_name: branch_diff_summary
+    oas_endpoint: /core/branches/v1/diffsummary
+    oas_schema: BranchDiffSummary
+  - model_name: branch_status_response
+    oas_endpoint: /core/branches/v1/status
+    oas_schema: BranchStatusResponse
+  - model_name: conversation_list
+    oas_endpoint: /core/chat/v1/chats
+    oas_schema: ConversationList
+  - model_name: conversation_history
+    oas_endpoint: /core/chat/v1/chats/{chatId}
+    oas_schema: ConversationHistory
+  - model_name: db_get_result
+    oas_endpoint: /core/db/v2/data
+    oas_schema: dbGetResult
+  - model_name: db_get_schema
+    oas_endpoint: /core/db/v2/schema
+    oas_schema: dbGetResult
+  - model_name: merge_request
+    oas_endpoint: /core/mergerequest/v1/{mergeRequestId}
+    oas_schema: mergeRequest
+  - model_name: node_config_response
+    oas_endpoint: /core/nodeconfig/v2/namespaces/{nsName}/nodes/{nodeName}
+    oas_schema: NodeConfigResponse
+  - model_name: stream_result
+    oas_endpoint: /core/query/v1
+    oas_schema: QueryResponse
+  - model_name: eql_stream_result
+    oas_endpoint: /core/query/v1/eql
+    oas_schema: QueryResponse
+  - model_name: query_completion_response
+    oas_endpoint: /core/query/v1/eql/autocomplete
+    oas_schema: QueryCompletionResponse
+  - model_name: nql_stream_result
+    oas_endpoint: /core/query/v1/nql
+    oas_schema: QueryResponse
+  - model_name: store_app_settings_definition
+    oas_endpoint: /core/store/v1/appsettingsdefinition/catalog/{catalog}/app/{appId}
+    oas_schema: StoreAppSettingsDefinition
+  - model_name: store_app_summary_list
+    oas_endpoint: /core/store/v1/appsummaries
+    oas_schema: StoreAppSummaryList
+  - model_name: store_app_summary
+    oas_endpoint: /core/store/v1/appsummaries/app/{appId}
+    oas_schema: StoreAppSummary
+  - model_name: store_category_list
+    oas_endpoint: /core/store/v1/categories
+    oas_schema: StoreCategoryList
+  - model_name: store_app_installed_settings
+    oas_endpoint: /core/store/v1/installedsettings/app/{appId}
+    oas_schema: StoreAppInstalledSettings
+  - model_name: store_app_manifest
+    oas_endpoint: /core/store/v1/manifest/catalog/{catalog}/app/{appId}
+    oas_schema: StoreAppManifest
+  - model_name: store_app_requirements_graph
+    oas_endpoint: /core/store/v1/requirementsgraph/catalog/{catalog}/app/{appId}
+    oas_schema: StoreAppRequirementsGraph
+  - model_name: store_app_version_list
+    oas_endpoint: /core/store/v1/versions/app/{appId}
+    oas_schema: StoreAppVersionList
+  - model_name: topologies
+    oas_endpoint: /core/topology/v1
+    oas_schema: Topologies
+  - model_name: topology
+    oas_endpoint: /core/topology/v1/{topologyName}
+    oas_schema: Topology
+  - model_name: topology_groupings_list
+    oas_endpoint: /core/topology/v1/{topologyName}/groupings
+    oas_schema: TopologyGroupingsList
+  - model_name: topology_grouping_instance
+    oas_endpoint: /core/topology/v1/{topologyName}/groupings/{groupingName}
+    oas_schema: TopologyGroupingInstance
+  - model_name: overlays
+    oas_endpoint: /core/topology/v1/{topologyName}/overlay
+    oas_schema: Overlays
+  - model_name: overlay
+    oas_endpoint: /core/topology/v1/{topologyName}/overlay/{overlayName}
+    oas_schema: Overlay
+  - model_name: transaction_node_config_diff
+    oas_endpoint: /core/transaction/v2/result/diffs/nodecfg/{transactionId}
+    oas_schema: TransactionResultObject
+  - model_name: transaction_resource_diff
+    oas_endpoint: /core/transaction/v2/result/diffs/resource/{transactionId}
+    oas_schema: TransactionResultObject
+  - model_name: transaction_execution_result
+    oas_endpoint: /core/transaction/v2/result/execution/{transactionId}
+    oas_schema: TransactionExecutionResult
+  - model_name: transaction_result_input_resources
+    oas_endpoint: /core/transaction/v2/result/inputresources/{transactionId}
+    oas_schema: TransactionResultInputResources
+  - model_name: transaction_summary_results
+    oas_endpoint: /core/transaction/v2/result/summary
+    oas_schema: TransactionSummaryResults
+  - model_name: transaction_summary_result
+    oas_endpoint: /core/transaction/v2/result/summary/{transactionId}
+    oas_schema: TransactionSummaryResult
+  - model_name: transaction_state
+    oas_endpoint: /core/transaction/v2/state/{transactionId}
+    oas_schema: TransactionState
+  - model_name: transaction_result_changed_crs
+    oas_endpoint: /core/transaction/v3/result/changedcrs/{transactionId}
+    oas_schema: TransactionResultChangedCrs
+  - model_name: transaction_execution_result_with_counts
+    oas_endpoint: /core/transaction/v3/result/execution/{transactionId}
+    oas_schema: TransactionExecutionResultWithCounts
+  - model_name: transaction_result_intents_run
+    oas_endpoint: /core/transaction/v3/result/intentsrun/{transactionId}
+    oas_schema: TransactionResultIntentsRun
+  - model_name: transaction_nodes_result
+    oas_endpoint: /core/transaction/v3/result/nodes/{transactionId}
+    oas_schema: TransactionNodesWithConfigChangesResult
+  - model_name: user_storage_dir
+    oas_endpoint: /core/user-storage/v2/directory
+    oas_schema: UserStorageOutDirContent
+  - model_name: user_storage_file
+    oas_endpoint: /core/user-storage/v2/file
+    oas_schema: UserStorageOutFileContent
+  - model_name: user_storage_shared_dir
+    oas_endpoint: /core/user-storage/v2/shared/directory
+    oas_schema: UserStorageOutDirContent
+  - model_name: user_storage_shared_file
+    oas_endpoint: /core/user-storage/v2/shared/file
+    oas_schema: UserStorageOutFileContent
+  - model_name: workflow_status_summary
+    oas_endpoint: /core/workflows/v1
+    oas_schema: WorkflowStatusSummary
+
+resources:
+  - model_name: auth_provider
+    oas_endpoint: /core/admin/federationproviders
+    oas_schema: AuthProvider
+  - model_name: auth_user_group
+    oas_endpoint: /core/admin/groups
+    oas_schema: AuthUserGroup
+  - model_name: auth_role
+    oas_endpoint: /core/admin/namespaces/{namespace}/roles
+    oas_schema: AuthRole
+  - model_name: cluster_auth_role
+    oas_endpoint: /core/admin/roles
+    oas_schema: AuthRole
+  - model_name: auth_user
+    oas_endpoint: /core/admin/users
+    oas_schema: AuthUser
+  - model_name: merge_request
+    oas_endpoint: /core/mergerequest/v1
+    oas_schema: mergeRequest
+
+qualified:
+  datasources:
+    - oas_schema: versionInfo
+      get: /core/about/version
+  resources:

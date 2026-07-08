@@ -33,7 +33,8 @@ are returned, rather than just the user names.  Use fullRoles instead. Ignored i
 ### Read-Only
 
 - `description` (String)
-- `is_federated` (Boolean) if true, indicates that the group was imported from a federated LDAP server
+- `federation_ids` (List of String) when the group is federated, the LDAP federation component UUIDs associated with this group.
+- `is_federated` (Boolean) if true, indicates that the group was imported from a federated LDAP server.
 - `name` (String)
 - `roles` (List of String) Contains the names of the ClusterRoles and Roles roles associated with the group.
 A Role name has the form "namesspace:rolename", whereas a ClusteRole name is a

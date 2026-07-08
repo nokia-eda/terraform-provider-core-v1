@@ -17,7 +17,7 @@ For support, please join [Nokia EDA Discord](https://eda.dev/discord).
 
 - `base_url` (String) Base URL
 - `eda_client_id` (String) EDA Client ID
-- `eda_client_secret` (String) EDA Client Secret
+- `eda_client_secret` (String, Sensitive) EDA Client Secret
 - `eda_password` (String, Sensitive) EDA Password
 - `eda_realm` (String) EDA Realm
 - `eda_username` (String) EDA Username

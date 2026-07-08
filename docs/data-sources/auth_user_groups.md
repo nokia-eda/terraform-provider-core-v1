@@ -36,10 +36,11 @@ are returned, rather than just the user names.  Use fullRoles instead. Ignored i
 Read-Only:
 
 - `description` (String)
+- `federation_ids` (List of String) when the group is federated, the LDAP federation component UUIDs associated with this group.
 - `full_roles` (Attributes List) contains the full role definitions of the Roles and ClusterRoles associated with the group, if requested (see [below for nested schema](#nestedatt--auth_user_groups--full_roles))
 - `full_users` (Attributes List) contains the full user definitions of the users who are members of the group, if requested (see [below for nested schema](#nestedatt--auth_user_groups--full_users))
 - `fullusers` (Attributes List, Deprecated) Deprecated: Contains the full user definitions of the users who are members of the group, if requested.  Use fullUsers instead. (see [below for nested schema](#nestedatt--auth_user_groups--fullusers))
-- `is_federated` (Boolean) if true, indicates that the group was imported from a federated LDAP server
+- `is_federated` (Boolean) if true, indicates that the group was imported from a federated LDAP server.
 - `name` (String)
 - `roles` (List of String) Contains the names of the ClusterRoles and Roles roles associated with the group.
 A Role name has the form "namesspace:rolename", whereas a ClusteRole name is a

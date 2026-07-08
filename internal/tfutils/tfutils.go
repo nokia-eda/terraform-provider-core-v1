@@ -49,6 +49,7 @@ var (
 		"link_state":                 "link_state",
 		"link_state_heading":         "link_state_heading",
 		"link_state_heading_key":     "link_state_heading_key",
+		"merge_request_id":           "mergeRequestId",
 		"modification_time":          "modification-time",
 		"name_ldap_attribute":        "NameLDAPAttribute",
 		"nav_target":                 "nav_target",
@@ -66,7 +67,9 @@ var (
 		"ui_name":                    "ui_name",
 		"ui_name_key":                "ui_name_key",
 		"updatesonly":                "updates-only",
+		"user_id":                    "userId",
 		"workflow_id":                "workflowId",
+		"xpermissive":                "x-permissive",
 	}
 	camelToSnakeNames = map[string]string{}
 	acronyms          = map[string]string{
@@ -104,6 +107,7 @@ var (
 		"safi":  "SAFI",
 		"spf":   "SPF",
 		"tls":   "TLS",
+		"tpi":   "TPI",
 		"ui":    "UI",
 		"uri":   "URI",
 		"url":   "URL",

@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/eda/apiclient"
 	"github.com/nokia/eda/apps/terraform-provider-core/internal/eda/utils"
-	"github.com/nokia/eda/apps/terraform-provider-core/internal/tfutils"
 )
 
 const (
@@ -121,6 +120,7 @@ func (p *coreProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 			"eda_client_secret": schema.StringAttribute{
 				Description: "EDA Client Secret",
 				Optional:    true,
+				Sensitive:   true,
 			},
 			"tls_skip_verify": schema.BoolAttribute{
 				Description: "TLS skip verify",
@@ -152,18 +152,28 @@ func (p *coreProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	anyData, err := tfutils.ModelToAnyMap(ctx, &data)
-	if err != nil {
-		resp.Diagnostics.AddError("Error reading provider config", err.Error())
-		return
+	config := apiclient.Config{
+		BaseURL:         data.BaseURL.ValueString(),
+		KcRealm:         data.KcRealm.ValueString(),
+		KcClientID:      data.KcClientID.ValueString(),
+		KcUsername:      data.KcUsername.ValueString(),
+		KcPassword:      data.KcPassword.ValueString(),
+		EdaRealm:        data.EdaRealm.ValueString(),
+		EdaClientID:     data.EdaClientID.ValueString(),
+		EdaClientSecret: data.EdaClientSecret.ValueString(),
+		EdaUsername:     data.EdaUsername.ValueString(),
+		EdaPassword:     data.EdaPassword.ValueString(),
+		TlsSkipVerify:   data.TlsSkipVerify.ValueBool(),
+		RestDebug:       data.RestDebug.ValueBool(),
+		RestRetries:     int(data.RestRetries.ValueInt64()),
 	}
-
-	config := apiclient.Config{}
-	err = utils.Convert(anyData, &config)
-	if err != nil {
-		resp.Diagnostics.AddError("Config data conversion error", err.Error())
-		return
+	restTimeout, err := time.ParseDuration(data.RestTimeout.ValueString())
+	if err == nil {
+		config.RestTimeout = restTimeout
+	}
+	restRetryInterval, err := time.ParseDuration(data.RestRetryInterval.ValueString())
+	if err == nil {
+		config.RestRetryInterval = restRetryInterval
 	}
 
 	validate(&resp.Diagnostics, &config)
@@ -259,10 +269,14 @@ func (p *coreProvider) DataSources(ctx context.Context) []func() datasource.Data
 		NewAuthProvidersDataSource,
 		NewAuthRoleDataSource,
 		NewAuthRolesDataSource,
+		NewAuthSessionsDataSource,
 		NewAuthUserDataSource,
 		NewAuthUserGroupDataSource,
 		NewAuthUserGroupsDataSource,
 		NewAuthUsersDataSource,
+		NewBranchDiffResponseDataSource,
+		NewBranchDiffSummaryDataSource,
+		NewBranchStatusResponseDataSource,
 		NewClusterAlarmDataSource,
 		NewClusterAlarmHistoryDataSource,
 		NewClusterAlarmsDataSource,
@@ -273,8 +287,10 @@ func (p *coreProvider) DataSources(ctx context.Context) []func() datasource.Data
 		NewDbGetResultDataSource,
 		NewDbGetSchemaDataSource,
 		NewEqlStreamResultDataSource,
+		NewGroupMemberUserIdsDataSource,
 		NewGroupRolesDataSource,
 		NewHealthDataSource,
+		NewMergeRequestDataSource,
 		NewNamespacesDataSource,
 		NewNodeConfigResponseDataSource,
 		NewNqlStreamResultDataSource,
@@ -295,9 +311,13 @@ func (p *coreProvider) DataSources(ctx context.Context) []func() datasource.Data
 		NewTopologyGroupingInstanceDataSource,
 		NewTopologyGroupingsListDataSource,
 		NewTransactionExecutionResultDataSource,
+		NewTransactionExecutionResultWithCountsDataSource,
 		NewTransactionNodeConfigDiffDataSource,
+		NewTransactionNodesResultDataSource,
 		NewTransactionResourceDiffDataSource,
+		NewTransactionResultChangedCrsDataSource,
 		NewTransactionResultInputResourcesDataSource,
+		NewTransactionResultIntentsRunDataSource,
 		NewTransactionStateDataSource,
 		NewTransactionSummaryResultDataSource,
 		NewTransactionSummaryResultsDataSource,
@@ -316,6 +336,7 @@ func (p *coreProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewAuthUserResource,
 		NewAuthUserGroupResource,
 		NewClusterAuthRoleResource,
+		NewMergeRequestResource,
 		NewTransactionResource,
 	}
 }

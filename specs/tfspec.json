@@ -1490,6 +1490,90 @@
             }
         },
         {
+            "name": "auth_sessions",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "auth_sessions",
+                        "set_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "clients",
+                                        "list_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {
+                                                "attributes": [
+                                                    {
+                                                        "name": "id",
+                                                        "string": {
+                                                            "computed_optional_required": "computed",
+                                                            "description": "The client ID."
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "name",
+                                                        "string": {
+                                                            "computed_optional_required": "computed",
+                                                            "description": "The client name."
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "description": "The client or clients through which the session was started."
+                                        }
+                                    },
+                                    {
+                                        "name": "id",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The unique identifier for the session."
+                                        }
+                                    },
+                                    {
+                                        "name": "ip_address",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The IP adddress from which the session was initiated."
+                                        }
+                                    },
+                                    {
+                                        "name": "last_access",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The last time that an access token was generated for the session."
+                                        }
+                                    },
+                                    {
+                                        "name": "start",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The time that the session was started."
+                                        }
+                                    },
+                                    {
+                                        "name": "user_id",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The unique identifier for the user."
+                                        }
+                                    },
+                                    {
+                                        "name": "username",
+                                        "string": {
+                                            "computed_optional_required": "computed",
+                                            "description": "The user name."
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
             "name": "auth_user",
             "schema": {
                 "attributes": [
@@ -1654,10 +1738,20 @@
                         }
                     },
                     {
+                        "name": "federation_ids",
+                        "list": {
+                            "computed_optional_required": "computed",
+                            "element_type": {
+                                "string": {}
+                            },
+                            "description": "when the group is federated, the LDAP federation component UUIDs associated with this group."
+                        }
+                    },
+                    {
                         "name": "is_federated",
                         "bool": {
                             "computed_optional_required": "computed",
-                            "description": "if true, indicates that the group was imported from a federated LDAP server"
+                            "description": "if true, indicates that the group was imported from a federated LDAP server."
                         }
                     },
                     {
@@ -1731,6 +1825,16 @@
                                         "name": "description",
                                         "string": {
                                             "computed_optional_required": "computed"
+                                        }
+                                    },
+                                    {
+                                        "name": "federation_ids",
+                                        "list": {
+                                            "computed_optional_required": "computed",
+                                            "element_type": {
+                                                "string": {}
+                                            },
+                                            "description": "when the group is federated, the LDAP federation component UUIDs associated with this group."
                                         }
                                     },
                                     {
@@ -2099,7 +2203,7 @@
                                         "name": "is_federated",
                                         "bool": {
                                             "computed_optional_required": "computed",
-                                            "description": "if true, indicates that the group was imported from a federated LDAP server"
+                                            "description": "if true, indicates that the group was imported from a federated LDAP server."
                                         }
                                     },
                                     {
@@ -2278,6 +2382,258 @@
                                     }
                                 ]
                             }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "branch_diff_response",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "hash",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "Branch head hash; response is only returned if this matches the current branch state."
+                        }
+                    },
+                    {
+                        "name": "group",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "Group for the resource diff."
+                        }
+                    },
+                    {
+                        "name": "version",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "Version for the resource diff."
+                        }
+                    },
+                    {
+                        "name": "kind",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "Kind for the resource diff."
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "Name for the resource diff."
+                        }
+                    },
+                    {
+                        "name": "namespace",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Namespace for the resource diff. Required if the resource is namespaced."
+                        }
+                    },
+                    {
+                        "name": "after",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "After is the YAML form of the CR's current state (empty string for deletes)."
+                        }
+                    },
+                    {
+                        "name": "before",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Before is the YAML form of the CR's prior state (empty string if there was no prior state)."
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "branch_diff_summary",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "gvk",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "When set, returns only a single category for that GVK. Must be valid JSON for GroupVersionKind (URL-encoded). Omit to return all categories."
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "int64": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Max names per category per page. Omit or 0: return all names (no pagination). Max 1000."
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "int64": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "When gvk is set with limit: offset into that category's names; omit for first page. Ignored when gvk is omitted."
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "string": {
+                            "computed_optional_required": "computed_optional",
+                            "description": "Filter names by case-insensitive substring match on name, namespace, or \"name (namespace)\" display."
+                        }
+                    },
+                    {
+                        "name": "branch_head_hash",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Git commit hash describing the current state of this branch (head of branch). Should be passed to subsequent diff requests for the current state."
+                        }
+                    },
+                    {
+                        "name": "changed_crs",
+                        "list_nested": {
+                            "computed_optional_required": "computed",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "gvk",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed",
+                                            "attributes": [
+                                                {
+                                                    "name": "group",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "Name of the API group"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "kind",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "The Kind of the resource"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "version",
+                                                    "string": {
+                                                        "computed_optional_required": "computed",
+                                                        "description": "Version of the API group"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "has_more",
+                                        "bool": {
+                                            "computed_optional_required": "computed",
+                                            "description": "When limit/search is used: true if more names exist for this category; use nextCursor with gvk to fetch the next page."
+                                        }
+                                    },
+                                    {
+                                        "name": "names",
+                                        "list_nested": {
+                                            "computed_optional_required": "computed",
+                                            "nested_object": {
+                                                "attributes": [
+                                                    {
+                                                        "name": "name",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "namespace",
+                                                        "string": {
+                                                            "computed_optional_required": "computed"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "next_cursor",
+                                        "int64": {
+                                            "computed_optional_required": "computed",
+                                            "description": "When limit/search is used: cursor for the next page for this category (send with gvk)."
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "Paginated list of changed CRs grouped by GVK."
+                        }
+                    },
+                    {
+                        "name": "changed_crs_count",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "Number of CRs that differ between this branch and production."
+                        }
+                    },
+                    {
+                        "name": "visible_crs_count",
+                        "int64": {
+                            "computed_optional_required": "computed",
+                            "description": "Number of changed CRs to which the user has access. Less than changedCrsCount when some are omitted due to permission."
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "branch_status_response",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "branch_name",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "The name of the branch that the EDA instance is running within.  This only has a value when\nmode is branch."
+                        }
+                    },
+                    {
+                        "name": "main_cluster",
+                        "single_nested": {
+                            "computed_optional_required": "computed",
+                            "attributes": [
+                                {
+                                    "name": "domain_name",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The external domain name of the main/production cluster"
+                                    }
+                                },
+                                {
+                                    "name": "https_port",
+                                    "int64": {
+                                        "computed_optional_required": "computed",
+                                        "description": "HTTPS port used to reach the main/production cluster externally"
+                                    }
+                                },
+                                {
+                                    "name": "ipv4_address",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The external IPv4 address of the main/production cluster"
+                                    }
+                                },
+                                {
+                                    "name": "ipv6_address",
+                                    "string": {
+                                        "computed_optional_required": "computed",
+                                        "description": "The external IPv6 address of the main/production cluster"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "mode",
+                        "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Indication of the mode of the EDA instance to which the request is made.\nIt is \"main\" if running in the main/production cluster, and \"branch\" if running in a branch cluster."
                         }
                     }
                 ]
@@ -3367,6 +3723,29 @@
             }
         },
         {
+            "name": "group_member_user_ids",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "uuid",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "The UUID of the EDA user group whose members should be listed."
+                        }
+                    },
+                    {
+                        "name": "group_member_user_ids",
+                        "set": {
+                            "computed_optional_required": "computed",
+                            "element_type": {
+                                "string": {}
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
             "name": "group_roles",
             "schema": {
                 "attributes": [
@@ -3544,6 +3923,491 @@
                         "string": {
                             "computed_optional_required": "computed",
                             "description": "Time that the health report was generated."
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "merge_request",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "merge_request_id",
+                        "int64": {
+                            "computed_optional_required": "required",
+                            "description": "ID of the merge request to get."
+                        }
+                    },
+                    {
+                        "name": "crs",
+                        "list_nested": {
+                            "computed_optional_required": "optional",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "prior",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed",
+                                            "attributes": [
+                                                {
+                                                    "name": "cr",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "computed",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "api_version",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "kind",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "metadata",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "computed",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "annotations",
+                                                                            "map": {
+                                                                                "computed_optional_required": "computed",
+                                                                                "element_type": {
+                                                                                    "string": {}
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "labels",
+                                                                            "map": {
+                                                                                "computed_optional_required": "computed",
+                                                                                "element_type": {
+                                                                                    "string": {}
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "name",
+                                                                            "string": {
+                                                                                "computed_optional_required": "computed"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "namespace",
+                                                                            "string": {
+                                                                                "computed_optional_required": "computed"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "spec",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional"
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "not_present",
+                                                    "bool": {
+                                                        "computed_optional_required": "computed"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "crs_type",
+                                        "single_nested": {
+                                            "computed_optional_required": "optional",
+                                            "attributes": [
+                                                {
+                                                    "name": "create",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "value",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "api_version",
+                                                                            "string": {
+                                                                                "computed_optional_required": "computed"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "kind",
+                                                                            "string": {
+                                                                                "computed_optional_required": "computed"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "metadata_1",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "computed",
+                                                                                "attributes": [
+                                                                                    {
+                                                                                        "name": "annotations",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "computed",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "labels",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "computed",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "name",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "computed"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "namespace",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "computed"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "spec_1",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "delete",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "gvk",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "group",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "description": "Name of the API group"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "kind",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "description": "The Kind of the resource"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "version",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "description": "Version of the API group"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "name",
+                                                                "string": {
+                                                                    "computed_optional_required": "optional"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "namespace",
+                                                                "string": {
+                                                                    "computed_optional_required": "optional"
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "modify",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "value_1",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "api_version",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "kind",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "metadata_2",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "attributes": [
+                                                                                    {
+                                                                                        "name": "annotations",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "labels",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "name",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "namespace",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "spec_2",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "patch",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "patch_ops",
+                                                                "list_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "nested_object": {
+                                                                        "attributes": [
+                                                                            {
+                                                                                "name": "from",
+                                                                                "string": {
+                                                                                    "computed_optional_required": "optional",
+                                                                                    "description": "Only applies to a \"move\" operation, and is the path to the field/value within\nthe target JSON object that should be moved to the location specified by the \"path\"\nfield."
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "name": "op",
+                                                                                "string": {
+                                                                                    "computed_optional_required": "optional",
+                                                                                    "description": "The type of operation this patch should perform."
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "name": "path",
+                                                                                "string": {
+                                                                                    "computed_optional_required": "optional",
+                                                                                    "description": "The path to the field within the target JSON object\nthat should be patched according to the \"op\" field."
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "name": "value_2",
+                                                                                "single_nested": {
+                                                                                    "computed_optional_required": "optional",
+                                                                                    "description": "This field would be set to the value which the user intends to put in the\nfield referenced by the \"path\" field.  The type of the value should match\nthe type of the field as indicated by the schema of the resource being\npatched."
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "name": "xpermissive",
+                                                                                "bool": {
+                                                                                    "computed_optional_required": "optional",
+                                                                                    "description": "For an \"add\" operation, an already-present field referenced by the \"path\" will\nresult in an error unless this field is true.  Similarly for a non-existent\ntarget field of a \"remove\" operation."
+                                                                                }
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "target",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "gvk_1",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "attributes": [
+                                                                                    {
+                                                                                        "name": "group",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "description": "Name of the API group"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "kind",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "description": "The Kind of the resource"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "version",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "description": "Version of the API group"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "name",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "namespace",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "replace",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "value_3",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "api_version",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "kind",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "metadata_3",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "attributes": [
+                                                                                    {
+                                                                                        "name": "annotations",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "labels",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "name",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "namespace",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "spec_3",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "List of CRs included in the merge request."
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "string": {
+                            "computed_optional_required": "optional",
+                            "description": "Description/commit message for the merge request."
                         }
                     }
                 ]
@@ -9227,6 +10091,16 @@
                         }
                     },
                     {
+                        "name": "federation_ids",
+                        "list": {
+                            "computed_optional_required": "computed_optional",
+                            "element_type": {
+                                "string": {}
+                            },
+                            "description": "when the group is federated, the LDAP federation component UUIDs associated with this group."
+                        }
+                    },
+                    {
                         "name": "fullusers",
                         "list_nested": {
                             "computed_optional_required": "computed_optional",
@@ -9708,7 +10582,7 @@
                         "name": "is_federated",
                         "bool": {
                             "computed_optional_required": "computed_optional",
-                            "description": "if true, indicates that the group was imported from a federated LDAP server"
+                            "description": "if true, indicates that the group was imported from a federated LDAP server."
                         }
                     },
                     {
@@ -9982,6 +10856,610 @@
                                 ]
                             },
                             "description": "Rules for access to APIServer routes."
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "merge_request",
+            "schema": {
+                "attributes": [
+                    {
+                        "name": "crs",
+                        "list_nested": {
+                            "computed_optional_required": "required",
+                            "nested_object": {
+                                "attributes": [
+                                    {
+                                        "name": "prior",
+                                        "single_nested": {
+                                            "computed_optional_required": "computed_optional",
+                                            "attributes": [
+                                                {
+                                                    "name": "cr",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "computed_optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "api_version",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed_optional"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "kind",
+                                                                "string": {
+                                                                    "computed_optional_required": "computed_optional"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "metadata",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "computed_optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "annotations",
+                                                                            "map": {
+                                                                                "computed_optional_required": "computed_optional",
+                                                                                "element_type": {
+                                                                                    "string": {}
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "labels",
+                                                                            "map": {
+                                                                                "computed_optional_required": "computed_optional",
+                                                                                "element_type": {
+                                                                                    "string": {}
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "name",
+                                                                            "string": {
+                                                                                "computed_optional_required": "required",
+                                                                                "validators": [
+                                                                                    {
+                                                                                        "custom": {
+                                                                                            "imports": [
+                                                                                                {
+                                                                                                    "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+                                                                                                }
+                                                                                            ],
+                                                                                            "schema_definition": "stringvalidator.LengthAtMost(253)"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "custom": {
+                                                                                            "imports": [
+                                                                                                {
+                                                                                                    "path": "regexp"
+                                                                                                },
+                                                                                                {
+                                                                                                    "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+                                                                                                }
+                                                                                            ],
+                                                                                            "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$\"), \"\")"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "namespace",
+                                                                            "string": {
+                                                                                "computed_optional_required": "computed_optional"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "spec",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional"
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "not_present",
+                                                    "bool": {
+                                                        "computed_optional_required": "computed_optional"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "crs_type",
+                                        "single_nested": {
+                                            "computed_optional_required": "optional",
+                                            "attributes": [
+                                                {
+                                                    "name": "create",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "value",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "api_version",
+                                                                            "string": {
+                                                                                "computed_optional_required": "computed_optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "kind",
+                                                                            "string": {
+                                                                                "computed_optional_required": "computed_optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "metadata_1",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "computed_optional",
+                                                                                "attributes": [
+                                                                                    {
+                                                                                        "name": "annotations",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "computed_optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "labels",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "computed_optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "name",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "required",
+                                                                                            "validators": [
+                                                                                                {
+                                                                                                    "custom": {
+                                                                                                        "imports": [
+                                                                                                            {
+                                                                                                                "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "schema_definition": "stringvalidator.LengthAtMost(253)"
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "custom": {
+                                                                                                        "imports": [
+                                                                                                            {
+                                                                                                                "path": "regexp"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$\"), \"\")"
+                                                                                                    }
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "namespace",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "computed_optional"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "spec_1",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "delete",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "gvk",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "group",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "description": "Name of the API group"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "kind",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "description": "The Kind of the resource"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "version",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "description": "Version of the API group"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "name",
+                                                                "string": {
+                                                                    "computed_optional_required": "optional"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "namespace",
+                                                                "string": {
+                                                                    "computed_optional_required": "optional"
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "modify",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "value_1",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "api_version",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "kind",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "metadata_2",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "attributes": [
+                                                                                    {
+                                                                                        "name": "annotations",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "labels",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "name",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "required",
+                                                                                            "validators": [
+                                                                                                {
+                                                                                                    "custom": {
+                                                                                                        "imports": [
+                                                                                                            {
+                                                                                                                "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "schema_definition": "stringvalidator.LengthAtMost(253)"
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "custom": {
+                                                                                                        "imports": [
+                                                                                                            {
+                                                                                                                "path": "regexp"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$\"), \"\")"
+                                                                                                    }
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "namespace",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "spec_2",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "patch",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "patch_ops",
+                                                                "list_nested": {
+                                                                    "computed_optional_required": "required",
+                                                                    "nested_object": {
+                                                                        "attributes": [
+                                                                            {
+                                                                                "name": "from",
+                                                                                "string": {
+                                                                                    "computed_optional_required": "optional",
+                                                                                    "description": "Only applies to a \"move\" operation, and is the path to the field/value within\nthe target JSON object that should be moved to the location specified by the \"path\"\nfield."
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "name": "op",
+                                                                                "string": {
+                                                                                    "computed_optional_required": "required",
+                                                                                    "description": "The type of operation this patch should perform.",
+                                                                                    "validators": [
+                                                                                        {
+                                                                                            "custom": {
+                                                                                                "imports": [
+                                                                                                    {
+                                                                                                        "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+                                                                                                    }
+                                                                                                ],
+                                                                                                "schema_definition": "stringvalidator.OneOf(\n\"add\",\n\"remove\",\n\"replace\",\n\"move\",\n\"copy\",\n\"test\",\n)"
+                                                                                            }
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "name": "path",
+                                                                                "string": {
+                                                                                    "computed_optional_required": "required",
+                                                                                    "description": "The path to the field within the target JSON object\nthat should be patched according to the \"op\" field."
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "name": "value_2",
+                                                                                "single_nested": {
+                                                                                    "computed_optional_required": "optional",
+                                                                                    "description": "This field would be set to the value which the user intends to put in the\nfield referenced by the \"path\" field.  The type of the value should match\nthe type of the field as indicated by the schema of the resource being\npatched."
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "name": "xpermissive",
+                                                                                "bool": {
+                                                                                    "computed_optional_required": "optional",
+                                                                                    "description": "For an \"add\" operation, an already-present field referenced by the \"path\" will\nresult in an error unless this field is true.  Similarly for a non-existent\ntarget field of a \"remove\" operation."
+                                                                                }
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "target",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "required",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "gvk_1",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "attributes": [
+                                                                                    {
+                                                                                        "name": "group",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "description": "Name of the API group"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "kind",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "description": "The Kind of the resource"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "version",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "description": "Version of the API group"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "name",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "namespace",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "replace",
+                                                    "single_nested": {
+                                                        "computed_optional_required": "optional",
+                                                        "attributes": [
+                                                            {
+                                                                "name": "value_3",
+                                                                "single_nested": {
+                                                                    "computed_optional_required": "optional",
+                                                                    "attributes": [
+                                                                        {
+                                                                            "name": "api_version",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "kind",
+                                                                            "string": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "metadata_3",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional",
+                                                                                "attributes": [
+                                                                                    {
+                                                                                        "name": "annotations",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "labels",
+                                                                                        "map": {
+                                                                                            "computed_optional_required": "optional",
+                                                                                            "element_type": {
+                                                                                                "string": {}
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "name",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "required",
+                                                                                            "validators": [
+                                                                                                {
+                                                                                                    "custom": {
+                                                                                                        "imports": [
+                                                                                                            {
+                                                                                                                "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "schema_definition": "stringvalidator.LengthAtMost(253)"
+                                                                                                    }
+                                                                                                },
+                                                                                                {
+                                                                                                    "custom": {
+                                                                                                        "imports": [
+                                                                                                            {
+                                                                                                                "path": "regexp"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "path": "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "schema_definition": "stringvalidator.RegexMatches(regexp.MustCompile(\"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$\"), \"\")"
+                                                                                                    }
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "name": "namespace",
+                                                                                        "string": {
+                                                                                            "computed_optional_required": "optional"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "name": "spec_3",
+                                                                            "single_nested": {
+                                                                                "computed_optional_required": "optional"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "List of CRs included in the merge request."
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "string": {
+                            "computed_optional_required": "required",
+                            "description": "Description/commit message for the merge request."
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "int64": {
+                            "computed_optional_required": "optional",
+                            "description": "Unique identifier for the merge request."
+                        }
+                    },
+                    {
+                        "name": "merge_request_id",
+                        "int64": {
+                            "computed_optional_required": "optional",
+                            "description": "ID of the merge request to get."
                         }
                     }
                 ]

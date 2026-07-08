@@ -26,6 +26,13 @@ func AuthUserGroupResourceSchema(ctx context.Context) schema.Schema {
 				Optional: true,
 				Computed: true,
 			},
+			"federation_ids": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				Description:         "when the group is federated, the LDAP federation component UUIDs associated with this group.",
+				MarkdownDescription: "when the group is federated, the LDAP federation component UUIDs associated with this group.",
+			},
 			"full_roles": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -378,8 +385,8 @@ func AuthUserGroupResourceSchema(ctx context.Context) schema.Schema {
 			"is_federated": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "if true, indicates that the group was imported from a federated LDAP server",
-				MarkdownDescription: "if true, indicates that the group was imported from a federated LDAP server",
+				Description:         "if true, indicates that the group was imported from a federated LDAP server.",
+				MarkdownDescription: "if true, indicates that the group was imported from a federated LDAP server.",
 			},
 			"name": schema.StringAttribute{
 				Optional: true,
@@ -410,16 +417,17 @@ func AuthUserGroupResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type AuthUserGroupModel struct {
-	Description types.String `tfsdk:"description"`
-	FullRoles   types.List   `tfsdk:"full_roles"`
-	FullUsers   types.List   `tfsdk:"full_users"`
-	Fullroles   types.Bool   `tfsdk:"fullroles"`
-	Fullusers   types.List   `tfsdk:"fullusers"`
-	IsFederated types.Bool   `tfsdk:"is_federated"`
-	Name        types.String `tfsdk:"name"`
-	Roles       types.List   `tfsdk:"roles"`
-	Users       types.List   `tfsdk:"users"`
-	Uuid        types.String `tfsdk:"uuid"`
+	Description   types.String `tfsdk:"description"`
+	FederationIds types.List   `tfsdk:"federation_ids"`
+	FullRoles     types.List   `tfsdk:"full_roles"`
+	FullUsers     types.List   `tfsdk:"full_users"`
+	Fullroles     types.Bool   `tfsdk:"fullroles"`
+	Fullusers     types.List   `tfsdk:"fullusers"`
+	IsFederated   types.Bool   `tfsdk:"is_federated"`
+	Name          types.String `tfsdk:"name"`
+	Roles         types.List   `tfsdk:"roles"`
+	Users         types.List   `tfsdk:"users"`
+	Uuid          types.String `tfsdk:"uuid"`
 }
 
 var _ basetypes.ObjectTypable = FullRolesType{}
