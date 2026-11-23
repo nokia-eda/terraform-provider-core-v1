@@ -3,6 +3,7 @@ package rest
 import (
 	"crypto/tls"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -47,9 +48,34 @@ func (c *ApiClient) WithRetryInterval(retryInterval time.Duration) *ApiClient {
 	return c
 }
 
+// WithDebug toggles resty debug logging. Request and response bodies carry
+// credentials (login forms, password reset values, access tokens), so they
+// are always redacted from the debug output, as are credential headers.
 func (c *ApiClient) WithDebug(debug bool) *ApiClient {
 	c.restClient.SetDebug(debug)
+	if debug {
+		c.restClient.OnRequestLog(func(l *resty.RequestLog) error {
+			l.Body = redactedBody
+			redactHeaders(l.Header)
+			return nil
+		})
+		c.restClient.OnResponseLog(func(l *resty.ResponseLog) error {
+			l.Body = redactedBody
+			redactHeaders(l.Header)
+			return nil
+		})
+	}
 	return c
+}
+
+const redactedBody = "<redacted>"
+
+func redactHeaders(h http.Header) {
+	for _, k := range []string{"Authorization", "Cookie", "Set-Cookie"} {
+		if h.Get(k) != "" {
+			h.Set(k, "<redacted>")
+		}
+	}
 }
 
 func (c *ApiClient) WithTlsConfig(tlsConfig *tls.Config) *ApiClient {

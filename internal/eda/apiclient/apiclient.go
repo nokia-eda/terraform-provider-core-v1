@@ -289,7 +289,24 @@ func (c *EdaApiClient) Execute(ctx context.Context, pathUrl, method string,
 		"timeTaken": resp.Time().String(),
 	})
 	if resp.IsError() {
-		return fmt.Errorf("%s %s", resp.Status(), resp.String())
+		return &APIError{StatusCode: resp.StatusCode(), Status: resp.Status(), Body: resp.String()}
 	}
 	return nil
+}
+
+// APIError is returned for any HTTP error response from the EDA API.
+type APIError struct {
+	StatusCode int
+	Status     string
+	Body       string
+}
+
+func (e *APIError) Error() string {
+	return fmt.Sprintf("%s %s", e.Status, e.Body)
+}
+
+// IsNotFound reports whether err is an EDA API 404 response.
+func IsNotFound(err error) bool {
+	var apiErr *APIError
+	return errors.As(err, &apiErr) && apiErr.StatusCode == 404
 }
